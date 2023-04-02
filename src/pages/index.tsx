@@ -4,13 +4,12 @@ import {
   Button,
   Display,
   Text,
-  Divider,
   Page,
   Input,
-  Textarea,
   Badge,
+  Fieldset,
 } from "@geist-ui/core";
-import { List } from "@prisma/client";
+import { type List } from "@prisma/client";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
@@ -20,18 +19,33 @@ import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const user = useUser();
-  const { data } = api.lists.getAll.useQuery({ userId: user.user?.id ?? "" });
-  const { mutate } = api.lists.create.useMutation({
-    onSuccess: () => {
-      void api.useContext().lists.getAll.invalidate();
-    },
-  });
+  const ctx = api.useContext();
   const [input, setInput] = useState("");
-  const handleAdd = (e: any) => {
-    mutate({
+  const { data } = api.lists.getAll.useQuery({ userId: user.user?.id ?? "" });
+  const { mutate: createList, isLoading: addLoading } =
+    api.lists.create.useMutation({
+      onSuccess: () => {
+        console.log("success created");
+        void ctx.lists.getAll.invalidate();
+      },
+    });
+  const { mutate: deleteList, isLoading: deleteLoading } =
+    api.lists.delete.useMutation({
+      onSuccess: () => {
+        void ctx.lists.getAll.invalidate();
+      },
+    });
+
+  const handleAdd = () => {
+    createList({
       name: input,
       userId: user.user?.id ?? "",
       status: "added",
+    });
+  };
+  const handleDelete = (id: string) => {
+    deleteList({
+      id,
     });
   };
   return (
@@ -73,22 +87,53 @@ const Home: NextPage = () => {
                     onChange={(event) => {
                       setInput(event.target.value);
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (input !== "") {
+                          createList({
+                            name: input,
+                            userId: user.user?.id ?? "",
+                            status: "added",
+                          });
+                          setTimeout(() => setInput(""), 300);
+                        }
+                      }
+                    }}
+                    value={input}
                   />
-                  <Button auto scale={0.8} onClick={handleAdd}>
+                  <Button
+                    auto
+                    scale={0.8}
+                    onClick={handleAdd}
+                    loading={addLoading}
+                  >
                     Add
                   </Button>
                 </div>
                 {data &&
                   data.length > 0 &&
                   data.map((list: List) => (
-                    <Card key={list.id}>
-                      <div className="flex justify-between">
-                        <div>{list.name}</div>
+                    <Fieldset key={list.id}>
+                      <Fieldset.Title>{list.name}</Fieldset.Title>
+                      <Fieldset.Footer>
                         <Badge type="success">
-                          {list.createdAt.toLocaleDateString()}
+                          {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
                         </Badge>
-                      </div>
-                    </Card>
+                        <Button
+                          type="error"
+                          auto
+                          scale={1 / 3}
+                          font="12px"
+                          onClick={() => {
+                            handleDelete(list.id);
+                          }}
+                          loading={deleteLoading}
+                        >
+                          Delete
+                        </Button>
+                      </Fieldset.Footer>
+                    </Fieldset>
                   ))}
               </div>
             </Page.Content>

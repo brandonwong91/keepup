@@ -21,7 +21,7 @@ export const listRouter = createTRPCRouter({
           userId: input?.userId,
         },
         orderBy: {
-          createdAt: "asc",
+          createdAt: "desc",
         },
       });
     }),
@@ -34,13 +34,25 @@ export const listRouter = createTRPCRouter({
       })
     )
     .mutation(({ ctx, input }) => {
-      const list = ctx.prisma.list.create({
+      return ctx.prisma.list.create({
         data: {
           userId: input.userId,
           name: input.name,
           status: input.status,
         },
       });
-      return list;
+    }),
+  delete: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.list.delete({
+        where: {
+          id: input.id,
+        },
+      });
     }),
 });
