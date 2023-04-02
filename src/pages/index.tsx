@@ -10,10 +10,10 @@ import {
   Fieldset,
 } from "@geist-ui/core";
 import { type List } from "@prisma/client";
+import clsx from "clsx";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
-// import Link from "next/link";
 
 import { api } from "~/utils/api";
 
@@ -21,12 +21,22 @@ const Home: NextPage = () => {
   const user = useUser();
   const ctx = api.useContext();
   const [input, setInput] = useState("");
-  const { data } = api.lists.getAll.useQuery({ userId: user.user?.id ?? "" });
+  const [selected, setSelected] = useState<string>("");
+  const { data, isLoading: listLoading } = api.lists.getAll.useQuery({
+    userId: user.user?.id ?? "",
+  });
   const { mutate: createList, isLoading: addLoading } =
     api.lists.create.useMutation({
       onSuccess: () => {
-        console.log("success created");
         void ctx.lists.getAll.invalidate();
+      },
+    });
+  const { mutate: updateList, isLoading: updateLoading } =
+    api.lists.update.useMutation({
+      onSuccess: () => {
+        void ctx.lists.getAll.invalidate();
+        setInput("");
+        setSelected("");
       },
     });
   const { mutate: deleteList, isLoading: deleteLoading } =
@@ -39,8 +49,12 @@ const Home: NextPage = () => {
   const handleAdd = () => {
     createList({
       name: input,
-      userId: user.user?.id ?? "",
-      status: "added",
+    });
+  };
+  const handleEdit = (id: string) => {
+    updateList({
+      id,
+      name: input,
     });
   };
   const handleDelete = (id: string) => {
@@ -91,11 +105,15 @@ const Home: NextPage = () => {
                       if (e.key === "Enter") {
                         e.preventDefault();
                         if (input !== "") {
-                          createList({
-                            name: input,
-                            userId: user.user?.id ?? "",
-                            status: "added",
-                          });
+                          if (selected) {
+                            updateList({
+                              id: selected,
+                              name: input,
+                            });
+                          } else
+                            createList({
+                              name: input,
+                            });
                           setTimeout(() => setInput(""), 300);
                         }
                       }
@@ -105,35 +123,69 @@ const Home: NextPage = () => {
                   <Button
                     auto
                     scale={0.8}
-                    onClick={handleAdd}
-                    loading={addLoading}
+                    onClick={() => {
+                      if (selected) {
+                        handleEdit(selected);
+                      } else {
+                        handleAdd();
+                      }
+                    }}
+                    loading={addLoading || updateLoading}
                   >
-                    Add
+                    {selected ? "Update" : "Add"}
                   </Button>
                 </div>
+                {listLoading && (
+                  <Card>
+                    <div className="grid gap-y-2">
+                      <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
+                      <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
+                      <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
+                    </div>
+                  </Card>
+                )}
                 {data &&
                   data.length > 0 &&
                   data.map((list: List) => (
-                    <Fieldset key={list.id}>
-                      <Fieldset.Title>{list.name}</Fieldset.Title>
-                      <Fieldset.Footer>
-                        <Badge type="success">
-                          {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
-                        </Badge>
-                        <Button
-                          type="error"
-                          auto
-                          scale={1 / 3}
-                          font="12px"
+                    <div
+                      key={list.id}
+                      className={clsx({
+                        "rounded-xl border-[2px] border-lime-300":
+                          list.id === selected,
+                      })}
+                    >
+                      <Fieldset>
+                        <Fieldset.Title
+                          className="cursor-pointer"
                           onClick={() => {
-                            handleDelete(list.id);
+                            setInput(list.name);
+                            if (selected === list.id) {
+                              setSelected("");
+                              setInput("");
+                            } else setSelected(list.id);
                           }}
-                          loading={deleteLoading}
                         >
-                          Delete
-                        </Button>
-                      </Fieldset.Footer>
-                    </Fieldset>
+                          {list.name}
+                        </Fieldset.Title>
+                        <Fieldset.Footer>
+                          <Badge type="success">
+                            {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
+                          </Badge>
+                          <Button
+                            type="error"
+                            auto
+                            scale={1 / 3}
+                            font="12px"
+                            onClick={() => {
+                              handleDelete(list.id);
+                            }}
+                            loading={deleteLoading}
+                          >
+                            Delete
+                          </Button>
+                        </Fieldset.Footer>
+                      </Fieldset>
+                    </div>
                   ))}
               </div>
             </Page.Content>
