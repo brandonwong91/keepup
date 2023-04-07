@@ -1,4 +1,4 @@
-import { Button, Card, Input, Spinner } from "@geist-ui/core";
+import { Button, Card } from "@geist-ui/core";
 import React, { useState } from "react";
 import { List, Plus, X } from "@geist-ui/icons";
 
@@ -49,14 +49,16 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
               }}
               value={input.name}
             />
-            {!showTitle && <List />}
+            {!showTitle && (
+              <div className="text-gray-400">
+                <List />
+              </div>
+            )}
           </div>
           {showTitle && (
             <div>
-              <div className="flex cursor-pointer justify-between pt-2 text-gray-500">
-                <div className="">
-                  <List />
-                </div>
+              <div className="flex cursor-pointer justify-between pt-2 text-gray-400">
+                <List />
                 <div className="flex">
                   {addLoading && (
                     <Button

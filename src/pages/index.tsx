@@ -5,43 +5,46 @@ import {
   Display,
   Text,
   Page,
-  Input,
   Badge,
   Fieldset,
+  Loading,
 } from "@geist-ui/core";
-import { Github } from "@geist-ui/icons";
 import { type List } from "@prisma/client";
-import clsx from "clsx";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
+import EditListModal from "~/components/EditListModal";
 import InputForm from "~/components/InputForm";
 
 import { api } from "~/utils/api";
 
+export interface ListDataUpdateInput {
+  name: string;
+  title?: string;
+}
+
 const Home: NextPage = () => {
   const user = useUser();
   const ctx = api.useContext();
-  const [input, setInput] = useState("");
-  const [selected, setSelected] = useState<string>("");
+  const [listData, setListData] = useState<List>();
+  const [showModal, setShowModal] = useState(false);
+  const closeModalHandler = () => {
+    setShowModal(false);
+  };
   const { data, isLoading: listLoading } = api.lists.getAll.useQuery({
     userId: user.user?.id ?? "",
   });
-  const {
-    mutate: createList,
-    isLoading: addLoading,
-    isSuccess,
-  } = api.lists.create.useMutation({
-    onSuccess: () => {
-      void ctx.lists.getAll.invalidate();
-    },
-  });
+  const { mutate: createList, isLoading: addLoading } =
+    api.lists.create.useMutation({
+      onSuccess: () => {
+        void ctx.lists.getAll.invalidate();
+      },
+    });
   const { mutate: updateList, isLoading: updateLoading } =
     api.lists.update.useMutation({
       onSuccess: () => {
         void ctx.lists.getAll.invalidate();
-        setInput("");
-        setSelected("");
+        setShowModal(false);
       },
     });
   const { mutate: deleteList, isLoading: deleteLoading } =
@@ -51,23 +54,22 @@ const Home: NextPage = () => {
       },
     });
 
-  const handleAdd = () => {
-    createList({
-      name: input,
-    });
-  };
   const handleAddList = (name: string, title: string) => {
     createList({
       name,
       title,
     });
   };
-  const handleEdit = (id: string) => {
-    updateList({
-      id,
-      name: input,
-    });
+
+  const handleEdit = (listDataInput: ListDataUpdateInput) => {
+    if (listData)
+      updateList({
+        id: listData.id,
+        name: listDataInput.name,
+        title: listDataInput?.title,
+      });
   };
+
   const handleDelete = (id: string) => {
     deleteList({
       id,
@@ -110,45 +112,6 @@ const Home: NextPage = () => {
                     onEnterKeyDown={handleAddList}
                     addLoading={addLoading}
                   />
-                  {/* <Input
-                    label="Note name"
-                    clearable
-                    onChange={(event) => {
-                      setInput(event.target.value);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        if (input !== "") {
-                          if (selected) {
-                            updateList({
-                              id: selected,
-                              name: input,
-                            });
-                          } else
-                            createList({
-                              name: input,
-                            });
-                          setTimeout(() => setInput(""), 300);
-                        }
-                      }
-                    }}
-                    value={input}
-                  />
-                  <Button
-                    auto
-                    scale={0.8}
-                    onClick={() => {
-                      if (selected) {
-                        handleEdit(selected);
-                      } else {
-                        handleAdd();
-                      }
-                    }}
-                    loading={addLoading || updateLoading}
-                  >
-                    {selected ? "Update" : "Add"}
-                  </Button> */}
                 </div>
                 {listLoading && (
                   <Card>
@@ -162,65 +125,60 @@ const Home: NextPage = () => {
                 {data &&
                   data.length > 0 &&
                   data.map((list: List) => (
-                    <div
-                      key={list.id}
-                      className={clsx({
-                        "rounded-xl border-[2px] border-lime-300":
-                          list.id === selected,
-                      })}
-                    >
-                      <Fieldset>
-                        {list.title ? (
-                          <div>
-                            <Fieldset.Title
-                              className="cursor-pointer"
-                              onClick={() => {
-                                setInput(list.name);
-                                if (selected === list.id) {
-                                  setSelected("");
-                                  setInput("");
-                                } else setSelected(list.id);
-                              }}
-                            >
-                              {list.title}
-                            </Fieldset.Title>
-                            <Fieldset.Subtitle>{list.name}</Fieldset.Subtitle>
+                    <div key={list.id}>
+                      {listData?.id === list.id && showModal ? (
+                        <Fieldset>
+                          <Loading />
+                        </Fieldset>
+                      ) : (
+                        <Fieldset>
+                          <div
+                            onClick={() => {
+                              setShowModal(true);
+                              setListData(list);
+                            }}
+                          >
+                            {list.title ? (
+                              <div>
+                                <Fieldset.Title>{list.title}</Fieldset.Title>
+                                <Fieldset.Subtitle>
+                                  {list.name}
+                                </Fieldset.Subtitle>
+                              </div>
+                            ) : (
+                              <Fieldset.Title>{list.name}</Fieldset.Title>
+                            )}
                           </div>
-                        ) : (
-                          <Fieldset.Title
-                            className="cursor-pointer"
-                            onClick={() => {
-                              setInput(list.name);
-                              if (selected === list.id) {
-                                setSelected("");
-                                setInput("");
-                              } else setSelected(list.id);
-                            }}
-                          >
-                            {list.name}
-                          </Fieldset.Title>
-                        )}
-                        <Fieldset.Footer>
-                          <Badge type="success" scale={1 / 2}>
-                            {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
-                          </Badge>
-                          <Button
-                            type="error"
-                            auto
-                            scale={1 / 3}
-                            font="12px"
-                            onClick={() => {
-                              handleDelete(list.id);
-                            }}
-                            loading={deleteLoading}
-                          >
-                            Delete
-                          </Button>
-                        </Fieldset.Footer>
-                      </Fieldset>
+                          <Fieldset.Footer>
+                            <Badge type="success" scale={1 / 2}>
+                              {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
+                            </Badge>
+                            <Button
+                              type="error"
+                              auto
+                              scale={1 / 3}
+                              font="12px"
+                              onClick={() => {
+                                setShowModal(false);
+                                handleDelete(list.id);
+                              }}
+                              loading={deleteLoading}
+                            >
+                              Delete
+                            </Button>
+                          </Fieldset.Footer>
+                        </Fieldset>
+                      )}
                     </div>
                   ))}
               </div>
+              <EditListModal
+                showModal={showModal}
+                closeHandler={closeModalHandler}
+                listData={listData}
+                updateHandler={handleEdit}
+                updateLoading={updateLoading}
+              />
             </Page.Content>
           </Page>
         )}
