@@ -34,6 +34,7 @@ export const listRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
+        title: z.string().nullish(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -41,6 +42,7 @@ export const listRouter = createTRPCRouter({
         data: {
           userId: ctx.userId,
           name: input.name,
+          ...(input.title ? { title: input.title } : undefined),
           status: "none",
         },
       });

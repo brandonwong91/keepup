@@ -9,11 +9,13 @@ import {
   Badge,
   Fieldset,
 } from "@geist-ui/core";
+import { Github } from "@geist-ui/icons";
 import { type List } from "@prisma/client";
 import clsx from "clsx";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
+import InputForm from "~/components/InputForm";
 
 import { api } from "~/utils/api";
 
@@ -25,12 +27,15 @@ const Home: NextPage = () => {
   const { data, isLoading: listLoading } = api.lists.getAll.useQuery({
     userId: user.user?.id ?? "",
   });
-  const { mutate: createList, isLoading: addLoading } =
-    api.lists.create.useMutation({
-      onSuccess: () => {
-        void ctx.lists.getAll.invalidate();
-      },
-    });
+  const {
+    mutate: createList,
+    isLoading: addLoading,
+    isSuccess,
+  } = api.lists.create.useMutation({
+    onSuccess: () => {
+      void ctx.lists.getAll.invalidate();
+    },
+  });
   const { mutate: updateList, isLoading: updateLoading } =
     api.lists.update.useMutation({
       onSuccess: () => {
@@ -49,6 +54,12 @@ const Home: NextPage = () => {
   const handleAdd = () => {
     createList({
       name: input,
+    });
+  };
+  const handleAddList = (name: string, title: string) => {
+    createList({
+      name,
+      title,
     });
   };
   const handleEdit = (id: string) => {
@@ -94,8 +105,12 @@ const Home: NextPage = () => {
             </Page.Header>
             <Page.Content>
               <div className="grid gap-4">
-                <div className="flex gap-x-1">
-                  <Input
+                <div className="flex place-content-center gap-x-1">
+                  <InputForm
+                    onEnterKeyDown={handleAddList}
+                    addLoading={addLoading}
+                  />
+                  {/* <Input
                     label="Note name"
                     clearable
                     onChange={(event) => {
@@ -133,7 +148,7 @@ const Home: NextPage = () => {
                     loading={addLoading || updateLoading}
                   >
                     {selected ? "Update" : "Add"}
-                  </Button>
+                  </Button> */}
                 </div>
                 {listLoading && (
                   <Card>
@@ -155,20 +170,38 @@ const Home: NextPage = () => {
                       })}
                     >
                       <Fieldset>
-                        <Fieldset.Title
-                          className="cursor-pointer"
-                          onClick={() => {
-                            setInput(list.name);
-                            if (selected === list.id) {
-                              setSelected("");
-                              setInput("");
-                            } else setSelected(list.id);
-                          }}
-                        >
-                          {list.name}
-                        </Fieldset.Title>
+                        {list.title ? (
+                          <div>
+                            <Fieldset.Title
+                              className="cursor-pointer"
+                              onClick={() => {
+                                setInput(list.name);
+                                if (selected === list.id) {
+                                  setSelected("");
+                                  setInput("");
+                                } else setSelected(list.id);
+                              }}
+                            >
+                              {list.title}
+                            </Fieldset.Title>
+                            <Fieldset.Subtitle>{list.name}</Fieldset.Subtitle>
+                          </div>
+                        ) : (
+                          <Fieldset.Title
+                            className="cursor-pointer"
+                            onClick={() => {
+                              setInput(list.name);
+                              if (selected === list.id) {
+                                setSelected("");
+                                setInput("");
+                              } else setSelected(list.id);
+                            }}
+                          >
+                            {list.name}
+                          </Fieldset.Title>
+                        )}
                         <Fieldset.Footer>
-                          <Badge type="success">
+                          <Badge type="success" scale={1 / 2}>
                             {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
                           </Badge>
                           <Button
