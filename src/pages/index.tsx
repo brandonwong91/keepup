@@ -98,9 +98,9 @@ const Home: NextPage = () => {
                 <Card>
                   <div className="flex justify-between">
                     <div className="self-center text-xl">{`Hi there, ${user.user.firstName}`}</div>
-                    <Button type="secondary" auto>
+                    <div className="rounded-md border border-black bg-slate-800 p-1 text-sm text-slate-300 hover:border-black hover:bg-white hover:text-slate-800">
                       <SignOutButton />
-                    </Button>
+                    </div>
                   </div>
                 </Card>
               </div>
