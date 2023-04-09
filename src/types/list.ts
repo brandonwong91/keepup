@@ -3,6 +3,7 @@ import { type Item } from "@prisma/client";
 export interface ListItemType {
   id: string;
   name: string;
+  [key: string]: any;
 }
 
 export interface ItemType {
@@ -14,6 +15,7 @@ export interface ListDataUpdateInput {
   name: string;
   title?: string;
   items: ItemType[];
+  [key: string]: any;
 }
 
 export type List = {

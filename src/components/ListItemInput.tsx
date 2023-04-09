@@ -25,6 +25,7 @@ const ListItemInput = ({
     listItemData ?? []
   );
   const [currentValue, setCurrentValue] = useState("");
+
   const handleRemoveListItem = (id: string) =>
     setInputArray((prev) => prev.filter((item) => item.id !== id));
   const handleChangeListItem = (
@@ -33,7 +34,11 @@ const ListItemInput = ({
   ) => {
     const { name, value } = event.target;
     const updatedInputArray = [...inputArray];
-    updatedInputArray.find((input) => input.id === index)[name] = value;
+    const foundInput = updatedInputArray.find((input) => input.id === index);
+    if (foundInput) {
+      foundInput[name] = value;
+      setInputArray(updatedInputArray);
+    }
     setInputArray(updatedInputArray);
   };
   const resetForm = () => {

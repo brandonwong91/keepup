@@ -39,16 +39,24 @@ const EditListModal = ({
     }
   }, [listData]);
   const handleInputChange = (key: string, value: string) => {
-    setInput((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }));
+    if (input)
+      setInput(
+        (prevState) =>
+          ({
+            ...prevState,
+            [key]: value,
+          } as ListDataUpdateInput)
+      );
   };
   useEffect(() => {
-    setInput((prev) => ({
-      ...prev,
-      items: listItemData,
-    }));
+    if (listItemData)
+      setInput(
+        (prev) =>
+          ({
+            ...prev,
+            items: listItemData,
+          } as ListDataUpdateInput)
+      );
   }, [listItemData]);
   return (
     <Modal visible={showModal} onClose={closeHandler}>
