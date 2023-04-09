@@ -1,27 +1,18 @@
 import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
-import {
-  Card,
-  Button,
-  Display,
-  Text,
-  Page,
-  Badge,
-  Fieldset,
-  Loading,
-} from "@geist-ui/core";
-import { type List } from "@prisma/client";
+import { Card, Display, Text, Page } from "@geist-ui/core";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
+import DisplayCard from "~/components/DisplayCard";
 import EditListModal from "~/components/EditListModal";
 import InputForm from "~/components/InputForm";
+import {
+  type ListDataUpdateInput,
+  type ItemType,
+  type List,
+} from "~/types/list";
 
 import { api } from "~/utils/api";
-
-export interface ListDataUpdateInput {
-  name: string;
-  title?: string;
-}
 
 const Home: NextPage = () => {
   const user = useUser();
@@ -53,11 +44,17 @@ const Home: NextPage = () => {
         void ctx.lists.getAll.invalidate();
       },
     });
+  const { mutate: deleteItem } = api.items.delete.useMutation({
+    onSuccess: () => {
+      void ctx.lists.getAll.invalidate();
+    },
+  });
 
-  const handleAddList = (name: string, title: string) => {
+  const handleAddList = (name: string, title: string, items: ItemType[]) => {
     createList({
       name,
       title,
+      items,
     });
   };
 
@@ -67,6 +64,7 @@ const Home: NextPage = () => {
         id: listData.id,
         name: listDataInput.name,
         title: listDataInput?.title,
+        items: listDataInput.items,
       });
   };
 
@@ -75,6 +73,13 @@ const Home: NextPage = () => {
       id,
     });
   };
+
+  const handleDeleteItem = (id: string) => {
+    deleteItem({
+      id,
+    });
+  };
+
   return (
     <>
       <Head>
@@ -122,55 +127,15 @@ const Home: NextPage = () => {
                     </div>
                   </Card>
                 )}
-                {data &&
-                  data.length > 0 &&
-                  data.map((list: List) => (
-                    <div key={list.id}>
-                      {listData?.id === list.id && showModal ? (
-                        <Fieldset>
-                          <Loading />
-                        </Fieldset>
-                      ) : (
-                        <Fieldset>
-                          <div
-                            onClick={() => {
-                              setShowModal(true);
-                              setListData(list);
-                            }}
-                          >
-                            {list.title ? (
-                              <div>
-                                <Fieldset.Title>{list.title}</Fieldset.Title>
-                                <Fieldset.Subtitle>
-                                  {list.name}
-                                </Fieldset.Subtitle>
-                              </div>
-                            ) : (
-                              <Fieldset.Title>{list.name}</Fieldset.Title>
-                            )}
-                          </div>
-                          <Fieldset.Footer>
-                            <Badge type="success" scale={1 / 2}>
-                              {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
-                            </Badge>
-                            <Button
-                              type="error"
-                              auto
-                              scale={1 / 3}
-                              font="12px"
-                              onClick={() => {
-                                setShowModal(false);
-                                handleDelete(list.id);
-                              }}
-                              loading={deleteLoading}
-                            >
-                              Delete
-                            </Button>
-                          </Fieldset.Footer>
-                        </Fieldset>
-                      )}
-                    </div>
-                  ))}
+                <DisplayCard
+                  data={data}
+                  listData={listData}
+                  setListData={setListData}
+                  showModal={showModal}
+                  setShowModal={setShowModal}
+                  handleDelete={handleDelete}
+                  deleteLoading={deleteLoading}
+                />
               </div>
               <EditListModal
                 showModal={showModal}
@@ -178,6 +143,7 @@ const Home: NextPage = () => {
                 listData={listData}
                 updateHandler={handleEdit}
                 updateLoading={updateLoading}
+                deleteItemHandler={handleDeleteItem}
               />
             </Page.Content>
           </Page>

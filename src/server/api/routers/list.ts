@@ -1,3 +1,4 @@
+import ObjectID from "bson-objectid";
 import { z } from "zod";
 
 import {
@@ -28,6 +29,9 @@ export const listRouter = createTRPCRouter({
             createdAt: "desc",
           },
         ],
+        include: {
+          items: true,
+        },
       });
     }),
   create: privateProcedure
@@ -35,6 +39,11 @@ export const listRouter = createTRPCRouter({
       z.object({
         name: z.string(),
         title: z.string().nullish(),
+        items: z
+          .object({
+            name: z.string(),
+          })
+          .array(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -43,6 +52,11 @@ export const listRouter = createTRPCRouter({
           userId: ctx.userId,
           name: input.name,
           title: input.title,
+          items: {
+            create: input.items.map((item) => ({
+              name: item.name,
+            })),
+          },
           status: "none",
         },
       });
@@ -53,6 +67,12 @@ export const listRouter = createTRPCRouter({
         name: z.string(),
         id: z.string(),
         title: z.string().nullish(),
+        items: z
+          .object({
+            id: z.string(),
+            name: z.string(),
+          })
+          .array(),
       })
     )
     .mutation(({ ctx, input }) => {
@@ -65,6 +85,23 @@ export const listRouter = createTRPCRouter({
           name: input.name,
           title: input.title,
           status: "updated",
+          items: {
+            upsert: input.items.map((item) => {
+              return {
+                where: {
+                  id: item.id.includes("-")
+                    ? ObjectID().toHexString()
+                    : item.id,
+                },
+                update: {
+                  name: item.name,
+                },
+                create: {
+                  name: item.name,
+                },
+              };
+            }),
+          },
         },
       });
     }),

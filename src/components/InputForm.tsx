@@ -1,9 +1,11 @@
 import { Button, Card } from "@geist-ui/core";
 import React, { useState } from "react";
 import { List, Plus, X } from "@geist-ui/icons";
+import { type ItemType, type ListItemType } from "~/types/list";
+import ListItemInput from "./ListItemInput";
 
 interface InputFormProps {
-  onEnterKeyDown: (name: string, title: string) => void;
+  onEnterKeyDown: (name: string, title: string, items: ItemType[]) => void;
   addLoading: boolean;
 }
 
@@ -14,6 +16,8 @@ const initInput = {
 
 const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
   const [showTitle, setShowTitle] = useState(false);
+  const [addList, setAddList] = useState(false);
+  const [listItemData, setListItemData] = useState<ListItemType[]>([]);
   const [input, setInput] = useState(initInput);
   const handleInputChange = (key: string, value: string) => {
     setInput((prevState) => ({
@@ -43,22 +47,27 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  onEnterKeyDown(input.name, input.title);
+                  onEnterKeyDown(input.name, input.title, listItemData);
                   setTimeout(() => setInput(initInput), 300);
                 }
               }}
               value={input.name}
             />
             {!showTitle && (
-              <div className="text-gray-400">
-                <List />
+              <div className="cursor-pointer text-gray-400">
+                <List
+                  onClick={() => {
+                    setAddList(true);
+                  }}
+                />
               </div>
             )}
           </div>
+          {addList && <ListItemInput setListItemData={setListItemData} />}
           {showTitle && (
             <div>
               <div className="flex cursor-pointer justify-between pt-2 text-gray-400">
-                <List />
+                <List onClick={() => setAddList((prev) => !prev)} />
                 <div className="flex">
                   {addLoading && (
                     <Button
@@ -68,7 +77,12 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
                       loading={addLoading}
                     />
                   )}
-                  <div className="text-green-600">
+                  <div
+                    className="text-green-600"
+                    onClick={() => {
+                      onEnterKeyDown(input.name, input.title, listItemData);
+                    }}
+                  >
                     <Plus className="hover:scale-110" />
                   </div>
                   <div className="text-red-600">
@@ -77,6 +91,7 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
                       onClick={() => {
                         setShowTitle(false);
                         setInput(initInput);
+                        setAddList(false);
                       }}
                     />
                   </div>

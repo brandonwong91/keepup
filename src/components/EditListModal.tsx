@@ -1,7 +1,12 @@
 import { Modal } from "@geist-ui/core";
-import { type List } from "@prisma/client";
+import { List as ListIcon } from "@geist-ui/icons";
 import React, { useEffect, useState } from "react";
-import { type ListDataUpdateInput } from "~/pages";
+import {
+  type ListItemType,
+  type List,
+  type ListDataUpdateInput,
+} from "~/types/list";
+import ListItemInput from "./ListItemInput";
 
 interface EditFormProps {
   closeHandler: () => void;
@@ -9,6 +14,7 @@ interface EditFormProps {
   showModal: boolean;
   listData: List | undefined;
   updateLoading: boolean;
+  deleteItemHandler: (id: string) => void;
 }
 
 const EditListModal = ({
@@ -17,14 +23,20 @@ const EditListModal = ({
   updateHandler,
   listData,
   updateLoading,
+  deleteItemHandler,
 }: EditFormProps) => {
   const [input, setInput] = useState<ListDataUpdateInput>();
+  const [addList, setAddList] = useState(false);
+  const [listItemData, setListItemData] = useState<ListItemType[]>([]);
   useEffect(() => {
-    if (listData)
+    if (listData) {
       setInput({
         name: listData.name,
         title: listData.title ?? "",
+        items: listData.items,
       });
+      if (listData.items.length > 0) setAddList(true);
+    }
   }, [listData]);
   const handleInputChange = (key: string, value: string) => {
     setInput((prevState) => ({
@@ -32,6 +44,12 @@ const EditListModal = ({
       [key]: value,
     }));
   };
+  useEffect(() => {
+    setInput((prev) => ({
+      ...prev,
+      items: listItemData,
+    }));
+  }, [listItemData]);
   return (
     <Modal visible={showModal} onClose={closeHandler}>
       <div className="flex flex-col">
@@ -45,6 +63,21 @@ const EditListModal = ({
           placeholder={"Add note"}
           onChange={(e) => handleInputChange("name", e.target.value)}
         />
+        {addList && (
+          <ListItemInput
+            listItemData={input?.items}
+            setListItemData={setListItemData}
+            deleteItemHandler={deleteItemHandler}
+          />
+        )}
+        <div className="cursor-pointer pt-4 text-gray-400">
+          <ListIcon
+            size={16}
+            onClick={() => {
+              setAddList(true);
+            }}
+          />
+        </div>
       </div>
       <Modal.Action passive onClick={closeHandler}>
         Cancel
