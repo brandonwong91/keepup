@@ -61,6 +61,25 @@ const ListItemInput = ({
       }
     }
   };
+  const handleOnBlur = (
+    e: React.FocusEvent<HTMLInputElement, Element>,
+    resetForm?: () => void
+  ) => {
+    const target = e.target as HTMLInputElement;
+    if (target.value !== "") {
+      setEdit(false);
+      setInputArray((prev) => [
+        ...prev,
+        {
+          id: uuidv4(),
+          name: target.value,
+        },
+      ]);
+      if (resetForm) {
+        resetForm();
+      }
+    }
+  };
 
   useEffect(() => {
     setListItemData(inputArray);
@@ -77,8 +96,8 @@ const ListItemInput = ({
           onClick={() => setEdit(true)}
           value={currentValue}
           onChange={(e) => setCurrentValue(e.target.value)}
+          onBlur={(e) => handleOnBlur(e, resetForm)}
           onKeyDown={(e) => handleOnEnter(e, resetForm)}
-          onBlur={() => setEdit(false)}
         />
         <div className="ml-1 cursor-pointer self-center text-slate-400">
           <X

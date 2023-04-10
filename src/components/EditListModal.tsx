@@ -9,7 +9,10 @@ import {
 import ListItemInput from "./ListItemInput";
 
 interface EditFormProps {
-  closeHandler: () => void;
+  closeHandler: (
+    inputChanged?: boolean,
+    listData?: ListDataUpdateInput
+  ) => void;
   updateHandler: (listData: ListDataUpdateInput) => void;
   showModal: boolean;
   listData: List | undefined;
@@ -27,6 +30,7 @@ const EditListModal = ({
 }: EditFormProps) => {
   const [input, setInput] = useState<ListDataUpdateInput>();
   const [addList, setAddList] = useState(false);
+  const [inputChanged, setInputChanged] = useState(false);
   const [listItemData, setListItemData] = useState<ListItemType[]>([]);
   useEffect(() => {
     if (listData) {
@@ -43,7 +47,7 @@ const EditListModal = ({
     }
   }, [listData]);
   const handleInputChange = (key: string, value: string) => {
-    if (input)
+    if (input) {
       setInput(
         (prevState) =>
           ({
@@ -51,9 +55,10 @@ const EditListModal = ({
             [key]: value,
           } as ListDataUpdateInput)
       );
+    }
   };
   useEffect(() => {
-    if (listItemData)
+    if (listItemData) {
       setInput(
         (prev) =>
           ({
@@ -61,9 +66,16 @@ const EditListModal = ({
             items: listItemData,
           } as ListDataUpdateInput)
       );
+      setInputChanged(true);
+    }
   }, [listItemData]);
   return (
-    <Modal visible={showModal} onClose={closeHandler}>
+    <Modal
+      visible={showModal}
+      onClose={() => {
+        if (input) closeHandler(inputChanged, input);
+      }}
+    >
       <div className="flex flex-col">
         <input
           value={input?.title ?? ""}
@@ -91,7 +103,7 @@ const EditListModal = ({
           />
         </div>
       </div>
-      <Modal.Action passive onClick={closeHandler}>
+      <Modal.Action passive onClick={() => closeHandler()}>
         Cancel
       </Modal.Action>
       <Modal.Action

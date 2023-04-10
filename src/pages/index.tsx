@@ -19,8 +19,18 @@ const Home: NextPage = () => {
   const ctx = api.useContext();
   const [listData, setListData] = useState<List>();
   const [showModal, setShowModal] = useState(false);
-  const closeModalHandler = () => {
+  const closeModalHandler = (
+    inputChanged?: boolean,
+    listDataInput?: ListDataUpdateInput
+  ) => {
     setShowModal(false);
+    if (listData && listDataInput && inputChanged)
+      updateList({
+        id: listData.id,
+        name: listDataInput.name,
+        title: listDataInput?.title,
+        items: listDataInput.items,
+      });
   };
   const { data, isLoading: listLoading } = api.lists.getAll.useQuery({
     userId: user.user?.id ?? "",
