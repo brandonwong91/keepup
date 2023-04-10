@@ -7,7 +7,6 @@ import {
   type ListDataUpdateInput,
 } from "~/types/list";
 import ListItemInput from "./ListItemInput";
-import clsx from "clsx";
 
 interface EditFormProps {
   closeHandler: () => void;
@@ -36,7 +35,11 @@ const EditListModal = ({
         title: listData.title ?? "",
         items: listData.items,
       });
-      if (listData.items.length > 0) setAddList(true);
+      if (listData.items.length > 0) {
+        setAddList(true);
+      } else {
+        setAddList(false);
+      }
     }
   }, [listData]);
   const handleInputChange = (key: string, value: string) => {
