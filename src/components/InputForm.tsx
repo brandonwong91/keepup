@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { List, Plus, X } from "@geist-ui/icons";
 import { type ItemType, type ListItemType } from "~/types/list";
 import ListItemInput from "./ListItemInput";
+import clsx from "clsx";
 
 interface InputFormProps {
   onEnterKeyDown: (name: string, title: string, items: ItemType[]) => void;
@@ -17,6 +18,7 @@ const initInput = {
 const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
   const [showTitle, setShowTitle] = useState(false);
   const [addList, setAddList] = useState(false);
+  const [error, setError] = useState(false);
   const [listItemData, setListItemData] = useState<ListItemType[]>([]);
   const [input, setInput] = useState(initInput);
   const handleInputChange = (key: string, value: string) => {
@@ -25,7 +27,6 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
       [key]: value,
     }));
   };
-
   return (
     <div>
       <Card>
@@ -40,19 +41,32 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
           )}
 
           <div className="flex">
-            <input
-              placeholder="Add note"
-              onClick={() => setShowTitle(true)}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  onEnterKeyDown(input.name, input.title, listItemData);
-                  setTimeout(() => setInput(initInput), 300);
-                }
-              }}
-              value={input.name}
-            />
+            <div className="flex flex-col">
+              <input
+                placeholder="Add note"
+                onClick={() => setShowTitle(true)}
+                onChange={(e) => {
+                  handleInputChange("name", e.target.value);
+                  if (error) setError(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    onEnterKeyDown(input.name, input.title, listItemData);
+                    setTimeout(() => setInput(initInput), 300);
+                  }
+                }}
+                value={input.name}
+                className={clsx({
+                  "border-b-2 border-red-500": error,
+                })}
+              />
+              {error && (
+                <span className="text-xs text-red-500">
+                  This field is required
+                </span>
+              )}
+            </div>
             {!showTitle && (
               <div className="cursor-pointer text-gray-400">
                 <List
@@ -80,7 +94,10 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
                   <div
                     className="text-green-600"
                     onClick={() => {
-                      onEnterKeyDown(input.name, input.title, listItemData);
+                      if (input.name === "") {
+                        setError(true);
+                      } else
+                        onEnterKeyDown(input.name, input.title, listItemData);
                     }}
                   >
                     <Plus className="hover:scale-110" />
