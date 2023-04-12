@@ -3,6 +3,7 @@ import { type Item } from "@prisma/client";
 export interface ListItemType {
   id: string;
   name: string;
+  checked: boolean;
   [key: string]: any;
 }
 

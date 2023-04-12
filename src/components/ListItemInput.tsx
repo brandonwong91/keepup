@@ -25,26 +25,36 @@ const ListItemInput = ({
     listItemData ?? []
   );
   const [currentValue, setCurrentValue] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleRemoveListItem = (id: string) =>
     setInputArray((prev) => prev.filter((item) => item.id !== id));
+
   const handleChangeListItem = (
     event: ChangeEvent<HTMLInputElement>,
     index: string
   ) => {
-    const { name, value } = event.target;
+    const { name, value, checked } = event.target;
     const updatedInputArray = [...inputArray];
     const foundInput = updatedInputArray.find((input) => input.id === index);
     if (foundInput) {
-      foundInput[name] = value;
+      let updatedValue;
+      if (name === "checked") {
+        updatedValue = checked;
+      } else {
+        updatedValue = value;
+      }
+      foundInput[name] = updatedValue;
       setInputArray(updatedInputArray);
     }
     setInputArray(updatedInputArray);
   };
+
   const resetForm = () => {
     setCurrentValue("");
     setEdit(false);
   };
+
   const handleOnEnter = (e: KeyboardEvent, resetForm?: () => void) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -54,6 +64,7 @@ const ListItemInput = ({
         {
           id: uuidv4(),
           name: target.value,
+          checked: isChecked,
         },
       ]);
       if (resetForm) {
@@ -61,6 +72,7 @@ const ListItemInput = ({
       }
     }
   };
+
   const handleOnBlur = (
     e: React.FocusEvent<HTMLInputElement, Element>,
     resetForm?: () => void
@@ -73,6 +85,7 @@ const ListItemInput = ({
         {
           id: uuidv4(),
           name: target.value,
+          checked: isChecked,
         },
       ]);
       if (resetForm) {
@@ -83,12 +96,22 @@ const ListItemInput = ({
 
   useEffect(() => {
     setListItemData(inputArray);
+    console.log("inputArray", inputArray);
   }, [inputArray, setListItemData]);
   return (
     <div>
       <div className="flex gap-x-2 pt-2">
         <div className="ml-1 self-center text-slate-400">
-          {edit ? <Checkbox type="success" /> : <Plus size={16} />}
+          {edit ? (
+            <input
+              type="checkbox"
+              defaultChecked={isChecked}
+              value="checked"
+              onChange={() => setIsChecked((prev) => !prev)}
+            />
+          ) : (
+            <Plus size={16} />
+          )}
         </div>
         <input
           className="w-full"
@@ -117,7 +140,15 @@ const ListItemInput = ({
               key={input.id}
             >
               <div className="ml-1 self-center text-slate-400">
-                <Checkbox type="success" />
+                <input
+                  type="checkbox"
+                  name="checked"
+                  defaultChecked={input.checked}
+                  value="checked"
+                  onChange={(e) => {
+                    handleChangeListItem(e, input.id);
+                  }}
+                />
               </div>
               <input
                 className="w-full"

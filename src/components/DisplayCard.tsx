@@ -57,7 +57,11 @@ const DisplayCard = ({
                           className="flex gap-x-2 text-slate-400"
                         >
                           <div className="self-center">
-                            <Checkbox type="success" size={16} />
+                            <input
+                              type="checkbox"
+                              size={16}
+                              defaultChecked={item.checked}
+                            />
                           </div>
                           {item.name}
                         </div>

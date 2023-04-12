@@ -96,8 +96,12 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
                     onClick={() => {
                       if (input.name === "") {
                         setError(true);
-                      } else
+                      } else {
                         onEnterKeyDown(input.name, input.title, listItemData);
+                        setShowTitle(false);
+                        setInput(initInput);
+                        setAddList(false);
+                      }
                     }}
                   >
                     <Plus className="hover:scale-110" />
