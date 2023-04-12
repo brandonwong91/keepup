@@ -10,6 +10,7 @@ export interface ListItemType {
 export interface ItemType {
   id: string;
   name: string;
+  checked: boolean;
 }
 
 export interface ListDataUpdateInput {
