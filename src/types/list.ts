@@ -19,10 +19,18 @@ export interface ListItemType {
   [key: string]: any;
 }
 
+export interface ItemDBType extends ItemType {
+  createdAt: Date;
+  updatedAt: Date;
+  checked: boolean;
+  listId: string;
+}
+
 export interface ItemType {
   id: string;
   name: string;
   checked: boolean;
+  fields?: SubItemInput[];
 }
 
 export interface ListDataUpdateInput {

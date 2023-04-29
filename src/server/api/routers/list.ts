@@ -78,7 +78,8 @@ export const listRouter = createTRPCRouter({
                 value: z.string().nullish(),
                 unit: z.string().nullish(),
               })
-              .array(),
+              .array()
+              .nullish(),
           })
           .array(),
       })
@@ -104,12 +105,16 @@ export const listRouter = createTRPCRouter({
                 update: {
                   name: item.name,
                   checked: item.checked,
-                  fields: item.fields,
+                  fields: {
+                    set: item.fields,
+                  },
                 },
                 create: {
                   name: item.name,
                   checked: item.checked,
-                  fields: item.fields,
+                  fields: {
+                    set: item.fields,
+                  },
                 },
               };
             }),

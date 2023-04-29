@@ -5,8 +5,11 @@ import {
   type ListItemType,
   type List,
   type ListDataUpdateInput,
+  ItemType,
+  SubItemInput,
 } from "~/types/list";
 import ListItemInput from "./ListItemInput";
+import { Item, Prisma } from "@prisma/client";
 
 interface EditFormProps {
   closeHandler: (
@@ -34,10 +37,18 @@ const EditListModal = ({
   const [listItemData, setListItemData] = useState<ListItemType[]>([]);
   useEffect(() => {
     if (listData) {
+      const items = listData.items.map(
+        (item: Item): ItemType => ({
+          id: item.id,
+          name: item.name,
+          checked: item.checked,
+          fields: item.fields as unknown as SubItemInput[],
+        })
+      );
       setInput({
         name: listData.name,
         title: listData.title ?? "",
-        items: listData.items,
+        items,
       });
       if (listData.items.length > 0) {
         setAddList(true);
