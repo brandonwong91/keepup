@@ -1,9 +1,21 @@
 import { type Item } from "@prisma/client";
 
+export interface SubItemInput {
+  type: string;
+  value: string;
+  unit?: string;
+}
+
+export interface SubItemType extends SubItemInput {
+  id: string;
+  listItemId: string;
+}
+
 export interface ListItemType {
   id: string;
   name: string;
   checked: boolean;
+  fields?: SubItemInput[];
   [key: string]: any;
 }
 

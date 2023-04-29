@@ -72,12 +72,18 @@ export const listRouter = createTRPCRouter({
             id: z.string(),
             name: z.string(),
             checked: z.boolean(),
+            fields: z
+              .object({
+                type: z.string().nullish(),
+                value: z.string().nullish(),
+                unit: z.string().nullish(),
+              })
+              .array(),
           })
           .array(),
       })
     )
     .mutation(({ ctx, input }) => {
-      console.log("list", input);
       return ctx.prisma.list.update({
         where: {
           id: input.id,
@@ -98,10 +104,12 @@ export const listRouter = createTRPCRouter({
                 update: {
                   name: item.name,
                   checked: item.checked,
+                  fields: item.fields,
                 },
                 create: {
                   name: item.name,
                   checked: item.checked,
+                  fields: item.fields,
                 },
               };
             }),

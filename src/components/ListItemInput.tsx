@@ -1,5 +1,4 @@
-import { Checkbox } from "@geist-ui/core";
-import { Plus, X } from "@geist-ui/icons";
+import { ChevronDown, ChevronRight, Plus, X } from "@geist-ui/icons";
 import React, {
   type ChangeEvent,
   useState,
@@ -7,7 +6,8 @@ import React, {
   type KeyboardEvent,
 } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { type ListItemType } from "~/types/list";
+import { type SubItemType, type ListItemType } from "~/types/list";
+import SubItemInput from "./SubItemInput";
 
 interface ListItemInputProps {
   setListItemData: (data: ListItemType[]) => void;
@@ -24,9 +24,24 @@ const ListItemInput = ({
   const [inputArray, setInputArray] = useState<ListItemType[]>(
     listItemData ?? []
   );
+  const flattenedFields = inputArray.flatMap((item) => {
+    return (
+      item.fields &&
+      item.fields.map((field) => {
+        return {
+          id: uuidv4(),
+          type: field.type,
+          value: field.value,
+          unit: field.unit,
+          listItemId: item.id,
+        } as SubItemType;
+      })
+    );
+  });
+
   const [currentValue, setCurrentValue] = useState("");
   const [isChecked, setIsChecked] = useState(false);
-
+  const [expandList, setExpandList] = useState<string[]>([]);
   const handleRemoveListItem = (id: string) =>
     setInputArray((prev) => prev.filter((item) => item.id !== id));
 
@@ -45,7 +60,6 @@ const ListItemInput = ({
         updatedValue = value;
       }
       foundInput[name] = updatedValue;
-      setInputArray(updatedInputArray);
     }
     setInputArray(updatedInputArray);
   };
@@ -95,9 +109,15 @@ const ListItemInput = ({
   };
 
   useEffect(() => {
+    if (listItemData) {
+      const hasFields = listItemData.filter(
+        (listItem) => listItem.fields && listItem.fields.length > 0
+      );
+      setExpandList(hasFields.map((listItem) => listItem.id));
+    }
     setListItemData(inputArray);
-    console.log("inputArray", inputArray);
-  }, [inputArray, setListItemData]);
+  }, [inputArray, setListItemData, listItemData]);
+
   return (
     <div>
       <div className="flex gap-x-2 pt-2">
@@ -136,39 +156,72 @@ const ListItemInput = ({
         inputArray.map((input: ListItemType) => {
           return (
             <div
-              className="flex gap-x-2 pt-2 hover:border-y hover:border-slate-400"
+              className="grid border-y-[1px] border-y-transparent py-2 hover:border-y-[1px] hover:border-slate-300"
               key={input.id}
             >
-              <div className="ml-1 self-center text-slate-400">
+              <div className="flex">
+                <div className="ml-1 self-center text-slate-400">
+                  <input
+                    type="checkbox"
+                    name="checked"
+                    defaultChecked={input.checked}
+                    value="checked"
+                    onChange={(e) => {
+                      handleChangeListItem(e, input.id);
+                    }}
+                  />
+                </div>
+                <button type="button" className="text-slate-400">
+                  {!expandList.includes(input.id) ? (
+                    <ChevronRight
+                      size={16}
+                      onClick={() => {
+                        setExpandList((prev) => [...prev, input.id]);
+                      }}
+                    />
+                  ) : (
+                    <ChevronDown
+                      size={16}
+                      onClick={() => {
+                        setExpandList((prev) =>
+                          prev.filter((item) => item !== input.id)
+                        );
+                      }}
+                    />
+                  )}
+                </button>
                 <input
-                  type="checkbox"
-                  name="checked"
-                  defaultChecked={input.checked}
-                  value="checked"
+                  className="w-full"
+                  name="name"
+                  placeholder="List item"
+                  value={input.name}
                   onChange={(e) => {
                     handleChangeListItem(e, input.id);
                   }}
+                  onKeyDown={handleOnEnter}
                 />
+
+                <div className="cursor-pointer self-center text-slate-400 hover:scale-110">
+                  <X
+                    size={16}
+                    onClick={() => {
+                      handleRemoveListItem(input.id);
+                      deleteItemHandler && deleteItemHandler(input.id);
+                    }}
+                  />
+                </div>
               </div>
-              <input
-                className="w-full"
-                name="name"
-                placeholder="List item"
-                value={input.name}
-                onChange={(e) => {
-                  handleChangeListItem(e, input.id);
-                }}
-                onKeyDown={handleOnEnter}
-              />
-              <div className="cursor-pointer self-center text-slate-400 hover:scale-110">
-                <X
-                  size={16}
-                  onClick={() => {
-                    handleRemoveListItem(input.id);
-                    deleteItemHandler && deleteItemHandler(input.id);
-                  }}
+              {
+                <SubItemInput
+                  listItemId={input.id}
+                  expand={expandList.includes(input.id)}
+                  subItemData={flattenedFields.filter(
+                    (item): item is SubItemType =>
+                      !!item && item.listItemId === input.id
+                  )}
+                  setInputArray={setInputArray}
                 />
-              </div>
+              }
             </div>
           );
         })}
