@@ -69,7 +69,9 @@ const DisplayCard = ({
                 </div>
                 <Fieldset.Footer>
                   <Badge type="success" scale={1 / 2}>
-                    {`${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
+                    {list.updatedAt > list.createdAt
+                      ? `${list.updatedAt.toLocaleDateString()} ${list.updatedAt.toLocaleTimeString()}`
+                      : `${list.createdAt.toLocaleDateString()} ${list.createdAt.toLocaleTimeString()}`}
                   </Badge>
                   <Button
                     type="error"
