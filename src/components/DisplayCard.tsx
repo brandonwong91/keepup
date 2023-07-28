@@ -1,7 +1,7 @@
 import { Fieldset, Loading, Badge, Button } from "@geist-ui/core";
 import { Item } from "@prisma/client";
 import React from "react";
-import { type ItemDBType, type List } from "~/types/list";
+import { ListDataUpdateInput, type ItemDBType, type List } from "~/types/list";
 
 interface DisplayCardProps {
   data: List[] | undefined;
@@ -11,6 +11,7 @@ interface DisplayCardProps {
   setListData: (data: List | undefined) => void;
   handleDelete: (id: string) => void;
   deleteLoading: boolean;
+  updateHandler: (listData: ListDataUpdateInput) => void;
 }
 
 const DisplayCard = ({
@@ -21,7 +22,43 @@ const DisplayCard = ({
   setListData,
   handleDelete,
   deleteLoading,
+  updateHandler,
 }: DisplayCardProps) => {
+  const renderUrls = (input: string) => {
+    const splitUrls = input.split(" ");
+    return (
+      <div className="flex gap-x-1" onClick={() => setShowModal(true)}>
+        {splitUrls.map((item) => {
+          if (
+            item.startsWith("http://") ||
+            item.startsWith("https://") ||
+            item.startsWith("www.")
+          ) {
+            return (
+              <a href={item} key={item} className="hover:underline">
+                {item}
+              </a>
+            );
+          } else {
+            return <span key={item}>{item}</span>;
+          }
+        })}
+      </div>
+    );
+  };
+
+  const handleCheckboxClick = (list: ListDataUpdateInput, itemId: string) => {
+    const updatedItems = list?.items?.map((item) =>
+      item.id === itemId ? { ...item, checked: !item.checked } : item
+    );
+    const updatedList = {
+      ...list,
+      items: updatedItems,
+    };
+
+    updateHandler(updatedList);
+  };
+
   return (
     <>
       {data &&
@@ -36,12 +73,11 @@ const DisplayCard = ({
               <Fieldset>
                 <div
                   onClick={() => {
-                    setShowModal(true);
                     setListData(list);
                   }}
                 >
                   {list.title ? (
-                    <div>
+                    <div onClick={() => setShowModal(true)}>
                       <Fieldset.Title>{list.title}</Fieldset.Title>
                       <Fieldset.Subtitle>{list.name}</Fieldset.Subtitle>
                     </div>
@@ -60,9 +96,16 @@ const DisplayCard = ({
                               type="checkbox"
                               size={16}
                               defaultChecked={item.checked}
+                              onClick={() => {
+                                handleCheckboxClick(
+                                  list as unknown as ListDataUpdateInput,
+                                  item.id
+                                );
+                              }}
+                              className="hover:cursor-pointer"
                             />
                           </div>
-                          {item.name}
+                          {renderUrls(item.name)}
                         </div>
                       );
                     })}

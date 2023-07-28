@@ -145,6 +145,7 @@ const Home: NextPage = () => {
                   setShowModal={setShowModal}
                   handleDelete={handleDelete}
                   deleteLoading={deleteLoading}
+                  updateHandler={handleEdit}
                 />
               </div>
               <EditListModal
