@@ -121,7 +121,7 @@ const Home: NextPage = () => {
               </div>
             </Page.Header>
             <Page.Content>
-              <div className="grid gap-4">
+              <div className="flex flex-col sm:grid gap-4">
                 <div className="flex place-content-center gap-x-1">
                   <InputForm
                     onEnterKeyDown={handleAddList}

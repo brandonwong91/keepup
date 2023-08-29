@@ -28,9 +28,7 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
     }));
   };
   return (
-    <div>
-      <Card>
-        <div className="flex flex-col">
+      <Card className="flex-grow md:flex-none">
           {showTitle && (
             <input
               className="mb-2"
@@ -39,8 +37,7 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
               value={input.title}
             />
           )}
-
-          <div className="flex">
+          <div className="flex justify-between">
             <div className="flex flex-col">
               <input
                 placeholder="Add note"
@@ -120,9 +117,7 @@ const InputForm = ({ onEnterKeyDown, addLoading }: InputFormProps) => {
               </div>
             </div>
           )}
-        </div>
       </Card>
-    </div>
   );
 };
 

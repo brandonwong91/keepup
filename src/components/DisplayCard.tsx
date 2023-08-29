@@ -89,7 +89,7 @@ const DisplayCard = ({
                       return (
                         <div
                           key={item.id}
-                          className="flex gap-x-2 text-slate-400"
+                          className="flex w-fit-content gap-x-2 overflow-x-auto text-slate-400"
                         >
                           <div className="self-center">
                             <input
