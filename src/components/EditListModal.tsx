@@ -92,6 +92,7 @@ const EditListModal = ({
           value={input?.title ?? ""}
           placeholder={"Title"}
           onChange={(e) => handleInputChange("title", e.target.value)}
+          className="text-xl font-bold"
         />
         <input
           value={input?.name}
@@ -122,6 +123,7 @@ const EditListModal = ({
           if (input) updateHandler(input);
         }}
         loading={updateLoading}
+        type="success"
       >
         Update
       </Modal.Action>

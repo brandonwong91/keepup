@@ -76,20 +76,22 @@ const DisplayCard = ({
                     setListData(list);
                   }}
                 >
-                  {list.title ? (
-                    <div onClick={() => setShowModal(true)}>
-                      <Fieldset.Title>{list.title}</Fieldset.Title>
-                      <Fieldset.Subtitle>{list.name}</Fieldset.Subtitle>
-                    </div>
-                  ) : (
-                    <Fieldset.Title>{list.name}</Fieldset.Title>
-                  )}
+                  <div onClick={() => setShowModal(true)}>
+                    {list.title ? (
+                      <>
+                        <Fieldset.Title>{list.title}</Fieldset.Title>
+                        <Fieldset.Subtitle>{list.name}</Fieldset.Subtitle>
+                      </>
+                    ) : (
+                      <Fieldset.Title>{list.name}</Fieldset.Title>
+                    )}
+                  </div>
                   {list.items.length > 0 &&
                     list.items.map((item: Item) => {
                       return (
                         <div
                           key={item.id}
-                          className="flex w-fit-content gap-x-2 overflow-x-auto text-slate-400"
+                          className="w-fit-content flex gap-x-2 overflow-x-auto text-slate-400"
                         >
                           <div className="self-center">
                             <input
