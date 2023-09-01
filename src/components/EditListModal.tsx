@@ -99,21 +99,22 @@ const EditListModal = ({
           placeholder={"Add note"}
           onChange={(e) => handleInputChange("name", e.target.value)}
         />
-        {addList && (
+        {addList ? (
           <ListItemInput
             listItemData={input?.items}
             setListItemData={setListItemData}
             deleteItemHandler={deleteItemHandler}
           />
+        ) : (
+          <div className="cursor-pointer pt-4 text-gray-400">
+            <ListIcon
+              size={16}
+              onClick={() => {
+                setAddList((prev) => !prev);
+              }}
+            />
+          </div>
         )}
-        <div className="cursor-pointer pt-4 text-gray-400">
-          <ListIcon
-            size={16}
-            onClick={() => {
-              setAddList(true);
-            }}
-          />
-        </div>
       </div>
       <Modal.Action passive onClick={() => closeHandler()}>
         Cancel
