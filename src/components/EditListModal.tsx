@@ -18,7 +18,7 @@ interface EditFormProps {
   ) => void;
   updateHandler: (listData: ListDataUpdateInput) => void;
   showModal: boolean;
-  listData: List | undefined;
+  listData: List | undefined | null;
   updateLoading: boolean;
   deleteItemHandler: (id: string) => void;
 }

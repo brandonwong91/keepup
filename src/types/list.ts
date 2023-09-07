@@ -50,3 +50,30 @@ export type List = {
   status: string | null;
   items: Item[];
 };
+
+export type ListState = {
+  lists: Array<List>;
+  list: List | null;
+  showModal: boolean;
+};
+
+export type ListAction =
+  | { type: "SET_LISTS"; value: List[] }
+  | { type: "SET_LIST"; value: List }
+  | { type: "ADD_LIST"; value: List }
+  | { type: "DELETE_LIST"; value: string }
+  | { type: "UPDATE_LIST"; value: List }
+  | { type: "ADD_ITEM"; value: ListItemType }
+  | { type: "DELETE_ITEM"; value: { listId: string; itemId: string } }
+  | { type: "SHOW_MODAL"; value: boolean };
+
+export enum ActionType {
+  "SET_LISTS" = "SET_LISTS",
+  "SET_LIST" = "SET_LIST",
+  "ADD_LIST" = "ADD_LIST",
+  "DELETE_LIST" = "DELETE_LIST",
+  "UPDATE_LIST" = "UPDATE_LIST",
+  "ADD_ITEM" = "ADD_ITEM",
+  "DELETE_ITEM" = "DELETE_ITEM",
+  "SHOW_MODAL" = "SHOW_MODAL",
+}

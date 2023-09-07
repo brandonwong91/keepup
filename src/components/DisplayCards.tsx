@@ -3,31 +3,31 @@ import { Item } from "@prisma/client";
 import React from "react";
 import { ListDataUpdateInput, type ItemDBType, type List } from "~/types/list";
 
-interface DisplayCardProps {
+interface DisplayCardsProps {
   data: List[] | undefined;
-  listData: List | undefined;
+  listData: List | undefined | null;
   showModal: boolean;
-  setShowModal: (input: boolean) => void;
-  setListData: (data: List | undefined) => void;
+  handleShowModal: (input: boolean) => void;
+  handleSetList: (data: List | undefined) => void;
   handleDelete: (id: string) => void;
   deleteLoading: boolean;
   updateHandler: (listData: ListDataUpdateInput) => void;
 }
 
-const DisplayCard = ({
+const DisplayCards = ({
   data,
   listData,
   showModal,
-  setShowModal,
-  setListData,
+  handleShowModal,
+  handleSetList,
   handleDelete,
   deleteLoading,
   updateHandler,
-}: DisplayCardProps) => {
+}: DisplayCardsProps) => {
   const renderUrls = (input: string) => {
     const splitUrls = input.split(" ");
     return (
-      <div className="flex gap-x-1" onClick={() => setShowModal(true)}>
+      <div className="flex gap-x-1" onClick={() => handleShowModal(true)}>
         {splitUrls.map((item) => {
           if (
             item.startsWith("http://") ||
@@ -73,10 +73,10 @@ const DisplayCard = ({
               <Fieldset>
                 <div
                   onClick={() => {
-                    setListData(list);
+                    handleSetList(list);
                   }}
                 >
-                  <div onClick={() => setShowModal(true)}>
+                  <div onClick={() => handleShowModal(true)}>
                     {list.title ? (
                       <>
                         <Fieldset.Title>{list.title}</Fieldset.Title>
@@ -124,7 +124,7 @@ const DisplayCard = ({
                     scale={1 / 3}
                     font="12px"
                     onClick={() => {
-                      setShowModal(false);
+                      handleShowModal(false);
                       handleDelete(list.id);
                     }}
                     loading={deleteLoading}
@@ -140,4 +140,4 @@ const DisplayCard = ({
   );
 };
 
-export default DisplayCard;
+export default DisplayCards;
