@@ -104,6 +104,7 @@ const EditListModal = ({
             listItemData={input?.items}
             setListItemData={setListItemData}
             deleteItemHandler={deleteItemHandler}
+            handleRemoveList={() => setAddList(false)}
           />
         ) : (
           <div className="cursor-pointer pt-4 text-gray-400">

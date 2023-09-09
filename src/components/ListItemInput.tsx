@@ -13,12 +13,14 @@ interface ListItemInputProps {
   setListItemData: (data: ListItemType[]) => void;
   listItemData?: ListItemType[];
   deleteItemHandler?: (id: string) => void;
+  handleRemoveList?: () => void;
 }
 
 const ListItemInput = ({
   listItemData,
   setListItemData,
   deleteItemHandler,
+  handleRemoveList,
 }: ListItemInputProps) => {
   const [edit, setEdit] = useState(false);
   const [inputArray, setInputArray] = useState<ListItemType[]>(
@@ -148,6 +150,7 @@ const ListItemInput = ({
             onClick={() => {
               setEdit(false);
               setCurrentValue("");
+              handleRemoveList && inputArray.length === 0 && handleRemoveList();
             }}
           />
         </div>
