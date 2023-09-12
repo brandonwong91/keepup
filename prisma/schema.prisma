@@ -2,32 +2,32 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mongodb"
-    url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model List {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    name      String   @unique
-    title     String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    userId    String?
-    status    String?
-    items     Item[]
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String?
+  status    String?
+  items     Item[]
 }
 
 model Item {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    checked   Boolean  @default(false)
-    fields    Json[]
-    listId    String   @db.ObjectId
-    list      List     @relation(fields: [listId], references: [id])
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  checked   Boolean  @default(false)
+  fields    Json[]
+  listId    String   @db.ObjectId
+  list      List     @relation(fields: [listId], references: [id])
 }

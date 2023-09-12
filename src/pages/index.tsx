@@ -62,6 +62,8 @@ const Home: NextPage = () => {
         void ctx.lists.getAll.invalidate();
       },
     });
+  const { mutate: deleteFromListId, data: deleteFromListIdData } =
+    api.items.deleteFromListId.useMutation();
   const { mutate: deleteItem } = api.items.delete.useMutation({
     onSuccess: () => {
       void ctx.lists.getAll.invalidate();
@@ -86,10 +88,11 @@ const Home: NextPage = () => {
       });
   };
 
-  const handleDelete = (id: string) => {
-    deleteList({
-      id,
-    });
+  const handleDelete = async (id: string) => {
+    await deleteFromListId({ id });
+    // Add a 500ms delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    await deleteList({ id });
   };
 
   const handleDeleteItem = (id: string) => {
