@@ -88,13 +88,12 @@ const Home: NextPage = () => {
       });
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteFromListId({ id });
-    // Add a 500ms delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await deleteList({ id });
+  const handleDelete = (id: string) => {
+    deleteFromListId({ id });
+    setTimeout(() => {
+      deleteList({ id });
+    }, 500);
   };
-
   const handleDeleteItem = (id: string) => {
     deleteItem({
       id,
