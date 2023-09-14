@@ -1,5 +1,5 @@
 import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
-import { Card, Display, Text, Page } from "@geist-ui/core";
+import { Card, Display, Text, Page, useToasts } from "@geist-ui/core";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useReducer, useState } from "react";
@@ -25,6 +25,7 @@ const initialState = {
 const Home: NextPage = () => {
   const user = useUser();
   const ctx = api.useContext();
+  const { setToast } = useToasts({ placement: "topRight" });
   const [state, dispatch] = useReducer(reducer, initialState);
   const { lists, list, showModal } = state;
   const closeModalHandler = (
@@ -48,6 +49,12 @@ const Home: NextPage = () => {
       onSuccess: () => {
         void ctx.lists.getAll.invalidate();
       },
+      onError: () => {
+        setToast({
+          text: "Conflict in name, please try another!",
+          type: "error",
+        });
+      },
     });
   const { mutate: updateList, isLoading: updateLoading } =
     api.lists.update.useMutation({
@@ -62,8 +69,7 @@ const Home: NextPage = () => {
         void ctx.lists.getAll.invalidate();
       },
     });
-  const { mutate: deleteFromListId, data: deleteFromListIdData } =
-    api.items.deleteFromListId.useMutation();
+  const { mutate: deleteFromListId } = api.items.deleteFromListId.useMutation();
   const { mutate: deleteItem } = api.items.delete.useMutation({
     onSuccess: () => {
       void ctx.lists.getAll.invalidate();
@@ -111,7 +117,6 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (data) dispatch(setLists(data));
   }, [data]);
-
   return (
     <>
       <Head>
