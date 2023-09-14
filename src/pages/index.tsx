@@ -2,7 +2,7 @@ import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
 import { Card, Display, Text, Page, useToasts } from "@geist-ui/core";
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 import DisplayCards from "~/components/DisplayCards";
 import EditListModal from "~/components/EditListModal";
 import InputForm from "~/components/InputForm";
