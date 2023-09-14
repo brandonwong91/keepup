@@ -1,7 +1,7 @@
 import { Fieldset, Loading, Badge, Button } from "@geist-ui/core";
-import { Item } from "@prisma/client";
+import { type Item } from "@prisma/client";
 import React from "react";
-import { ListDataUpdateInput, type ItemDBType, type List } from "~/types/list";
+import { type ListDataUpdateInput, type List } from "~/types/list";
 
 interface DisplayCardsProps {
   data: List[] | undefined;
