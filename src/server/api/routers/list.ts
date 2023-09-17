@@ -83,6 +83,7 @@ export const listRouter = createTRPCRouter({
         name: z.string(),
         id: z.string(),
         title: z.string().nullish(),
+        status: z.string().nullish(),
         items: z
           .object({
             id: z.string(),
@@ -109,7 +110,7 @@ export const listRouter = createTRPCRouter({
           userId: ctx.userId,
           name: input.name,
           title: input.title,
-          status: "updated",
+          status: input.status,
           items: {
             upsert: input.items.map((item) => {
               return {

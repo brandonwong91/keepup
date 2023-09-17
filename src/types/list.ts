@@ -38,6 +38,7 @@ export interface ListDataUpdateInput {
   title?: string;
   items: ItemType[];
   [key: string]: any;
+  status: string;
 }
 
 export type List = {

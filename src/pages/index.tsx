@@ -39,6 +39,7 @@ const Home: NextPage = () => {
         name: listDataInput.name,
         title: listDataInput?.title,
         items: listDataInput.items,
+        status: listDataInput.status,
       });
   };
   const { data, isLoading: listLoading } = api.lists.getAll.useQuery({
@@ -90,6 +91,7 @@ const Home: NextPage = () => {
         id: list.id,
         name: listDataInput.name,
         title: listDataInput?.title,
+        status: listDataInput.status,
         items: listDataInput.items,
       });
   };

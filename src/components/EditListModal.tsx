@@ -1,5 +1,5 @@
 import { Modal } from "@geist-ui/core";
-import { List as ListIcon } from "@geist-ui/icons";
+import { Hash, X, List as ListIcon } from "@geist-ui/icons";
 import React, { useEffect, useState } from "react";
 import {
   type ListItemType,
@@ -10,6 +10,7 @@ import {
 } from "~/types/list";
 import ListItemInput from "./ListItemInput";
 import { type Item } from "@prisma/client";
+import TagSelect from "./TagSelect";
 
 interface EditFormProps {
   closeHandler: (
@@ -49,6 +50,7 @@ const EditListModal = ({
       setInput({
         name: listData.name,
         title: listData.title ?? "",
+        status: listData.status ?? "",
         items,
       });
       if (listData.items.length > 0) {
@@ -66,6 +68,18 @@ const EditListModal = ({
           ({
             ...prevState,
             [key]: value,
+          } as ListDataUpdateInput)
+      );
+    }
+  };
+
+  const handleTagSelect = (status: string) => {
+    if (input) {
+      setInput(
+        (prevState) =>
+          ({
+            ...prevState,
+            status,
           } as ListDataUpdateInput)
       );
     }
@@ -91,6 +105,10 @@ const EditListModal = ({
       }}
     >
       <div className="flex flex-col">
+        <TagSelect
+          status={listData?.status ?? ""}
+          onTagSelect={handleTagSelect}
+        />
         <input
           value={input?.title ?? ""}
           placeholder={"Title"}

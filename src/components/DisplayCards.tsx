@@ -77,6 +77,7 @@ const DisplayCards = ({
                   }}
                 >
                   <div onClick={() => handleShowModal(true)}>
+                    {list.status !== "updated" && <>{list.status}</>}
                     {list.title ? (
                       <>
                         <Fieldset.Title>{list.title}</Fieldset.Title>
