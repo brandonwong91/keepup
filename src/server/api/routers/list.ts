@@ -34,6 +34,22 @@ export const listRouter = createTRPCRouter({
         },
       });
     }),
+  get: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.list.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          items: true,
+        },
+      });
+    }),
   create: privateProcedure
     .input(
       z.object({
@@ -106,14 +122,14 @@ export const listRouter = createTRPCRouter({
                   name: item.name,
                   checked: item.checked,
                   fields: {
-                    set: item.fields,
+                    set: item.fields?.filter((field) => field.value !== null),
                   },
                 },
                 create: {
                   name: item.name,
                   checked: item.checked,
                   fields: {
-                    set: item.fields,
+                    set: item.fields?.filter((field) => field.value !== null),
                   },
                 },
               };

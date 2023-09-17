@@ -5,11 +5,11 @@ import {
   type ListItemType,
   type List,
   type ListDataUpdateInput,
-  ItemType,
-  SubItemInput,
+  type ItemType,
+  type SubItemInput,
 } from "~/types/list";
 import ListItemInput from "./ListItemInput";
-import { Item, Prisma } from "@prisma/client";
+import { type Item } from "@prisma/client";
 
 interface EditFormProps {
   closeHandler: (
@@ -35,6 +35,7 @@ const EditListModal = ({
   const [addList, setAddList] = useState(false);
   const [inputChanged, setInputChanged] = useState(false);
   const [listItemData, setListItemData] = useState<ListItemType[]>([]);
+
   useEffect(() => {
     if (listData) {
       const items = listData.items.map(
@@ -57,6 +58,7 @@ const EditListModal = ({
       }
     }
   }, [listData]);
+
   const handleInputChange = (key: string, value: string) => {
     if (input) {
       setInput(
@@ -68,6 +70,7 @@ const EditListModal = ({
       );
     }
   };
+
   useEffect(() => {
     if (listItemData) {
       setInput(

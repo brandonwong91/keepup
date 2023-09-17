@@ -123,7 +123,7 @@ const ListItemInput = ({
   return (
     <div>
       <div className="flex gap-x-2 pt-2">
-        <div className="ml-1 self-center text-slate-400">
+        <div className="self-center pl-1 text-slate-400">
           {edit ? (
             <input
               type="checkbox"
@@ -132,7 +132,7 @@ const ListItemInput = ({
               onChange={() => setIsChecked((prev) => !prev)}
             />
           ) : (
-            <Plus size={16} />
+            <Plus size={13} />
           )}
         </div>
         <input
@@ -159,10 +159,10 @@ const ListItemInput = ({
         inputArray.map((input: ListItemType) => {
           return (
             <div
-              className="grid border-y-[1px] border-y-transparent py-2 hover:border-y-[1px] hover:border-slate-300"
+              className="grid border-y-[1px] border-y-transparent py-1 hover:border-y-[1px] hover:border-slate-300"
               key={input.id}
             >
-              <div className="flex">
+              <div className="flex gap-x-2">
                 <div className="ml-1 self-center text-slate-400">
                   <input
                     type="checkbox"
@@ -174,7 +174,7 @@ const ListItemInput = ({
                     }}
                   />
                 </div>
-                <button type="button" className="text-slate-400">
+                {/* <button type="button" className="text-slate-400">
                   {!expandList.includes(input.id) ? (
                     <ChevronRight
                       size={16}
@@ -192,7 +192,7 @@ const ListItemInput = ({
                       }}
                     />
                   )}
-                </button>
+                </button> */}
                 <input
                   className="w-full"
                   name="name"
@@ -203,7 +203,6 @@ const ListItemInput = ({
                   }}
                   onKeyDown={handleOnEnter}
                 />
-
                 <div className="cursor-pointer self-center text-slate-400 hover:scale-110">
                   <X
                     size={16}
@@ -214,7 +213,7 @@ const ListItemInput = ({
                   />
                 </div>
               </div>
-              {
+              {/* {
                 <SubItemInput
                   listItemId={input.id}
                   expand={expandList.includes(input.id)}
@@ -224,7 +223,7 @@ const ListItemInput = ({
                   )}
                   setInputArray={setInputArray}
                 />
-              }
+              } */}
             </div>
           );
         })}
