@@ -1,6 +1,8 @@
 import { Hash, X } from "@geist-ui/icons";
 import React, { useState } from "react";
 
+const TAG_OPTIONS = ["🛒", "🏋️‍♀️", "📑"];
+
 const TagSelect = ({
   status,
   onTagSelect,
@@ -19,15 +21,20 @@ const TagSelect = ({
       />
       {showTag && (
         <div className="flex place-items-center gap-x-1">
-          <div
-            className="text-md h-auto w-fit rounded-xl bg-gray-200 p-2"
-            onClick={() => {
-              setTag("🛒");
-              onTagSelect("🛒");
-            }}
-          >
-            🛒
-          </div>
+          {TAG_OPTIONS.map((tag) => {
+            return (
+              <div
+                key={tag}
+                className="text-md h-auto w-fit rounded-xl bg-gray-200 p-2"
+                onClick={() => {
+                  setTag(tag);
+                  onTagSelect(tag);
+                }}
+              >
+                {tag}
+              </div>
+            );
+          })}
           <X
             size={16}
             className="text-slate-400"
