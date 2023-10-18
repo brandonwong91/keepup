@@ -167,7 +167,7 @@ const GroceryList = ({
             .filter((input) => input.checked)
             .map((input: ListItemType) => {
               const lastUpdatedAt =
-                input.fields[input.fields.length - 1]?.updatedAt;
+                input.fields?.[input.fields.length - 1]?.updatedAt;
               let daysDifference = 0;
               if (lastUpdatedAt) {
                 const currentDate = new Date();
