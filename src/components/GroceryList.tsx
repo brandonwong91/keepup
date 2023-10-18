@@ -30,7 +30,6 @@ const GroceryList = ({
   ) => {
     const { name, value } = event.target;
     const updatedInputArray = [...inputArray];
-    console.log("name", name, "value", value);
     // Find the index of the item with the given id
     const foundInputIndex = updatedInputArray.findIndex(
       (input) => input.id === index

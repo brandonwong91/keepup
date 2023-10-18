@@ -100,26 +100,23 @@ const EditListModal = ({
   }, [listItemData]);
 
   const DisplayListView = () => {
-    switch (input?.status || listData?.status) {
-      case "🛒":
-        return (
-          input?.items && (
-            <GroceryList
-              listItemData={input?.items}
-              deleteItemHandler={deleteItemHandler}
-              setListItemData={setListItemData}
-            />
-          )
-        );
-      default:
-        return (
-          <ListItemInput
-            listItemData={input?.items}
-            setListItemData={setListItemData}
-            deleteItemHandler={deleteItemHandler}
-            handleRemoveList={() => setAddList(false)}
-          />
-        );
+    if (input?.status === "🛒" && input?.items) {
+      return (
+        <GroceryList
+          listItemData={input.items}
+          deleteItemHandler={deleteItemHandler}
+          setListItemData={setListItemData}
+        />
+      );
+    } else {
+      return (
+        <ListItemInput
+          listItemData={input?.items}
+          setListItemData={setListItemData}
+          deleteItemHandler={deleteItemHandler}
+          handleRemoveList={() => setAddList(false)}
+        />
+      );
     }
   };
 
