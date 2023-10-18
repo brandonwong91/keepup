@@ -4,6 +4,7 @@ export interface SubItemInput {
   type: string;
   value: string;
   unit?: string;
+  updatedAt?: string;
 }
 
 export interface SubItemType extends SubItemInput {

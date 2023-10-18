@@ -94,6 +94,7 @@ export const listRouter = createTRPCRouter({
                 type: z.string().nullish(),
                 value: z.string().nullish(),
                 unit: z.string().nullish(),
+                updatedAt: z.string().nullish(),
               })
               .array()
               .nullish(),

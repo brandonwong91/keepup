@@ -11,6 +11,7 @@ import {
 import ListItemInput from "./ListItemInput";
 import { type Item } from "@prisma/client";
 import TagSelect from "./TagSelect";
+import GroceryList from "./GroceryList";
 
 interface EditFormProps {
   closeHandler: (
@@ -53,11 +54,11 @@ const EditListModal = ({
         status: listData.status ?? "",
         items,
       });
-      if (listData.items.length > 0) {
-        setAddList(true);
-      } else {
-        setAddList(false);
-      }
+      // if (listData.items.length > 0) {
+      //   setAddList(true);
+      // } else {
+      //   setAddList(false);
+      // }
     }
   }, [listData]);
 
@@ -97,6 +98,31 @@ const EditListModal = ({
       setInputChanged(true);
     }
   }, [listItemData]);
+
+  const DisplayListView = () => {
+    switch (input?.status || listData?.status) {
+      case "🛒":
+        return (
+          input?.items && (
+            <GroceryList
+              listItemData={input?.items}
+              deleteItemHandler={deleteItemHandler}
+              setListItemData={setListItemData}
+            />
+          )
+        );
+      default:
+        return (
+          <ListItemInput
+            listItemData={input?.items}
+            setListItemData={setListItemData}
+            deleteItemHandler={deleteItemHandler}
+            handleRemoveList={() => setAddList(false)}
+          />
+        );
+    }
+  };
+
   return (
     <Modal
       visible={showModal}
@@ -120,13 +146,10 @@ const EditListModal = ({
           placeholder={"Add note"}
           onChange={(e) => handleInputChange("name", e.target.value)}
         />
-        {addList ? (
-          <ListItemInput
-            listItemData={input?.items}
-            setListItemData={setListItemData}
-            deleteItemHandler={deleteItemHandler}
-            handleRemoveList={() => setAddList(false)}
-          />
+        <DisplayListView />
+
+        {/* {addList ? (
+          <DisplayListView />
         ) : (
           <div className="cursor-pointer pt-4 text-gray-400">
             <ListIcon
@@ -136,7 +159,7 @@ const EditListModal = ({
               }}
             />
           </div>
-        )}
+        )} */}
       </div>
       <Modal.Action passive onClick={() => closeHandler()}>
         Cancel

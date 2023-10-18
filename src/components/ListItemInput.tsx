@@ -44,8 +44,10 @@ const ListItemInput = ({
   const [currentValue, setCurrentValue] = useState("");
   const [isChecked, setIsChecked] = useState(false);
   const [expandList, setExpandList] = useState<string[]>([]);
-  const handleRemoveListItem = (id: string) =>
+  const handleRemoveListItem = (id: string) => {
     setInputArray((prev) => prev.filter((item) => item.id !== id));
+    setListItemData(inputArray.filter((item) => item.id !== id));
+  };
 
   const handleChangeListItem = (
     event: ChangeEvent<HTMLInputElement>,
@@ -71,20 +73,25 @@ const ListItemInput = ({
     setEdit(false);
   };
 
+  const addNewItem = (value: string) => {
+    const newInput = {
+      id: uuidv4(),
+      name: value,
+      checked: isChecked,
+    };
+    setInputArray((prev) => [...prev, newInput]);
+    setListItemData([...inputArray, newInput]);
+  };
+
   const handleOnEnter = (e: KeyboardEvent, resetForm?: () => void) => {
     if (e.key === "Enter") {
       e.preventDefault();
       const target = e.target as HTMLInputElement;
-      setInputArray((prev) => [
-        ...prev,
-        {
-          id: uuidv4(),
-          name: target.value,
-          checked: isChecked,
-        },
-      ]);
-      if (resetForm) {
-        resetForm();
+      if (target.value !== "") {
+        addNewItem(target.value);
+        if (resetForm) {
+          resetForm();
+        }
       }
     }
   };
@@ -96,29 +103,12 @@ const ListItemInput = ({
     const target = e.target as HTMLInputElement;
     if (target.value !== "") {
       setEdit(false);
-      setInputArray((prev) => [
-        ...prev,
-        {
-          id: uuidv4(),
-          name: target.value,
-          checked: isChecked,
-        },
-      ]);
+      addNewItem(target.value);
       if (resetForm) {
         resetForm();
       }
     }
   };
-
-  useEffect(() => {
-    if (listItemData) {
-      const hasFields = listItemData.filter(
-        (listItem) => listItem.fields && listItem.fields.length > 0
-      );
-      setExpandList(hasFields.map((listItem) => listItem.id));
-    }
-    setListItemData(inputArray);
-  }, [inputArray, setListItemData, listItemData]);
 
   return (
     <div>
@@ -207,8 +197,9 @@ const ListItemInput = ({
                   <X
                     size={16}
                     onClick={() => {
+                      if (!input.id.includes("-") && deleteItemHandler)
+                        deleteItemHandler(input.id);
                       handleRemoveListItem(input.id);
-                      deleteItemHandler && deleteItemHandler(input.id);
                     }}
                   />
                 </div>
