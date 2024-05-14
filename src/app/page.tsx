@@ -1,28 +1,8 @@
-import { useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { Button } from "~/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "~/components/ui/navigation-menu";
 
-import { api } from "~/utils/api";
-
-const initialState = {
-  lists: [],
-  list: null,
-  showModal: false,
-};
-
-const Home: NextPage = () => {
-  const user = useUser();
-  const ctx = api.useContext();
-
+const Home = () => {
   return (
     <>
       <Head>
