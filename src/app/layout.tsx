@@ -10,8 +10,8 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="h-[110vh] w-screen">
-          <header className="sticky top-0">
+        <body>
+          <header className="sticky top-0 w-full">
             <NavBar />
           </header>
           <main>{children}</main>
