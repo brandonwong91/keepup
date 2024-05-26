@@ -1,7 +1,7 @@
+"use client";
 import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
 import { Card, Display, Text, Page, useToasts } from "@geist-ui/core";
 import { type NextPage } from "next";
-import Head from "next/head";
 import { useEffect, useReducer } from "react";
 import DisplayCards from "~/components/DisplayCards";
 import EditListModal from "~/components/EditListModal";
@@ -121,74 +121,67 @@ const Home: NextPage = () => {
   }, [data]);
   return (
     <>
-      <Head>
-        <title>Keep Up</title>
-        <meta name="description" content="Keep Up - supercharged ToDo app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main>
-        {!user.isSignedIn && (
-          <div className="flex h-screen items-center justify-center">
-            <Display shadow>
-              <Text h1 className="mx-4 bg-transparent">{`Keep Up`}</Text>
-              <SignIn />
-            </Display>
-          </div>
-        )}
-        {!!user.isSignedIn && user.user.firstName && (
-          <Page>
-            <Page.Header>
-              <div className="mt-4">
-                <Card>
-                  <div className="flex justify-between">
-                    <div className="self-center text-xl">{`Hi there, ${user.user.firstName}`}</div>
-                    <div className="h-min self-center whitespace-nowrap rounded-md border border-black bg-slate-800 p-1 text-sm text-slate-300 hover:border-black hover:bg-white hover:text-slate-800">
-                      <SignOutButton />
-                    </div>
+      {!user.isSignedIn && (
+        <div className="flex h-screen items-center justify-center">
+          <Display shadow>
+            <Text h1 className="mx-4 bg-transparent">{`Keep Up`}</Text>
+            <SignIn />
+          </Display>
+        </div>
+      )}
+      {!!user.isSignedIn && user.user.firstName && (
+        <Page>
+          <Page.Header>
+            <div className="mt-4">
+              <Card>
+                <div className="flex justify-between">
+                  <div className="self-center text-xl">{`Hi there, ${user.user.firstName}`}</div>
+                  <div className="h-min self-center whitespace-nowrap rounded-md border border-black bg-slate-800 p-1 text-sm text-slate-300 hover:border-black hover:bg-white hover:text-slate-800">
+                    <SignOutButton />
                   </div>
-                </Card>
-              </div>
-            </Page.Header>
-            <Page.Content>
-              <div className="flex flex-col gap-4 sm:grid">
-                <div className="flex place-content-center gap-x-1">
-                  <InputForm
-                    onEnterKeyDown={handleAddList}
-                    addLoading={addLoading}
-                  />
                 </div>
-                {listLoading && (
-                  <Card>
-                    <div className="grid gap-y-2">
-                      <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
-                      <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
-                      <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
-                    </div>
-                  </Card>
-                )}
-                <DisplayCards
-                  data={lists}
-                  deleteLoading={deleteLoading}
-                  handleDelete={handleDelete}
-                  listData={list}
-                  handleSetList={handleSetList}
-                  handleShowModal={handleShowModal}
-                  showModal={showModal}
-                  updateHandler={handleEdit}
+              </Card>
+            </div>
+          </Page.Header>
+          <Page.Content>
+            <div className="flex flex-col gap-4 sm:grid">
+              <div className="flex place-content-center gap-x-1">
+                <InputForm
+                  onEnterKeyDown={handleAddList}
+                  addLoading={addLoading}
                 />
               </div>
-              <EditListModal
-                closeHandler={closeModalHandler}
-                deleteItemHandler={handleDeleteItem}
+              {listLoading && (
+                <Card>
+                  <div className="grid gap-y-2">
+                    <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
+                    <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
+                    <div className="h-4 w-auto animate-pulse rounded-3xl bg-slate-200" />
+                  </div>
+                </Card>
+              )}
+              <DisplayCards
+                data={lists}
+                deleteLoading={deleteLoading}
+                handleDelete={handleDelete}
                 listData={list}
+                handleSetList={handleSetList}
+                handleShowModal={handleShowModal}
                 showModal={showModal}
                 updateHandler={handleEdit}
-                updateLoading={updateLoading}
               />
-            </Page.Content>
-          </Page>
-        )}
-      </main>
+            </div>
+            <EditListModal
+              closeHandler={closeModalHandler}
+              deleteItemHandler={handleDeleteItem}
+              listData={list}
+              showModal={showModal}
+              updateHandler={handleEdit}
+              updateLoading={updateLoading}
+            />
+          </Page.Content>
+        </Page>
+      )}
     </>
   );
 };

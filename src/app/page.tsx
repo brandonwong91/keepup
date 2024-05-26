@@ -1,20 +1,17 @@
-import { type NextPage } from "next";
-import Head from "next/head";
+import { Metadata } from "next";
+import Confetti from "~/components/Confetti";
 import { Button } from "~/components/ui/button";
-
-const Home = () => {
-  return (
-    <>
-      <Head>
-        <title>Keep Up</title>
-        <meta name="description" content="Keep Up - supercharged ToDo app" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main className="mx-auto flex min-h-screen flex-col items-center p-24">
-        <Button>Hello Moto</Button>
-      </main>
-    </>
-  );
+export const metadata: Metadata = {
+  title: "Keep Up",
+  description: "Keep up with yourself and your inner circle.",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
+const Home = () => (
+  <main className="mx-auto flex h-full min-h-screen flex-col items-center p-24">
+    <Confetti />
+  </main>
+);
 
 export default Home;
