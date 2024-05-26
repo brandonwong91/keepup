@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import Confetti from "~/components/Confetti";
-import { Button } from "~/components/ui/button";
 export const metadata: Metadata = {
   title: "Keep Up",
   description: "Keep up with yourself and your inner circle.",
