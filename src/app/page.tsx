@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   },
 };
 const Home = () => (
-  <main className="mx-auto flex h-full flex-col items-center p-24">
+  <main className="flex flex-col">
     <Confetti />
   </main>
 );

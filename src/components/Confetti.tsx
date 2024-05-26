@@ -22,16 +22,18 @@ const Confetti = () => {
     }
   };
   return (
-    <div>
+    <div className="flex flex-col items-center p-4 md:p-20">
       <SignedOut>
-        <GlowingStarsBackgroundCard>
-          <GlowingStarsTitle className="container flex justify-center space-x-2 pt-6">
-            <p>Let's get you</p>
+        <GlowingStarsBackgroundCard className="h-[100vh] content-center text-center">
+          <GlowingStarsTitle className="flex flex-col items-center justify-center gap-2 sm:pt-6 md:flex-row">
+            <p className="">Let's get you</p>
             <Button variant={"secondary"}>
               <SignInButton />
             </Button>
           </GlowingStarsTitle>
-          <GlowingStarsDescription></GlowingStarsDescription>
+          <GlowingStarsDescription className="mx-auto pt-2">
+            To start your workout
+          </GlowingStarsDescription>
         </GlowingStarsBackgroundCard>
       </SignedOut>
       <SignedIn>
