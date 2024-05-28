@@ -28,7 +28,7 @@ const Workout = () => {
         <Calendar
           selected={date}
           onDayClick={setDate}
-          className="flex  rounded-md"
+          className="-z-[10] flex rounded-md"
         />
         <Card className="h-full w-64">
           <CardHeader>

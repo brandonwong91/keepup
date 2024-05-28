@@ -39,7 +39,7 @@ const paths: PathType[] = [{ label: "Workout", href: "/workout" }];
 const NavBar = () => {
   const pathname = usePathname();
   return (
-    <div className="bg-blur container z-10 flex h-fit w-full flex-row border-b border-b-secondary p-4">
+    <div className="bg-blur container z-[9999] flex h-fit w-full flex-row border-b border-b-secondary p-4 backdrop-blur-lg">
       <div className="sticky items-center ">
         <h1 className="w-fit scroll-m-20 whitespace-nowrap text-4xl font-extrabold tracking-tight lg:text-5xl">
           <a href="/">Keep Up</a>
