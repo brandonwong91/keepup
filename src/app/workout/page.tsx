@@ -23,14 +23,14 @@ const Workout = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
   return (
-    <div className="flex flex-col gap-4 pt-4">
-      <div className="flex justify-center pt-4">
+    <div className="grid gap-4 pt-4">
+      <div className="flex flex-col items-center justify-center pt-4 md:flex-row">
         <Calendar
           selected={date}
           onDayClick={setDate}
           className="flex  rounded-md"
         />
-        <Card className="w-64">
+        <Card className="h-full w-64">
           <CardHeader>
             <CardTitle>{date?.toDateString()}</CardTitle>
           </CardHeader>
@@ -42,7 +42,7 @@ const Workout = () => {
           </CardFooter>
         </Card>
       </div>
-      <div className="flex flex-row justify-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
         <div className="flex flex-col gap-4 ">
           <Button className="w-full">Add Workout</Button>
           <ScrollArea className="h-72 w-60 rounded-md border">
