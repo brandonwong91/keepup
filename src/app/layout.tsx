@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import Provider from "~/_trpc/Provider";
 import NavBar from "~/components/NavBar";
 import "~/styles/globals.css";
 
@@ -8,15 +9,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>
-          <header className="sticky top-0 w-full">
-            <NavBar />
-          </header>
-          <main>{children}</main>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body>
+        <ClerkProvider>
+          <Provider>
+            <header className="sticky top-0 w-full">
+              <NavBar />
+            </header>
+            <main>{children}</main>
+          </Provider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

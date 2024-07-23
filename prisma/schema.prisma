@@ -31,3 +31,34 @@ model Item {
   listId    String   @db.ObjectId
   list      List     @relation(fields: [listId], references: [id])
 }
+
+model ExerciseSet {
+  keyId      String    @id @default(auto()) @map("_id") @db.ObjectId
+  rep        String
+  weight     String
+  Exercise   Exercise? @relation(fields: [exerciseId], references: [id])
+  exerciseId String?   @db.ObjectId
+  userId     String
+}
+
+model Exercise {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  keyId       String
+  createdAt   String
+  updatedAt   DateTime      @updatedAt
+  title       String
+  exerciseSet ExerciseSet[]
+  // workoutId   String        @db.ObjectId
+  // workout     Workout       @relation(fields: [workoutId], references: [id])
+  userId      String
+}
+
+model Workout {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  // keyId  String
+  // createdAt String
+  // updatedAt DateTime   @updatedAt
+  title  String
+  // exercises Exercise[]
+  userId String
+}

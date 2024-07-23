@@ -4,10 +4,11 @@
  *
  * We also create a few inference helpers for input and output types.
  */
-import { httpBatchLink, loggerLink } from "@trpc/client";
+import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
 import superjson from "superjson";
+import { transformer } from "zod";
 
 import { type AppRouter } from "~/server/api/root";
 
@@ -18,6 +19,15 @@ const getBaseUrl = () => {
 };
 
 /** A set of type-safe react-query hooks for your tRPC API. */
+// export const api = createTRPCClient<AppRouter>({
+//   links: [
+//     httpBatchLink({
+//       url: "http://localhost:3000",
+
+//     }),
+//   ],
+// });
+
 export const api = createTRPCNext<AppRouter>({
   config() {
     return {
@@ -41,6 +51,7 @@ export const api = createTRPCNext<AppRouter>({
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
+          transformer: superjson,
         }),
       ],
     };

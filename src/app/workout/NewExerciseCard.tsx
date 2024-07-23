@@ -12,29 +12,20 @@ import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import { ExerciseSet, useWorkoutStore } from "./state";
 
-const ExerciseCard = ({
-  id,
-  title,
-  exerciseSets,
-}: {
-  id: string;
-  title: string;
-  exerciseSets: ExerciseSet[];
-}) => {
-  const {
-    updateTitleInExercises,
-    removeExercise,
-    addExerciseSetsToExercises,
-    setExerciseSetsToExercises,
-    duplicateExercisesSet,
-    removeExerciseSet,
-  } = useWorkoutStore((state) => state);
-
+const NewExerciseCard = () => {
+  const { setShowNewExercise, addExercise, exercise, setExercise } =
+    useWorkoutStore((state) => ({
+      setShowNewExercise: state.setShowNewExercise,
+      addExercise: state.addExercise,
+      setExercise: state.setExercise,
+      exercise: state.exercise,
+    }));
   const [addingSet, setAddingSet] = useState(false);
   const [currentSet, setCurrentSet] = useState({
     rep: "",
     weight: "",
   });
+  const [exerciseSets, setExerciseSets] = useState<ExerciseSet[]>([]);
 
   const handleInputChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -54,8 +45,7 @@ const ExerciseCard = ({
         rep: currentSet.rep,
         weight: currentSet.weight,
       };
-
-      addExerciseSetsToExercises(newSet, id);
+      setExerciseSets((prevSets) => [...prevSets, newSet]);
       setCurrentSet({ rep: "", weight: "" }); // Clear input fields
     }
   };
@@ -65,37 +55,60 @@ const ExerciseCard = ({
     inputType: "rep" | "weight",
     setId: string
   ) => {
-    setExerciseSetsToExercises(event.target.value, inputType, setId, id);
+    const { value } = event.target;
+    setExerciseSets((prevSets) =>
+      prevSets.map((set) =>
+        set.id === setId ? { ...set, [inputType]: value } : set
+      )
+    );
   };
 
   const removeSetHandler = (setId: string) => {
-    removeExerciseSet(setId, id);
+    setExerciseSets((prevSets) => prevSets.filter((set) => set.id !== setId));
   };
 
   // Handler for copying an existing set
   const copySetHandler = (setId: string) => {
-    duplicateExercisesSet(setId, id);
+    const existingSet = exerciseSets.find((set) => set.id === setId);
+    if (existingSet) {
+      const copiedSet: ExerciseSet = {
+        id: Date.now().toString(), // Use timestamp as UUID
+        rep: existingSet.rep,
+        weight: existingSet.weight,
+      };
+      setExerciseSets((prevSets) => [...prevSets, copiedSet]);
+    }
   };
-
-  const handleTitleOnChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
-    updateTitleInExercises(value, id);
-  };
-
-  const handleRemoveExercise = () => {
-    removeExercise(id);
-  };
-
   return (
     <div className="relative">
       <div className="flex flex-col gap-2 rounded border border-gray-200 p-2 text-sm">
-        <Input
-          type="text"
-          placeholder="Exercise"
-          className="w-full border-none shadow-none outline-none"
-          defaultValue={title}
-          onChange={handleTitleOnChange}
-        />
+        <div className="flex">
+          <Input
+            type="text"
+            placeholder="Exercise"
+            className="w-full border-none shadow-none outline-none"
+            value={exercise.title}
+            onChange={(e) =>
+              setExercise({
+                ...exercise,
+                title: e.target.value,
+              })
+            }
+          />
+          <Button
+            size={"icon"}
+            variant={"link"}
+            onClick={() =>
+              addExercise({
+                id: Date.now().toString(),
+                title: exercise.title,
+                exerciseSets: exerciseSets,
+              })
+            }
+          >
+            <CheckIcon />
+          </Button>
+        </div>
         <Separator />
         <div className="flex items-center gap-2">
           <Button
@@ -190,7 +203,7 @@ const ExerciseCard = ({
       </div>
       <div
         className="absolute right-1 top-1 cursor-pointer bg-primary-foreground hover:text-primary/60"
-        onClick={handleRemoveExercise}
+        onClick={() => setShowNewExercise(false)}
       >
         <CrossCircledIcon />
       </div>
@@ -198,4 +211,4 @@ const ExerciseCard = ({
   );
 };
 
-export default ExerciseCard;
+export default NewExerciseCard;

@@ -45,6 +45,15 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { getAuth } from "@clerk/nextjs/server";
 import { ZodError } from "zod";
+type User = {
+  id: string;
+};
+type Context = {
+  /**
+   * User is nullable
+   */
+  user: User | null;
+};
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
@@ -59,6 +68,19 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
     };
   },
 });
+// const t = initTRPC.context<typeof createTRPCContext>().create({
+//   transformer: superjson,
+//   errorFormatter({ shape, error }) {
+//     return {
+//       ...shape,
+//       data: {
+//         ...shape.data,
+//         zodError:
+//           error.cause instanceof ZodError ? error.cause.flatten() : null,
+//       },
+//     };
+//   },
+// });
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
@@ -83,18 +105,33 @@ export const createTRPCRouter = t.router;
  */
 export const publicProcedure = t.procedure;
 
-const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+export const privateProcedure = t.procedure.use(async function isAuthed(opts) {
+  const { ctx } = opts;
+  // `ctx.user` is nullable
   if (!ctx.userId) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-    });
+    throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  return next({
+  return opts.next({
     ctx: {
+      // ✅ user value is known to be non-null now
       userId: ctx.userId,
     },
   });
 });
 
-export const privateProcedure = t.procedure.use(enforceUserIsAuthed);
+// const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+//   if (!ctx.user) {
+//     throw new TRPCError({
+//       code: "UNAUTHORIZED",
+//     });
+//   }
+
+//   return next({
+//     ctx: {
+//       userId: ctx.user,
+//     },
+//   });
+// });
+
+// export const privateProcedure = t.procedure.use(enforceUserIsAuthed);
