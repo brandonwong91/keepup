@@ -21,15 +21,12 @@ export const workoutRouter = createTRPCRouter({
       })
     )
     .mutation(async (opts) => {
-      console.log("server mutate", opts.input);
       const { input } = opts;
-      const created = opts.ctx.prisma.workout.create({
+      return opts.ctx.prisma.workout.create({
         data: {
           title: input.title,
           userId: opts.ctx.userId,
         },
       });
-      console.log("created", created);
-      return created;
     }),
 });

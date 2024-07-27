@@ -68,19 +68,6 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
     };
   },
 });
-// const t = initTRPC.context<typeof createTRPCContext>().create({
-//   transformer: superjson,
-//   errorFormatter({ shape, error }) {
-//     return {
-//       ...shape,
-//       data: {
-//         ...shape.data,
-//         zodError:
-//           error.cause instanceof ZodError ? error.cause.flatten() : null,
-//       },
-//     };
-//   },
-// });
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)

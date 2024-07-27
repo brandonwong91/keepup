@@ -14,8 +14,6 @@ import { Separator } from "~/components/ui/separator";
 import WorkoutCard from "./WorkoutCard";
 import { useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
-import { useUser } from "@clerk/nextjs";
-import { title } from "process";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -24,18 +22,13 @@ const Workout = () => {
     setWorkout: state.setWorkout,
     clearWorkout: state.clearWorkout,
   }));
-  const user = useUser();
-  // const { data } = api.lists.getAll.useQuery({
-  //   userId: user.user?.id ?? "",
-  // });
-  const { data } = api.workout.getAll.useQuery();
-  console.log(data);
 
-  // console.log("data", data);
+  const query = api.workout.getAll.useQuery();
+  console.log(query.data);
 
   const addWorkout = api.workout.create.useMutation({
     onSuccess: () => {
-      console.log("Workout created successfully");
+      query.refetch();
     },
     onError: (error) => {
       console.error("Failed to create workout", error);
@@ -62,7 +55,7 @@ const Workout = () => {
         </Card>
       </div>
       <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
-        <div className="fl ex flex-col gap-4 ">
+        <div className="flex flex-col gap-4 ">
           <Button
             className="w-full"
             onClick={async () => {
