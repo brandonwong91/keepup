@@ -41,7 +41,7 @@ interface WorkoutStore {
   setExercises: (exercises: Exercise[]) => void;
   addWorkoutTitle: (title: string) => void;
   addWorkout: (workout: Workout) => void;
-  removeWorkout: (workout: Workout) => void;
+  removeWorkout: (id: string) => void;
   updateTitleInExercises: (title: string, id: string) => void;
   removeExercise: (id: string) => void;
   addExerciseSetsToExercises: (exerciseSet: ExerciseSet, id: string) => void;
@@ -90,9 +90,9 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         exercises: [],
       },
     }),
-  removeWorkout: (workout: Workout) =>
+  removeWorkout: (id: String) =>
     set((state: WorkoutStore) => ({
-      workouts: state.workouts.filter((w) => w.id !== workout.id),
+      workouts: state.workouts.filter((w) => w.id !== id),
       workout: {
         id: "",
         title: "",

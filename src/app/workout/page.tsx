@@ -28,17 +28,13 @@ const Workout = () => {
 
   const query = api.workout.getAll.useQuery(undefined, {});
 
-  console.log(query.data);
-
   useEffect(() => {
     if (query.data && query.isFetched) {
-      // Assuming query.data is an array of workouts
-
       const transformedData = query.data.map((item) => ({
         id: item.id,
         title: item.title,
         userId: item.userId,
-        exercises: [], // Provide a default empty array if exercises are missing
+        exercises: [],
       }));
 
       const mergedWorkouts = [...transformedData.reverse(), ...workouts];

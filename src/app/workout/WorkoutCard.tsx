@@ -11,8 +11,17 @@ import { Input } from "~/components/ui/input";
 import ExerciseCard from "./ExerciseCard";
 import { useWorkoutStore } from "./state";
 import NewExerciseCard from "./NewExerciseCard";
+import { api } from "~/utils/api";
 
 const WorkoutCard = () => {
+  const removeWorkoutApi = api.workout.delete.useMutation({
+    onSuccess: () => {
+      console.log("Workout removed successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to remove workout", error);
+    },
+  });
   const {
     addWorkoutTitle,
     workout,
@@ -25,6 +34,14 @@ const WorkoutCard = () => {
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = event.target.value;
     addWorkoutTitle(newTitle); // Update the workout title using the store function
+  };
+
+  const handleRemoveWorkout = async (id: string) => {
+    const variables = {
+      id,
+    };
+    await removeWorkoutApi.mutate(variables);
+    removeWorkout(id);
   };
 
   return (
@@ -66,7 +83,7 @@ const WorkoutCard = () => {
         </Button>
         {workout.id !== "" && (
           <Button
-            onClick={() => removeWorkout(workout)}
+            onClick={() => handleRemoveWorkout(workout.id)}
             variant={"destructive"}
           >
             Remove

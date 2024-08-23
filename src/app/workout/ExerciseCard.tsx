@@ -11,6 +11,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import { ExerciseSet, useWorkoutStore } from "./state";
+import { api } from "~/utils/api";
 
 const ExerciseCard = ({
   id,
@@ -21,6 +22,15 @@ const ExerciseCard = ({
   title: string;
   exerciseSets: ExerciseSet[];
 }) => {
+  const removeWorkout = api.workout.delete.useMutation({
+    onSuccess: () => {
+      console.log("Workout removed successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to remove workout", error);
+    },
+  });
+
   const {
     updateTitleInExercises,
     removeExercise,
@@ -82,7 +92,11 @@ const ExerciseCard = ({
     updateTitleInExercises(value, id);
   };
 
-  const handleRemoveExercise = () => {
+  const handleRemoveExercise = async () => {
+    const variables = {
+      id,
+    };
+    await removeWorkout.mutate(variables);
     removeExercise(id);
   };
 
