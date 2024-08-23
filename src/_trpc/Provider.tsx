@@ -4,6 +4,7 @@ import { httpBatchLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import React, { useState } from "react";
 import { trpc } from "./client";
 import SuperJSON from "superjson";
+import { getBaseUrl } from "~/utils/api";
 
 export default function Provider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({}));
@@ -19,10 +20,6 @@ export default function Provider({ children }: { children: React.ReactNode }) {
             return headers;
           },
         }),
-        // httpBatchLink({
-        //   url: "http://localhost:3000/api/trpc",
-        //   transformer: SuperJSON,
-        // }),
       ],
     })
   );
@@ -31,10 +28,4 @@ export default function Provider({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </trpc.Provider>
   );
-}
-
-function getBaseUrl() {
-  if (typeof window !== "undefined") return window.location.origin;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return `http://localhost:${process.env.PORT ?? 3000}`;
 }

@@ -29,6 +29,8 @@ interface WorkoutStore {
   exerciseSet: ExerciseSet;
   exerciseSets: ExerciseSet[];
   setWorkout: (workout: Workout) => void;
+  setWorkouts: (workouts: Workout[]) => void;
+
   clearWorkout: () => void;
 
   setShowNewExercise: (show: boolean) => void;
@@ -75,6 +77,11 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
   showNewExercise: false,
   setWorkout: (workout: Workout) =>
     set({ workout, exercises: workout.exercises }),
+  setWorkouts: (workouts: Workout[]) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      workouts,
+    })),
   clearWorkout: () =>
     set({
       workout: {

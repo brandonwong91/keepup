@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -17,14 +17,40 @@ import { api } from "~/utils/api";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const { workouts, setWorkout, clearWorkout } = useWorkoutStore((state) => ({
-    workouts: state.workouts,
-    setWorkout: state.setWorkout,
-    clearWorkout: state.clearWorkout,
-  }));
+  const { workouts, setWorkout, setWorkouts, clearWorkout } = useWorkoutStore(
+    (state) => ({
+      workouts: state.workouts,
+      setWorkout: state.setWorkout,
+      setWorkouts: state.setWorkouts,
+      clearWorkout: state.clearWorkout,
+    })
+  );
 
-  const query = api.workout.getAll.useQuery();
+  const query = api.workout.getAll.useQuery(undefined, {});
+
   console.log(query.data);
+
+  useEffect(() => {
+    if (query.data && query.isFetched) {
+      // Assuming query.data is an array of workouts
+
+      const transformedData = query.data.map((item) => ({
+        id: item.id,
+        title: item.title,
+        userId: item.userId,
+        exercises: [], // Provide a default empty array if exercises are missing
+      }));
+
+      const mergedWorkouts = [...transformedData.reverse(), ...workouts];
+
+      // To avoid duplicate entries, you can filter based on unique IDs (assuming each workout has a unique id)
+      const uniqueWorkouts = Array.from(
+        new Set(mergedWorkouts.map((w) => w.id))
+      ).map((id) => mergedWorkouts.find((w) => w.id === id)!);
+
+      setWorkouts(uniqueWorkouts);
+    }
+  }, [query.data]);
 
   const addWorkout = api.workout.create.useMutation({
     onSuccess: () => {
@@ -76,7 +102,7 @@ const Workout = () => {
               </h4>
               {workouts.length > 0 &&
                 workouts.map(({ title, id, exercises }) => (
-                  <div key={title}>
+                  <div key={id}>
                     <div
                       className="cursor-pointer text-sm"
                       onClick={() =>
