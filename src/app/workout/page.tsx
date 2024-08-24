@@ -17,16 +17,21 @@ import { api } from "~/utils/api";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const { workouts, setWorkout, setWorkouts, clearWorkout } = useWorkoutStore(
-    (state) => ({
-      workouts: state.workouts,
-      setWorkout: state.setWorkout,
-      setWorkouts: state.setWorkouts,
-      clearWorkout: state.clearWorkout,
-    })
-  );
+  const {
+    workouts,
+    setWorkout,
+    setWorkouts,
+    clearWorkout,
+    setRefetchWorkouts,
+  } = useWorkoutStore((state) => ({
+    workouts: state.workouts,
+    setWorkout: state.setWorkout,
+    setWorkouts: state.setWorkouts,
+    clearWorkout: state.clearWorkout,
+    setRefetchWorkouts: state.setRefetchWorkouts,
+  }));
 
-  const query = api.workout.getAll.useQuery(undefined, {});
+  const query = api.workout.getAll.useQuery();
 
   useEffect(() => {
     if (query.data && query.isFetched) {
@@ -36,26 +41,22 @@ const Workout = () => {
         userId: item.userId,
         exercises: [],
       }));
-
-      const mergedWorkouts = [...transformedData.reverse(), ...workouts];
+      setRefetchWorkouts(query.refetch);
+      const mergedWorkouts = [...transformedData.reverse()];
 
       // To avoid duplicate entries, you can filter based on unique IDs (assuming each workout has a unique id)
       const uniqueWorkouts = Array.from(
         new Set(mergedWorkouts.map((w) => w.id))
       ).map((id) => mergedWorkouts.find((w) => w.id === id)!);
 
-      setWorkouts(uniqueWorkouts);
+      setWorkouts(transformedData);
     }
   }, [query.data]);
 
-  const addWorkout = api.workout.create.useMutation({
-    onSuccess: () => {
-      query.refetch();
-    },
-    onError: (error) => {
-      console.error("Failed to create workout", error);
-    },
-  });
+  const handleShowWorkoutCard = () => {
+    clearWorkout();
+  };
+
   return (
     <div className="grid gap-4 pt-4">
       <div className="flex flex-col items-center justify-center pt-4 md:flex-row">
@@ -78,17 +79,7 @@ const Workout = () => {
       </div>
       <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
         <div className="flex flex-col gap-4 ">
-          <Button
-            className="w-full"
-            onClick={async () => {
-              clearWorkout();
-              const variables = {
-                title: Date.now().toString(),
-              };
-
-              addWorkout.mutate(variables);
-            }}
-          >
+          <Button className="w-full" onClick={handleShowWorkoutCard}>
             Add Workout
           </Button>
           <ScrollArea className="h-72 w-60 rounded-md border">

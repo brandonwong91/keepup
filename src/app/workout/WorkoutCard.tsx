@@ -9,19 +9,11 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import ExerciseCard from "./ExerciseCard";
-import { useWorkoutStore } from "./state";
+import { useWorkoutStore, Workout } from "./state";
 import NewExerciseCard from "./NewExerciseCard";
 import { api } from "~/utils/api";
 
 const WorkoutCard = () => {
-  const removeWorkoutApi = api.workout.delete.useMutation({
-    onSuccess: () => {
-      console.log("Workout removed successfully");
-    },
-    onError: (error) => {
-      console.error("Failed to remove workout", error);
-    },
-  });
   const {
     addWorkoutTitle,
     workout,
@@ -30,7 +22,34 @@ const WorkoutCard = () => {
     showNewExercise,
     setShowNewExercise,
     exercises,
+    refetchWorkouts,
   } = useWorkoutStore((state) => state);
+  const removeWorkoutApi = api.workout.delete.useMutation({
+    onSuccess: () => {
+      console.log("Workout removed successfully");
+      refetchWorkouts;
+    },
+    onError: (error) => {
+      console.error("Failed to remove workout", error);
+    },
+  });
+  const updateWorkoutApi = api.workout.update.useMutation({
+    onSuccess: () => {
+      console.log("Workout updated successfully");
+      refetchWorkouts;
+    },
+    onError: (error) => {
+      console.error("Failed to update workout", error);
+    },
+  });
+  const addWorkoutApi = api.workout.create.useMutation({
+    onSuccess: () => {
+      refetchWorkouts;
+    },
+    onError: (error) => {
+      console.error("Failed to create workout", error);
+    },
+  });
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = event.target.value;
     addWorkoutTitle(newTitle); // Update the workout title using the store function
@@ -42,6 +61,21 @@ const WorkoutCard = () => {
     };
     await removeWorkoutApi.mutate(variables);
     removeWorkout(id);
+  };
+
+  const handleSaveWorkout = async (workout: Workout) => {
+    const { id, title } = workout;
+    const variables = {
+      id,
+      title,
+    };
+
+    if (workout.id === "") {
+      await addWorkoutApi.mutate(variables);
+      addWorkout(workout);
+    } else {
+      await updateWorkoutApi.mutate(variables);
+    }
   };
 
   return (
@@ -76,7 +110,7 @@ const WorkoutCard = () => {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button
-          onClick={() => addWorkout(workout)}
+          onClick={() => handleSaveWorkout(workout)}
           disabled={workout.title === ""}
         >
           {workout.id !== "" ? "Save" : "Add"}
