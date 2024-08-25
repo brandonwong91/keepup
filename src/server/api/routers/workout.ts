@@ -114,12 +114,24 @@ export const workoutRouter = createTRPCRouter({
         id: z.string(),
       })
     )
-    .mutation(async (opts) => {
-      const { input } = opts;
-      return opts.ctx.prisma.workout.delete({
+    .mutation(async ({ input, ctx }) => {
+      // Unlink exercises from the workout
+      await ctx.prisma.exercise.updateMany({
+        where: {
+          workoutId: input.id,
+        },
+        data: {
+          workoutId: null, // Unlink the exercises from the workout
+        },
+      });
+
+      // Optionally, you can also delete the workout itself if you want:
+      await ctx.prisma.workout.delete({
         where: {
           id: input.id,
         },
       });
+
+      return { success: true };
     }),
 });
