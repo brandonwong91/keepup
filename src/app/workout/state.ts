@@ -11,7 +11,7 @@ export interface ExerciseSet {
 export interface Exercise {
   id: string;
   title: string;
-  exerciseSets: ExerciseSet[] | null;
+  exerciseSets: ExerciseSet[];
 }
 
 export interface Workout {
