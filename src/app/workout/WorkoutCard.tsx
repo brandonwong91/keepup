@@ -16,12 +16,12 @@ import { api } from "~/utils/api";
 const WorkoutCard = () => {
   const {
     addWorkoutTitle,
-    workout,
-    showNewExercise,
-    setShowNewExercise,
+    clearWorkout,
     exercises,
     refetchWorkouts,
-    clearWorkout,
+    setShowNewExercise,
+    showNewExercise,
+    workout,
   } = useWorkoutStore((state) => state);
   const removeWorkoutApi = api.workout.delete.useMutation({
     onSuccess: () => {
@@ -72,7 +72,7 @@ const WorkoutCard = () => {
       title,
       exercises,
     };
-
+    console.log("Add", exercises);
     if (id === "") {
       await addWorkoutApi.mutate(variables);
     } else {
@@ -103,7 +103,6 @@ const WorkoutCard = () => {
         {showNewExercise && <NewExerciseCard />}
         {exercises.length > 0 &&
           exercises.map(({ id, title, exerciseSets }) => {
-            console.log("id", id);
             return (
               <ExerciseCard
                 key={id}

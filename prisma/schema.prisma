@@ -33,12 +33,14 @@ model Item {
 }
 
 model ExerciseSet {
-  keyId      String   @id @default(auto()) @map("_id") @db.ObjectId
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
   rep        String
   weight     String
   exercise   Exercise @relation(fields: [exerciseId], references: [id])
   exerciseId String   @db.ObjectId
   userId     String
+  createdAt  DateTime
+  updatedAt  DateTime @updatedAt
 }
 
 model Exercise {

@@ -63,49 +63,72 @@ export const workoutRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         title: z.string(),
-        exercises: z.array(
-          z.object({
-            id: z.string(), // Include id if you want to allow updates to existing exercises
-            title: z.string(),
-            exerciseSets: z
-              .array(
-                z.object({
-                  id: z.string(), // Include id if you want to allow updates to existing exercise sets
-                  rep: z.string(),
-                  weight: z.string(),
-                })
-              )
-              .optional(),
-          })
-        ),
+        exercises: z
+          .array(
+            z.object({
+              id: z.string(),
+              title: z.string(),
+              exerciseSets: z
+                .array(
+                  z.object({
+                    id: z.string(),
+                    rep: z.string(),
+                    weight: z.string(),
+                  })
+                )
+                .optional(), // exerciseSets is optional
+            })
+          )
+          .optional(), // exercises is optional
       })
     )
     .mutation(async ({ input, ctx: { userId, prisma } }) => {
       const { id, title, exercises } = input;
+
+      // Helper function to map exercise sets
+      const mapExerciseSets = (
+        exerciseSets?: { id: string; rep: string; weight: string }[]
+      ) => {
+        return (exerciseSets || []).map(({ rep, weight }) => ({
+          rep,
+          weight,
+          createdAt: getCurrentTimestamp(),
+          userId,
+        }));
+      };
+      console.log(
+        "setExercises",
+        exercises && mapExerciseSets(exercises[0]?.exerciseSets)
+      );
+      // Helper function to map exercises for upsert
       const mapExercises = (
-        exercises: {
+        exercises?: {
           id: string;
           title: string;
-          // exerciseSets: { id: string; rep: string; weight: string }[];
+          exerciseSets?: { id: string; rep: string; weight: string }[];
         }[]
       ) => {
-        console.log("update", exercises);
-        return exercises.map(({ id, title }) => ({
+        return (exercises || []).map(({ id, title, exerciseSets }) => ({
           where: { id: id.length === 24 ? id : new ObjectId().toString() },
           create: {
             title,
             createdAt: getCurrentTimestamp(),
             userId,
+            exerciseSets: {
+              create: mapExerciseSets(exerciseSets),
+            },
           },
           update: {
             title,
+            exerciseSets: {
+              create: mapExerciseSets(exerciseSets),
+            },
           },
         }));
       };
+
       return prisma.workout.update({
-        where: {
-          id,
-        },
+        where: { id },
         data: {
           title,
           exercises: {
