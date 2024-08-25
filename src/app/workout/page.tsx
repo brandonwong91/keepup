@@ -18,34 +18,35 @@ import { Skeleton } from "~/components/ui/skeleton";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const {
-    workouts,
-    setWorkout,
-    setWorkouts,
-    clearWorkout,
-    setRefetchWorkouts,
-  } = useWorkoutStore((state) => state);
+  const { workouts, setWorkout, setWorkouts, setRefetchWorkouts } =
+    useWorkoutStore((state) => state);
 
   const query = api.workout.getAll.useQuery();
 
   useEffect(() => {
     if (query.data && query.isFetched) {
-      const transformedData = query.data.map((item) => ({
-        id: item.id,
-        title: item.title,
-        userId: item.userId,
-        exercises: [],
-      }));
+      console.log(query.data);
+      const transformedData = query.data.map(
+        ({ id, title, userId, exercises }) => {
+          return {
+            id,
+            title,
+            userId,
+            exercises: exercises.map(({ id, title }) => {
+              return {
+                id,
+                title,
+                exerciseSets: [],
+              };
+            }),
+          };
+        }
+      );
       setRefetchWorkouts(query.refetch);
       const mergedWorkouts = [...transformedData.reverse()];
 
-      // To avoid duplicate entries, you can filter based on unique IDs (assuming each workout has a unique id)
-      const uniqueWorkouts = Array.from(
-        new Set(mergedWorkouts.map((w) => w.id))
-      ).map((id) => mergedWorkouts.find((w) => w.id === id)!);
-
       setTimeout(() => {
-        setWorkouts(transformedData);
+        setWorkouts(mergedWorkouts);
       }, 300);
     }
   }, [query.data]);

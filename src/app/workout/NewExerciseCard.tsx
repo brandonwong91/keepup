@@ -11,6 +11,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import { ExerciseSet, useWorkoutStore } from "./state";
+import ObjectID from "bson-objectid";
 
 const NewExerciseCard = () => {
   const { setShowNewExercise, addExercise, exercise, setExercise } =
@@ -38,10 +39,21 @@ const NewExerciseCard = () => {
     }));
   };
 
+  const addExerciseHandler = () => {
+    console.log("addExercise", ObjectID.createFromTime(Date.now()).str);
+    if (exercise.title) {
+      addExercise({
+        id: Date.now().toString(),
+        title: exercise.title,
+        exerciseSets: exerciseSets,
+      });
+    }
+  };
+
   const addSetHandler = () => {
     if (currentSet.rep && currentSet.weight) {
       const newSet: ExerciseSet = {
-        id: Date.now().toString(), // Use timestamp as UUID
+        id: ObjectID.createFromTime(Date.now()).str, // Use timestamp as UUID
         rep: currentSet.rep,
         weight: currentSet.weight,
       };
@@ -98,13 +110,7 @@ const NewExerciseCard = () => {
           <Button
             size={"icon"}
             variant={"link"}
-            onClick={() =>
-              addExercise({
-                id: Date.now().toString(),
-                title: exercise.title,
-                exerciseSets: exerciseSets,
-              })
-            }
+            onClick={() => addExerciseHandler()}
           >
             <CheckIcon />
           </Button>

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import Workout from "./page";
-import ExerciseCard from "./ExerciseCard";
+import ObjectID from "bson-objectid";
 
 export interface ExerciseSet {
   id: string;
@@ -11,7 +11,7 @@ export interface ExerciseSet {
 export interface Exercise {
   id: string;
   title: string;
-  exerciseSets: ExerciseSet[];
+  exerciseSets: ExerciseSet[] | null;
 }
 
 export interface Workout {
@@ -92,6 +92,13 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         title: "",
         exercises: [],
       },
+      exercises: [],
+      exercise: {
+        id: "",
+        title: "",
+        exerciseSets: [],
+      },
+      exerciseSets: [],
     }),
   removeWorkout: (id: String) =>
     set((state: WorkoutStore) => ({
@@ -157,7 +164,7 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
 
       if (existingSet) {
         const copiedSet = {
-          id: Date.now().toString(), // Use timestamp as UUID
+          id: ObjectID.createFromTime(Date.now()).str, // Use timestamp as UUID
           rep: existingSet.rep,
           weight: existingSet.weight,
         };
@@ -230,7 +237,7 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
           ...state,
           workouts: [
             {
-              id: Date.now().toString(),
+              id: ObjectID.createFromTime(Date.now()).str,
               title: workout.title,
               exercises: [...state.exercises, state.exercise],
             },

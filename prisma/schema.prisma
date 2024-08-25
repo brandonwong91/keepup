@@ -33,32 +33,30 @@ model Item {
 }
 
 model ExerciseSet {
-  keyId      String    @id @default(auto()) @map("_id") @db.ObjectId
+  keyId      String   @id @default(auto()) @map("_id") @db.ObjectId
   rep        String
   weight     String
-  Exercise   Exercise? @relation(fields: [exerciseId], references: [id])
-  exerciseId String?   @db.ObjectId
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId String   @db.ObjectId
   userId     String
 }
 
 model Exercise {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  keyId       String
-  createdAt   String
-  updatedAt   DateTime      @updatedAt
-  title       String
-  exerciseSet ExerciseSet[]
-  // workoutId   String        @db.ObjectId
-  // workout     Workout       @relation(fields: [workoutId], references: [id])
-  userId      String
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime
+  updatedAt    DateTime      @updatedAt
+  title        String
+  exerciseSets ExerciseSet[]
+  workoutId    String        @db.ObjectId
+  workout      Workout       @relation(fields: [workoutId], references: [id])
+  userId       String
 }
 
 model Workout {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  // keyId  String
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime   @updatedAt
   title     String
-  // exercises Exercise[]
+  exercises Exercise[]
   userId    String
 }

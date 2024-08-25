@@ -69,14 +69,14 @@ const WorkoutCard = () => {
   const handleSaveWorkout = async (workout: Workout) => {
     const { id, title } = workout;
     const variables = {
-      id,
       title,
+      exercises,
     };
 
-    if (workout.id === "") {
+    if (id === "") {
       await addWorkoutApi.mutate(variables);
     } else {
-      await updateWorkoutApi.mutate(variables);
+      await updateWorkoutApi.mutate({ id, ...variables });
     }
     clearWorkout();
   };
@@ -102,14 +102,17 @@ const WorkoutCard = () => {
         </Button>
         {showNewExercise && <NewExerciseCard />}
         {exercises.length > 0 &&
-          exercises.map(({ id, title, exerciseSets }) => (
-            <ExerciseCard
-              key={id}
-              id={id}
-              title={title}
-              exerciseSets={exerciseSets}
-            />
-          ))}
+          exercises.map(({ id, title, exerciseSets }) => {
+            console.log("id", id);
+            return (
+              <ExerciseCard
+                key={id}
+                id={id}
+                title={title}
+                exerciseSets={exerciseSets}
+              />
+            );
+          })}
       </CardContent>
       <CardFooter className="flex justify-between">
         {workout.id !== "" && (
