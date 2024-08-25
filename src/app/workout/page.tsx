@@ -15,13 +15,15 @@ import WorkoutCard from "./WorkoutCard";
 import { useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const { workouts, setWorkout, setWorkouts, setRefetchWorkouts } =
     useWorkoutStore((state) => state);
 
-  const query = api.workout.getAll.useQuery();
+  const query = api.workout.getAllWorkouts.useQuery();
+  const queryExercises = api.workout.getAllExercises.useQuery();
 
   useEffect(() => {
     if (query.data && query.isFetched) {
@@ -78,47 +80,87 @@ const Workout = () => {
           <Button className="w-full" onClick={handleShowWorkoutCard}>
             Add Workout
           </Button>
-          <ScrollArea className="h-72 w-60 rounded-md border">
-            <div className="p-4">
-              <h4 className="mb-4 text-sm font-medium leading-none">
-                Workouts
-              </h4>
-              {query.isLoading && (
-                <div className="flex flex-col gap-6">
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                  <Skeleton className="h-[16px] w-full rounded-full" />
-                </div>
-              )}
-              {workouts.length > 0 ? (
-                workouts.map(({ title, id, exercises }) => (
-                  <div key={id}>
-                    <div
-                      className="cursor-pointer text-sm"
-                      onClick={() =>
-                        setWorkout({
-                          id,
-                          title,
-                          exercises,
-                        })
-                      }
-                    >
-                      {title}
+          <Tabs defaultValue="workouts" className="">
+            <TabsList>
+              <TabsTrigger value="workouts">Workouts</TabsTrigger>
+              <TabsTrigger value="exercises">Exercises</TabsTrigger>
+            </TabsList>
+            <TabsContent value="workouts">
+              <ScrollArea className="h-72 w-60 rounded-md border">
+                <div className="p-4">
+                  <h4 className="mb-4 text-sm font-medium leading-none">
+                    Workouts
+                  </h4>
+                  {query.isLoading && (
+                    <div className="flex flex-col gap-6">
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
                     </div>
-                    <Separator className="my-2" />
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-secondary-foreground">
-                  No workouts found...
+                  )}
+                  {workouts.length > 0 ? (
+                    workouts.map(({ title, id, exercises }) => (
+                      <div key={id}>
+                        <div
+                          className="cursor-pointer text-sm"
+                          onClick={() =>
+                            setWorkout({
+                              id,
+                              title,
+                              exercises,
+                            })
+                          }
+                        >
+                          {title}
+                        </div>
+                        <Separator className="my-2" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-secondary-foreground">
+                      No workouts found...
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </ScrollArea>
+              </ScrollArea>
+            </TabsContent>
+            <TabsContent value="exercises">
+              <ScrollArea className="h-72 w-60 rounded-md border">
+                <div className="p-4">
+                  <h4 className="mb-4 text-sm font-medium leading-none">
+                    Exercises
+                  </h4>
+                  {query.isLoading && (
+                    <div className="flex flex-col gap-6">
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                    </div>
+                  )}
+                  {queryExercises.data && queryExercises.data.length > 0 ? (
+                    queryExercises.data.map(({ title, id }) => (
+                      <div key={id}>
+                        <div className="cursor-pointer text-sm">{title}</div>
+                        <Separator className="my-2" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-secondary-foreground">
+                      No exercises found...
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </Tabs>
         </div>
         <WorkoutCard />
       </div>

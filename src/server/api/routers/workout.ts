@@ -5,7 +5,7 @@ import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 const getCurrentTimestamp = () => new Date().toISOString();
 
 export const workoutRouter = createTRPCRouter({
-  getAll: privateProcedure.query(({ ctx }) => {
+  getAllWorkouts: privateProcedure.query(({ ctx }) => {
     return ctx.prisma.workout.findMany({
       where: {
         userId: ctx.userId,
@@ -16,6 +16,13 @@ export const workoutRouter = createTRPCRouter({
             exerciseSets: true,
           },
         },
+      },
+    });
+  }),
+  getAllExercises: privateProcedure.query(({ ctx }) => {
+    return ctx.prisma.exercise.findMany({
+      where: {
+        userId: ctx.userId,
       },
     });
   }),
