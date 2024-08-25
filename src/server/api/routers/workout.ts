@@ -22,6 +22,7 @@ export const workoutRouter = createTRPCRouter({
         data: {
           title: input.title,
           userId: opts.ctx.userId,
+          createdAt: new Date().toISOString(),
         },
       });
     }),

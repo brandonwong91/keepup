@@ -54,11 +54,11 @@ model Exercise {
 }
 
 model Workout {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   // keyId  String
-  // createdAt String
-  // updatedAt DateTime   @updatedAt
-  title  String
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
+  title     String
   // exercises Exercise[]
-  userId String
+  userId    String
 }

@@ -26,7 +26,7 @@ const WorkoutCard = () => {
   const removeWorkoutApi = api.workout.delete.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
-        refetchWorkouts(); // This will refetch the workouts data after mutation
+        refetchWorkouts();
       }
     },
     onError: (error) => {
@@ -36,7 +36,7 @@ const WorkoutCard = () => {
   const updateWorkoutApi = api.workout.update.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
-        refetchWorkouts(); // This will refetch the workouts data after mutation
+        refetchWorkouts();
       }
     },
     onError: (error) => {
@@ -46,7 +46,7 @@ const WorkoutCard = () => {
   const addWorkoutApi = api.workout.create.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
-        refetchWorkouts(); // This will refetch the workouts data after mutation
+        refetchWorkouts();
       }
     },
     onError: (error) => {
@@ -63,6 +63,7 @@ const WorkoutCard = () => {
       id,
     };
     await removeWorkoutApi.mutate(variables);
+    clearWorkout();
   };
 
   const handleSaveWorkout = async (workout: Workout) => {
@@ -119,6 +120,12 @@ const WorkoutCard = () => {
             Remove
           </Button>
         )}
+        <Button
+          onClick={() => handleSaveWorkout(workout)}
+          disabled={workout.title === ""}
+        >
+          {workout.id !== "" ? "Save" : "Add"}
+        </Button>
       </CardFooter>
     </Card>
   );
