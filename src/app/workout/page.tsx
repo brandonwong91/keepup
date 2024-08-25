@@ -24,13 +24,7 @@ const Workout = () => {
     setWorkouts,
     clearWorkout,
     setRefetchWorkouts,
-  } = useWorkoutStore((state) => ({
-    workouts: state.workouts,
-    setWorkout: state.setWorkout,
-    setWorkouts: state.setWorkouts,
-    clearWorkout: state.clearWorkout,
-    setRefetchWorkouts: state.setRefetchWorkouts,
-  }));
+  } = useWorkoutStore((state) => state);
 
   const query = api.workout.getAll.useQuery();
 
@@ -50,13 +44,13 @@ const Workout = () => {
         new Set(mergedWorkouts.map((w) => w.id))
       ).map((id) => mergedWorkouts.find((w) => w.id === id)!);
 
-      setWorkouts(transformedData);
+      setTimeout(() => {
+        setWorkouts(transformedData);
+      }, 300);
     }
   }, [query.data]);
 
-  const handleShowWorkoutCard = () => {
-    clearWorkout();
-  };
+  const handleShowWorkoutCard = () => {};
 
   return (
     <div className="grid gap-4 pt-4">
@@ -88,7 +82,7 @@ const Workout = () => {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Workouts
               </h4>
-              {query.isFetching && (
+              {query.isLoading && (
                 <div className="flex flex-col gap-6">
                   <Skeleton className="h-[16px] w-full rounded-full" />
                   <Skeleton className="h-[16px] w-full rounded-full" />
@@ -99,7 +93,7 @@ const Workout = () => {
                   <Skeleton className="h-[16px] w-full rounded-full" />
                 </div>
               )}
-              {workouts.length > 0 &&
+              {workouts.length > 0 ? (
                 workouts.map(({ title, id, exercises }) => (
                   <div key={id}>
                     <div
@@ -116,8 +110,8 @@ const Workout = () => {
                     </div>
                     <Separator className="my-2" />
                   </div>
-                ))}
-              {workouts.length === 0 && (
+                ))
+              ) : (
                 <div className="text-sm text-secondary-foreground">
                   No workouts found...
                 </div>

@@ -17,17 +17,17 @@ const WorkoutCard = () => {
   const {
     addWorkoutTitle,
     workout,
-    addWorkout,
-    removeWorkout,
     showNewExercise,
     setShowNewExercise,
     exercises,
     refetchWorkouts,
+    clearWorkout,
   } = useWorkoutStore((state) => state);
   const removeWorkoutApi = api.workout.delete.useMutation({
     onSuccess: () => {
-      console.log("Workout removed successfully");
-      refetchWorkouts;
+      if (refetchWorkouts) {
+        refetchWorkouts(); // This will refetch the workouts data after mutation
+      }
     },
     onError: (error) => {
       console.error("Failed to remove workout", error);
@@ -35,8 +35,9 @@ const WorkoutCard = () => {
   });
   const updateWorkoutApi = api.workout.update.useMutation({
     onSuccess: () => {
-      console.log("Workout updated successfully");
-      refetchWorkouts;
+      if (refetchWorkouts) {
+        refetchWorkouts(); // This will refetch the workouts data after mutation
+      }
     },
     onError: (error) => {
       console.error("Failed to update workout", error);
@@ -44,7 +45,9 @@ const WorkoutCard = () => {
   });
   const addWorkoutApi = api.workout.create.useMutation({
     onSuccess: () => {
-      refetchWorkouts;
+      if (refetchWorkouts) {
+        refetchWorkouts(); // This will refetch the workouts data after mutation
+      }
     },
     onError: (error) => {
       console.error("Failed to create workout", error);
@@ -60,7 +63,6 @@ const WorkoutCard = () => {
       id,
     };
     await removeWorkoutApi.mutate(variables);
-    removeWorkout(id);
   };
 
   const handleSaveWorkout = async (workout: Workout) => {
@@ -72,10 +74,10 @@ const WorkoutCard = () => {
 
     if (workout.id === "") {
       await addWorkoutApi.mutate(variables);
-      addWorkout(workout);
     } else {
       await updateWorkoutApi.mutate(variables);
     }
+    clearWorkout();
   };
 
   return (
@@ -109,12 +111,6 @@ const WorkoutCard = () => {
           ))}
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button
-          onClick={() => handleSaveWorkout(workout)}
-          disabled={workout.title === ""}
-        >
-          {workout.id !== "" ? "Save" : "Add"}
-        </Button>
         {workout.id !== "" && (
           <Button
             onClick={() => handleRemoveWorkout(workout.id)}
