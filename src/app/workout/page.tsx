@@ -14,6 +14,7 @@ import { Separator } from "~/components/ui/separator";
 import WorkoutCard from "./WorkoutCard";
 import { useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
+import { Skeleton } from "~/components/ui/skeleton";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -87,6 +88,17 @@ const Workout = () => {
               <h4 className="mb-4 text-sm font-medium leading-none">
                 Workouts
               </h4>
+              {query.isFetching && (
+                <div className="flex flex-col gap-6">
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                  <Skeleton className="h-[16px] w-full rounded-full" />
+                </div>
+              )}
               {workouts.length > 0 &&
                 workouts.map(({ title, id, exercises }) => (
                   <div key={id}>

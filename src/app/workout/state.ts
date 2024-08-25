@@ -229,12 +229,12 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         return {
           ...state,
           workouts: [
-            ...state.workouts,
             {
               id: Date.now().toString(),
               title: workout.title,
               exercises: [...state.exercises, state.exercise],
             },
+            ...state.workouts,
           ],
           workout: {
             id: "",
