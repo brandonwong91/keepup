@@ -16,11 +16,19 @@ import { useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import ExerciseDetailCard from "./ExerciseDetailCard";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const { workouts, setWorkout, setWorkouts, setRefetchWorkouts } =
-    useWorkoutStore((state) => state);
+  const {
+    workouts,
+    setWorkout,
+    setWorkouts,
+    setRefetchWorkouts,
+    showTab,
+    setShowTab,
+    setExercise,
+  } = useWorkoutStore((state) => state);
 
   const query = api.workout.getAllWorkouts.useQuery();
   const queryExercises = api.workout.getAllExercises.useQuery();
@@ -82,51 +90,63 @@ const Workout = () => {
           </Button>
           <Tabs defaultValue="workouts" className="">
             <TabsList>
-              <TabsTrigger value="workouts">Workouts</TabsTrigger>
-              <TabsTrigger value="exercises">Exercises</TabsTrigger>
+              <TabsTrigger
+                value="workouts"
+                onClick={() => setShowTab("workouts")}
+              >
+                Workouts
+              </TabsTrigger>
+              <TabsTrigger
+                value="exercises"
+                onClick={() => setShowTab("exercises")}
+              >
+                Exercises
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="workouts">
-              <ScrollArea className="h-72 w-60 rounded-md border">
-                <div className="p-4">
-                  <h4 className="mb-4 text-sm font-medium leading-none">
-                    Workouts
-                  </h4>
-                  {query.isLoading && (
-                    <div className="flex flex-col gap-6">
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                    </div>
-                  )}
-                  {workouts.length > 0 ? (
-                    workouts.map(({ title, id, exercises }) => (
-                      <div key={id}>
-                        <div
-                          className="cursor-pointer text-sm"
-                          onClick={() =>
-                            setWorkout({
-                              id,
-                              title,
-                              exercises,
-                            })
-                          }
-                        >
-                          {title}
-                        </div>
-                        <Separator className="my-2" />
+              <Card>
+                <ScrollArea className="h-72 w-60 ">
+                  <div className="p-4">
+                    <h4 className="mb-4 text-sm font-medium leading-none">
+                      Workouts
+                    </h4>
+                    {query.isLoading && (
+                      <div className="flex flex-col gap-6">
+                        <Skeleton className="h-[16px] w-full rounded-full" />
+                        <Skeleton className="h-[16px] w-full rounded-full" />
+                        <Skeleton className="h-[16px] w-full rounded-full" />
+                        <Skeleton className="h-[16px] w-full rounded-full" />
+                        <Skeleton className="h-[16px] w-full rounded-full" />
+                        <Skeleton className="h-[16px] w-full rounded-full" />
+                        <Skeleton className="h-[16px] w-full rounded-full" />
                       </div>
-                    ))
-                  ) : (
-                    <div className="text-sm text-secondary-foreground">
-                      No workouts found...
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
+                    )}
+                    {workouts.length > 0 ? (
+                      workouts.map(({ title, id, exercises }) => (
+                        <div key={id}>
+                          <div
+                            className="cursor-pointer text-sm"
+                            onClick={() =>
+                              setWorkout({
+                                id,
+                                title,
+                                exercises,
+                              })
+                            }
+                          >
+                            {title}
+                          </div>
+                          <Separator className="my-2" />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-sm text-secondary-foreground">
+                        No workouts found...
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </Card>
             </TabsContent>
             <TabsContent value="exercises">
               <ScrollArea className="h-72 w-60 rounded-md border">
@@ -146,9 +166,20 @@ const Workout = () => {
                     </div>
                   )}
                   {queryExercises.data && queryExercises.data.length > 0 ? (
-                    queryExercises.data.map(({ title, id }) => (
+                    queryExercises.data.map(({ title, id, exerciseSets }) => (
                       <div key={id}>
-                        <div className="cursor-pointer text-sm">{title}</div>
+                        <div
+                          className="cursor-pointer text-sm"
+                          onClick={() =>
+                            setExercise({
+                              id,
+                              exerciseSets,
+                              title,
+                            })
+                          }
+                        >
+                          {title}
+                        </div>
                         <Separator className="my-2" />
                       </div>
                     ))
@@ -162,7 +193,8 @@ const Workout = () => {
             </TabsContent>
           </Tabs>
         </div>
-        <WorkoutCard />
+        {showTab === "workouts" && <WorkoutCard />}
+        {showTab === "exercises" && <ExerciseDetailCard />}
       </div>
     </div>
   );

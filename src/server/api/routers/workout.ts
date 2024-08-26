@@ -24,6 +24,9 @@ export const workoutRouter = createTRPCRouter({
       where: {
         userId: ctx.userId,
       },
+      include: {
+        exerciseSets: true,
+      },
     });
   }),
   create: privateProcedure
@@ -96,10 +99,7 @@ export const workoutRouter = createTRPCRouter({
           userId,
         }));
       };
-      console.log(
-        "setExercises",
-        exercises && mapExerciseSets(exercises[0]?.exerciseSets)
-      );
+
       // Helper function to map exercises for upsert
       const mapExercises = (
         exercises?: {
