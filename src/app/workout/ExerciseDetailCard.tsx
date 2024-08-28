@@ -67,8 +67,9 @@ const ExerciseDetailCard = () => {
       const date = format(new Date(set.createdAt as Date), "MM-dd");
       if (!groupedSets[date]) {
         groupedSets[date] = [];
+      } else {
+        groupedSets[date]?.push(set);
       }
-      groupedSets[date].push(set);
       return groupedSets;
     }, {});
   }
