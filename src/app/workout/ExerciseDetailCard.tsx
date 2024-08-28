@@ -10,24 +10,55 @@ import { ExerciseSet, useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
 import { Button } from "~/components/ui/button";
 import { format } from "date-fns";
+import { Input } from "~/components/ui/input";
 
 const ExerciseDetailCard = () => {
-  const { exercise, refetchWorkouts } = useWorkoutStore((state) => state);
+  const { exercise, refetchExercises, updateExercise } = useWorkoutStore(
+    (state) => state
+  );
   const { title, exerciseSets, id } = exercise;
   const removeExercise = api.workout.deleteExercise.useMutation({
     onSuccess: () => {
       console.log("Workout removed successfully");
-      refetchWorkouts;
+      refetchExercises;
     },
     onError: (error) => {
-      console.error("Failed to remove workout", error);
+      console.error("Failed to remove exercise", error);
     },
   });
+
+  const updateExerciseApi = api.workout.updateExercise.useMutation({
+    onSuccess: () => {
+      console.log("Workout updated successfully");
+      refetchExercises;
+    },
+    onError: (error) => {
+      console.error("Failed to update exercise", error);
+    },
+  });
+
   const handleRemoveExercise = async (id: string) => {
     const variables = {
       id,
     };
     await removeExercise.mutate(variables);
+  };
+
+  const handleUpdateExercise = async () => {
+    const variables = {
+      id,
+      title,
+      exerciseSets,
+    };
+    await updateExerciseApi.mutate(variables);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = event.target.value;
+    updateExercise({
+      ...exercise,
+      title: newTitle,
+    }); // Update the workout title using the store function
   };
 
   const groupedExerciseSets = groupByMMDD(exerciseSets);
@@ -45,7 +76,13 @@ const ExerciseDetailCard = () => {
   return (
     <Card className="w-64">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle>
+          <Input
+            placeholder="title"
+            value={title}
+            onChange={handleTitleChange}
+          />
+        </CardTitle>
         <CardContent className="w-full p-0">
           {Object.entries(groupedExerciseSets).map(([date, sets]) => (
             <div key={date}>
@@ -58,7 +95,7 @@ const ExerciseDetailCard = () => {
             </div>
           ))}
         </CardContent>
-        <CardFooter className="flex p-0">
+        <CardFooter className="flex justify-between p-0">
           {id !== "" && (
             <Button
               onClick={() => handleRemoveExercise(id)}
@@ -68,6 +105,9 @@ const ExerciseDetailCard = () => {
               Remove
             </Button>
           )}
+          <Button onClick={() => handleUpdateExercise()} size={"sm"}>
+            {id !== "" ? "Save" : "Add"}
+          </Button>
         </CardFooter>
       </CardHeader>
     </Card>
