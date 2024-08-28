@@ -172,7 +172,7 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
 
       if (existingSet) {
         const copiedSet = {
-          id: ObjectID.createFromTime(Date.now()).str, // Use timestamp as UUID
+          id: Date.now().toString(), // Use timestamp as UUID
           rep: existingSet.rep,
           weight: existingSet.weight,
         };
@@ -245,7 +245,7 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
           ...state,
           workouts: [
             {
-              id: ObjectID.createFromTime(Date.now()).str,
+              id: Date.now().toString(),
               title: workout.title,
               exercises: [...state.exercises, state.exercise],
             },

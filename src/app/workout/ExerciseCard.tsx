@@ -101,15 +101,23 @@ const ExerciseCard = ({
   };
 
   return (
-    <div className="relative">
+    <div>
       <div className="flex flex-col gap-2 rounded border border-gray-200 p-2 text-sm">
-        <Input
-          type="text"
-          placeholder="Exercise"
-          className="w-full border-none shadow-none outline-none"
-          defaultValue={title}
-          onChange={handleTitleOnChange}
-        />
+        <div className="flex">
+          <Input
+            type="text"
+            placeholder="Exercise"
+            className="w-full border-none shadow-none outline-none"
+            defaultValue={title}
+            onChange={handleTitleOnChange}
+          />
+          <div
+            className="h-fit cursor-pointer pl-1.5 text-primary hover:text-primary/60"
+            onClick={handleRemoveExercise}
+          >
+            <CrossCircledIcon />
+          </div>
+        </div>
         <Separator />
         <div className="flex items-center gap-2">
           <Button
@@ -120,7 +128,7 @@ const ExerciseCard = ({
           >
             <PlusCircledIcon />
           </Button>
-          <div className="flex gap-3">
+          <div className="static flex gap-3">
             <Button
               variant={"secondary"}
               size="sm"
@@ -169,44 +177,40 @@ const ExerciseCard = ({
             </Button>
           </div>
         )}
-        {exerciseSets.map(({ id, rep, weight }) => (
-          <div key={id} className="flex gap-2 text-xs">
-            <Button
-              variant={"link"}
-              size={"icon"}
-              className="text-red-500"
-              onClick={() => removeSetHandler(id)}
-            >
-              <TrashIcon />
-            </Button>
-            <Input
-              value={rep}
-              onChange={(e) => handleAddedInputChange(e, "rep", id)}
-            />
-            <Input
-              value={weight}
-              onChange={(e) => handleAddedInputChange(e, "weight", id)}
-            />
-            <Button
-              variant={"link"}
-              size={"icon"}
-              onClick={() => copySetHandler(id)}
-            >
-              <CopyIcon />
-            </Button>
-          </div>
-        ))}
+        {exerciseSets.map(({ id, rep, weight }) => {
+          return (
+            <div key={id} className="flex gap-2 text-xs">
+              <Button
+                variant={"link"}
+                size={"icon"}
+                className="text-red-500"
+                onClick={() => removeSetHandler(id)}
+              >
+                <TrashIcon />
+              </Button>
+              <Input
+                value={rep}
+                onChange={(e) => handleAddedInputChange(e, "rep", id)}
+              />
+              <Input
+                value={weight}
+                onChange={(e) => handleAddedInputChange(e, "weight", id)}
+              />
+              <Button
+                variant={"link"}
+                size={"icon"}
+                onClick={() => copySetHandler(id)}
+              >
+                <CopyIcon />
+              </Button>
+            </div>
+          );
+        })}
         {exerciseSets.length > 0 && (
           <Button variant="outline" onClick={() => setAddingSet(true)}>
             Complete set
           </Button>
         )}
-      </div>
-      <div
-        className="absolute right-1 top-1 cursor-pointer bg-primary-foreground hover:text-primary/60"
-        onClick={handleRemoveExercise}
-      >
-        <CrossCircledIcon />
       </div>
     </div>
   );

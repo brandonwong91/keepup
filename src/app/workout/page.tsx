@@ -28,6 +28,7 @@ const Workout = () => {
     showTab,
     setShowTab,
     setExercise,
+    clearWorkout,
   } = useWorkoutStore((state) => state);
 
   const query = api.workout.getAllWorkouts.useQuery();
@@ -61,7 +62,9 @@ const Workout = () => {
     }
   }, [query.data]);
 
-  const handleShowWorkoutCard = () => {};
+  const handleShowWorkoutCard = () => {
+    clearWorkout();
+  };
 
   return (
     <div className="grid gap-4 pt-4">
@@ -84,7 +87,7 @@ const Workout = () => {
         </Card>
       </div>
       <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
-        <div className="flex flex-col gap-4 ">
+        <div className="flex flex-col gap-4">
           <Button className="w-full" onClick={handleShowWorkoutCard}>
             Add Workout
           </Button>
@@ -92,23 +95,74 @@ const Workout = () => {
             <TabsList>
               <TabsTrigger
                 value="workouts"
-                onClick={() => setShowTab("workouts")}
+                onClick={() => {
+                  setShowTab("workouts");
+                  query.refetch();
+                }}
               >
                 Workouts
               </TabsTrigger>
               <TabsTrigger
                 value="exercises"
-                onClick={() => setShowTab("exercises")}
+                onClick={() => {
+                  setShowTab("exercises");
+                  queryExercises.refetch();
+                }}
               >
                 Exercises
               </TabsTrigger>
             </TabsList>
+
             <TabsContent value="workouts">
               <Card>
-                <ScrollArea className="h-72 w-60 ">
+                <ScrollArea className="h-72 w-60 p-4">
+                  <div className="mb-4 text-sm font-medium leading-none">
+                    Workouts
+                  </div>
+                  {query.isLoading && (
+                    <div className="flex flex-col gap-6">
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                      <Skeleton className="h-[16px] w-full rounded-full" />
+                    </div>
+                  )}
+                  {workouts.length > 0 ? (
+                    workouts.map(({ title, id, exercises }) => (
+                      <div key={id}>
+                        <div
+                          className="cursor-pointer text-sm"
+                          onClick={() =>
+                            setWorkout({
+                              id,
+                              title,
+                              exercises,
+                            })
+                          }
+                        >
+                          {title}
+                        </div>
+                        <Separator className="my-2" />
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-secondary-foreground">
+                      No workouts found...
+                    </div>
+                  )}
+                </ScrollArea>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="exercises">
+              <Card>
+                <ScrollArea className="h-72 w-60">
                   <div className="p-4">
                     <h4 className="mb-4 text-sm font-medium leading-none">
-                      Workouts
+                      Exercises
                     </h4>
                     {query.isLoading && (
                       <div className="flex flex-col gap-6">
@@ -121,75 +175,34 @@ const Workout = () => {
                         <Skeleton className="h-[16px] w-full rounded-full" />
                       </div>
                     )}
-                    {workouts.length > 0 ? (
-                      workouts.map(({ title, id, exercises }) => (
-                        <div key={id}>
-                          <div
-                            className="cursor-pointer text-sm"
-                            onClick={() =>
-                              setWorkout({
-                                id,
-                                title,
-                                exercises,
-                              })
-                            }
-                          >
-                            {title}
+                    {queryExercises.data && queryExercises.data.length > 0 ? (
+                      queryExercises.data
+                        .sort((a, b) => a.title.localeCompare(b.title))
+                        .map(({ title, id, exerciseSets }) => (
+                          <div key={id}>
+                            <div
+                              className="cursor-pointer text-sm"
+                              onClick={() =>
+                                setExercise({
+                                  id,
+                                  exerciseSets,
+                                  title,
+                                })
+                              }
+                            >
+                              {title}
+                            </div>
+                            <Separator className="my-2" />
                           </div>
-                          <Separator className="my-2" />
-                        </div>
-                      ))
+                        ))
                     ) : (
                       <div className="text-sm text-secondary-foreground">
-                        No workouts found...
+                        No exercises found...
                       </div>
                     )}
                   </div>
                 </ScrollArea>
               </Card>
-            </TabsContent>
-            <TabsContent value="exercises">
-              <ScrollArea className="h-72 w-60 rounded-md border">
-                <div className="p-4">
-                  <h4 className="mb-4 text-sm font-medium leading-none">
-                    Exercises
-                  </h4>
-                  {query.isLoading && (
-                    <div className="flex flex-col gap-6">
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                    </div>
-                  )}
-                  {queryExercises.data && queryExercises.data.length > 0 ? (
-                    queryExercises.data.map(({ title, id, exerciseSets }) => (
-                      <div key={id}>
-                        <div
-                          className="cursor-pointer text-sm"
-                          onClick={() =>
-                            setExercise({
-                              id,
-                              exerciseSets,
-                              title,
-                            })
-                          }
-                        >
-                          {title}
-                        </div>
-                        <Separator className="my-2" />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-sm text-secondary-foreground">
-                      No exercises found...
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
             </TabsContent>
           </Tabs>
         </div>
