@@ -19,17 +19,7 @@ export const workoutRouter = createTRPCRouter({
       },
     });
   }),
-  getAllExercises: privateProcedure.query(({ ctx }) => {
-    return ctx.prisma.exercise.findMany({
-      where: {
-        userId: ctx.userId,
-      },
-      include: {
-        exerciseSets: true,
-      },
-    });
-  }),
-  create: privateProcedure
+  createWorkout: privateProcedure
     .input(
       z.object({
         title: z.string(),
@@ -61,7 +51,7 @@ export const workoutRouter = createTRPCRouter({
         });
       }
     ),
-  update: privateProcedure
+  updateWorkout: privateProcedure
     .input(
       z.object({
         id: z.string(),
@@ -138,7 +128,7 @@ export const workoutRouter = createTRPCRouter({
         },
       });
     }),
-  delete: privateProcedure
+  deleteWorkout: privateProcedure
     .input(
       z.object({
         id: z.string(),
@@ -157,6 +147,31 @@ export const workoutRouter = createTRPCRouter({
 
       // Optionally, you can also delete the workout itself if you want:
       await ctx.prisma.workout.delete({
+        where: {
+          id: input.id,
+        },
+      });
+
+      return { success: true };
+    }),
+  getAllExercises: privateProcedure.query(({ ctx }) => {
+    return ctx.prisma.exercise.findMany({
+      where: {
+        userId: ctx.userId,
+      },
+      include: {
+        exerciseSets: true,
+      },
+    });
+  }),
+  deleteExercise: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.exercise.delete({
         where: {
           id: input.id,
         },

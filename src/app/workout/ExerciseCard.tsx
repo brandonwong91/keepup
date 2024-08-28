@@ -22,7 +22,7 @@ const ExerciseCard = ({
   title: string;
   exerciseSets: ExerciseSet[];
 }) => {
-  const removeWorkout = api.workout.delete.useMutation({
+  const removeWorkout = api.workout.deleteWorkout.useMutation({
     onSuccess: () => {
       console.log("Workout removed successfully");
     },

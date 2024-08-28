@@ -23,7 +23,7 @@ const WorkoutCard = () => {
     showNewExercise,
     workout,
   } = useWorkoutStore((state) => state);
-  const removeWorkoutApi = api.workout.delete.useMutation({
+  const removeWorkoutApi = api.workout.deleteWorkout.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
         refetchWorkouts();
@@ -33,7 +33,7 @@ const WorkoutCard = () => {
       console.error("Failed to remove workout", error);
     },
   });
-  const updateWorkoutApi = api.workout.update.useMutation({
+  const updateWorkoutApi = api.workout.updateWorkout.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
         refetchWorkouts();
@@ -43,7 +43,7 @@ const WorkoutCard = () => {
       console.error("Failed to update workout", error);
     },
   });
-  const addWorkoutApi = api.workout.create.useMutation({
+  const addWorkoutApi = api.workout.createWorkout.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
         refetchWorkouts();
