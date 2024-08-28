@@ -17,6 +17,7 @@ import { api } from "~/utils/api";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ExerciseDetailCard from "./ExerciseDetailCard";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -72,7 +73,7 @@ const Workout = () => {
         <Calendar
           selected={date}
           onDayClick={setDate}
-          className="-z-[10] flex rounded-md"
+          className="flex rounded-md"
         />
         <Card className="h-full w-64">
           <CardHeader>
@@ -88,9 +89,6 @@ const Workout = () => {
       </div>
       <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
         <div className="flex flex-col gap-4">
-          <Button className="w-full" onClick={handleShowWorkoutCard}>
-            Add Workout
-          </Button>
           <Tabs defaultValue="workouts" className="">
             <TabsList>
               <TabsTrigger
@@ -116,9 +114,18 @@ const Workout = () => {
             <TabsContent value="workouts">
               <Card>
                 <ScrollArea className="h-72 w-60 p-4">
-                  <div className="mb-4 text-sm font-medium leading-none">
-                    Workouts
-                  </div>
+                  <CardHeader className="mb-4 flex flex-row place-items-center justify-start p-0 align-middle">
+                    <div className="mt-1 pr-2 text-sm font-medium leading-none">
+                      Workouts
+                    </div>
+                    <Button
+                      size="icon"
+                      className="h-5 w-5 self-start"
+                      onClick={handleShowWorkoutCard}
+                    >
+                      <PlusIcon />
+                    </Button>
+                  </CardHeader>
                   {query.isLoading && (
                     <div className="flex flex-col gap-6">
                       <Skeleton className="h-[16px] w-full rounded-full" />
@@ -161,9 +168,18 @@ const Workout = () => {
               <Card>
                 <ScrollArea className="h-72 w-60">
                   <div className="p-4">
-                    <h4 className="mb-4 text-sm font-medium leading-none">
-                      Exercises
-                    </h4>
+                    <CardHeader className="mb-4 flex flex-row place-items-center justify-start p-0 align-middle">
+                      <div className="mt-1 pr-2 text-sm font-medium leading-none">
+                        Exercises
+                      </div>
+                      <Button
+                        size="icon"
+                        className="h-5 w-5 self-start"
+                        onClick={handleShowWorkoutCard}
+                      >
+                        <PlusIcon />
+                      </Button>
+                    </CardHeader>
                     {query.isLoading && (
                       <div className="flex flex-col gap-6">
                         <Skeleton className="h-[16px] w-full rounded-full" />
