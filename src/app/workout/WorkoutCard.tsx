@@ -72,7 +72,7 @@ const WorkoutCard = () => {
       title,
       exercises,
     };
-    console.log("Add", exercises);
+
     if (id === "") {
       await addWorkoutApi.mutate(variables);
     } else {

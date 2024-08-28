@@ -33,7 +33,7 @@ const Workout = () => {
 
   const query = api.workout.getAllWorkouts.useQuery();
   const queryExercises = api.workout.getAllExercises.useQuery();
-
+  console.log(queryExercises.data);
   useEffect(() => {
     if (query.data && query.isFetched) {
       console.log(query.data);

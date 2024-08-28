@@ -6,6 +6,7 @@ export interface ExerciseSet {
   id: string;
   rep: string;
   weight: string;
+  createdAt?: Date;
 }
 
 export interface Exercise {
@@ -37,9 +38,7 @@ interface WorkoutStore {
   refetchExercises: (() => void) | null;
   setRefetchExercises: (refetch: () => void) => void;
   clearWorkout: () => void;
-
   setShowNewExercise: (show: boolean) => void;
-
   updateExercise: (exercise: Exercise) => void;
   setExercise: (exercise: Exercise) => void;
   addExercise: (exercise: Exercise) => void;
