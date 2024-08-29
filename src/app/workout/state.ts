@@ -38,6 +38,7 @@ interface WorkoutStore {
   refetchExercises: (() => void) | null;
   setRefetchExercises: (refetch: () => void) => void;
   clearWorkout: () => void;
+  clearExercise: () => void;
   setShowNewExercise: (show: boolean) => void;
   updateExercise: (exercise: Exercise) => void;
   setExercise: (exercise: Exercise) => void;
@@ -112,13 +113,16 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         exercises: [],
       },
       exercises: [],
+    }),
+  clearExercise: () =>
+    set({
       exercise: {
         id: "",
         title: "",
         exerciseSets: [],
       },
-      exerciseSets: [],
     }),
+
   removeWorkout: (id: String) =>
     set((state: WorkoutStore) => ({
       workouts: state.workouts.filter((w) => w.id !== id),

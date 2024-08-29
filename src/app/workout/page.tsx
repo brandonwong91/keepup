@@ -33,6 +33,7 @@ const Workout = () => {
     setShowTab,
     setExercise,
     clearWorkout,
+    clearExercise,
   } = useWorkoutStore((state) => state);
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
@@ -78,6 +79,9 @@ const Workout = () => {
 
   const handleShowWorkoutCard = () => {
     clearWorkout();
+  };
+  const handleShowExerciseCard = () => {
+    clearExercise();
   };
 
   return (
@@ -188,7 +192,7 @@ const Workout = () => {
                       <Button
                         size="icon"
                         className="h-5 w-5 self-start"
-                        onClick={handleShowWorkoutCard}
+                        onClick={handleShowExerciseCard}
                       >
                         <PlusIcon />
                       </Button>
