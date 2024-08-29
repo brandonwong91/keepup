@@ -15,8 +15,10 @@ import {
   CheckIcon,
   CopyIcon,
   Cross1Icon,
+  PlusCircledIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
+import { Separator } from "~/components/ui/separator";
 
 const ExerciseDetailCard = () => {
   const {
@@ -24,10 +26,9 @@ const ExerciseDetailCard = () => {
     refetchExercises,
     updateExercise,
     addExerciseSetsToExercises,
-    setExerciseSetsToExercises,
-    removeExerciseSet,
-    duplicateExercisesSet,
-    clearWorkout,
+    setExerciseSetsToExercise,
+    removeExerciseSetInExercise,
+    duplicateExercisesSetInExercise,
   } = useWorkoutStore((state) => state);
 
   const [addingSet, setAddingSet] = useState(false);
@@ -35,6 +36,9 @@ const ExerciseDetailCard = () => {
     rep: "",
     weight: "",
   });
+
+  console.log("ex", exercise);
+
   const { title, exerciseSets, id } = exercise;
   const removeExerciseApi = api.workout.deleteExercise.useMutation({
     onSuccess: () => {
@@ -73,6 +77,7 @@ const ExerciseDetailCard = () => {
       title,
       exerciseSets,
     };
+    console.log("variables: ", variables);
     await updateExerciseApi.mutate(variables);
   };
 
@@ -84,15 +89,28 @@ const ExerciseDetailCard = () => {
     }); // Update the workout title using the store function
   };
 
+  function parseDate(createdAt: string): Date {
+    // If the createdAt string consists of only digits and has a length of 13, treat it as a timestamp
+    if (/^\d{13}$/.test(createdAt)) {
+      return new Date(parseInt(createdAt, 1000));
+    }
+    // Otherwise, treat it as a standard date string
+    return new Date(createdAt);
+  }
+
   const groupedExerciseSets = groupByMMDD(exerciseSets);
   function groupByMMDD(sets: ExerciseSet[]) {
     return sets.reduce((groupedSets: Record<string, ExerciseSet[]>, set) => {
-      const date = format(new Date(set.createdAt as Date), "MM-dd");
+      console.log(set.createdAt);
+      const date = format(
+        parseDate(set.createdAt as unknown as string),
+        "MM-dd"
+      );
       if (!groupedSets[date]) {
         groupedSets[date] = [];
-      } else {
-        groupedSets[date]?.push(set);
       }
+      groupedSets[date]?.push(set);
+
       return groupedSets;
     }, {});
   }
@@ -103,19 +121,20 @@ const ExerciseDetailCard = () => {
         id: Date.now().toString(), // Use timestamp as UUID
         rep: currentSet.rep,
         weight: currentSet.weight,
+        createdAt: new Date(),
       };
-
+      console.log("newSet: ", newSet);
       addExerciseSetsToExercises(newSet, id);
       setCurrentSet({ rep: "", weight: "" }); // Clear input fields
     }
   };
 
   const removeSetHandler = (setId: string) => {
-    removeExerciseSet(setId, id);
+    removeExerciseSetInExercise(setId);
   };
 
   const copySetHandler = (setId: string) => {
-    duplicateExercisesSet(setId, id);
+    duplicateExercisesSetInExercise(setId);
   };
 
   const handleAddedInputChange = (
@@ -123,7 +142,7 @@ const ExerciseDetailCard = () => {
     inputType: "rep" | "weight",
     setId: string
   ) => {
-    setExerciseSetsToExercises(event.target.value, inputType, setId, id);
+    setExerciseSetsToExercise(event.target.value.trim(), inputType, setId);
   };
 
   const handleInputChange = (
@@ -147,41 +166,35 @@ const ExerciseDetailCard = () => {
             onChange={handleTitleChange}
           />
         </CardTitle>
-        <CardContent className="w-full p-0">
-          {Object.entries(groupedExerciseSets).map(([date, sets]) => (
-            <div key={date}>
-              <h4>{date}</h4>
-              <ul>
-                {sets.map(({ id, rep, weight }) => (
-                  <div key={id} className="flex gap-2 text-xs">
-                    <Button
-                      variant={"link"}
-                      size={"icon"}
-                      className="text-red-500"
-                      onClick={() => removeSetHandler(id)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                    <Input
-                      value={rep}
-                      onChange={(e) => handleAddedInputChange(e, "rep", id)}
-                    />
-                    <Input
-                      value={weight}
-                      onChange={(e) => handleAddedInputChange(e, "weight", id)}
-                    />
-                    <Button
-                      variant={"link"}
-                      size={"icon"}
-                      onClick={() => copySetHandler(id)}
-                    >
-                      <CopyIcon />
-                    </Button>
-                  </div>
-                ))}
-              </ul>
+        <CardContent className="flex w-full flex-col gap-y-2 p-0">
+          <div className="flex items-center gap-2">
+            <Button
+              size={"icon"}
+              variant={"link"}
+              className="h-4 w-4"
+              onClick={() => setAddingSet(true)}
+            >
+              <PlusCircledIcon />
+            </Button>
+            <div className="static flex gap-3">
+              <Button
+                variant={"secondary"}
+                size="sm"
+                className="h-6 w-16"
+                disabled
+              >
+                Rep
+              </Button>
+              <Button
+                variant={"secondary"}
+                size="sm"
+                className="h-6 w-16"
+                disabled
+              >
+                Weight
+              </Button>
             </div>
-          ))}
+          </div>
           {addingSet && (
             <div className="flex gap-2 text-xs">
               <Button
@@ -212,33 +225,41 @@ const ExerciseDetailCard = () => {
               </Button>
             </div>
           )}
-          {/* {exerciseSets.map(({ id, rep, weight }) => (
-            <div key={id} className="flex gap-2 text-xs">
-              <Button
-                variant={"link"}
-                size={"icon"}
-                className="text-red-500"
-                onClick={() => removeSetHandler(id)}
-              >
-                <TrashIcon />
-              </Button>
-              <Input
-                value={rep}
-                onChange={(e) => handleAddedInputChange(e, "rep", id)}
-              />
-              <Input
-                value={weight}
-                onChange={(e) => handleAddedInputChange(e, "weight", id)}
-              />
-              <Button
-                variant={"link"}
-                size={"icon"}
-                onClick={() => copySetHandler(id)}
-              >
-                <CopyIcon />
-              </Button>
+          <Separator />
+          {Object.entries(groupedExerciseSets).map(([date, sets]) => (
+            <div key={date} className="pb-1">
+              <h4>{date}</h4>
+              <ul className="flex flex-col gap-1">
+                {sets.map(({ id, rep, weight }) => (
+                  <div key={id} className="flex gap-2 text-xs">
+                    <Button
+                      variant={"link"}
+                      size={"icon"}
+                      className="text-red-500"
+                      onClick={() => removeSetHandler(id)}
+                    >
+                      <TrashIcon />
+                    </Button>
+                    <Input
+                      value={rep}
+                      onChange={(e) => handleAddedInputChange(e, "rep", id)}
+                    />
+                    <Input
+                      value={weight}
+                      onChange={(e) => handleAddedInputChange(e, "weight", id)}
+                    />
+                    <Button
+                      variant={"link"}
+                      size={"icon"}
+                      onClick={() => copySetHandler(id)}
+                    >
+                      <CopyIcon />
+                    </Button>
+                  </div>
+                ))}
+              </ul>
             </div>
-          ))} */}
+          ))}
         </CardContent>
         <CardFooter className="flex justify-between p-0">
           {id !== "" && (

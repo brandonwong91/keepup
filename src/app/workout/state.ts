@@ -55,8 +55,15 @@ interface WorkoutStore {
     setId: string,
     exerciseId: string
   ) => void;
+  setExerciseSetsToExercise: (
+    value: string,
+    inputType: string,
+    exerciseId: string
+  ) => void;
   duplicateExercisesSet: (setId: string, exerciseId: string) => void;
+  duplicateExercisesSetInExercise: (setId: string) => void;
   removeExerciseSet: (setId: string, exerciseId: string) => void;
+  removeExerciseSetInExercise: (setId: string) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStore>((set) => ({
@@ -168,6 +175,48 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
           : exercise
       ),
     })),
+  setExerciseSetsToExercise: (
+    value: string,
+    inputType: string,
+    setId: string
+  ) => {
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercise: {
+        ...state.exercise,
+        exerciseSets: state.exercise.exerciseSets.map((exerciseSet) =>
+          exerciseSet.id === setId
+            ? { ...exerciseSet, [inputType]: value }
+            : exerciseSet
+        ),
+      },
+    }));
+  },
+  duplicateExercisesSetInExercise: (setId: string) =>
+    set((state: WorkoutStore) => {
+      const existingSet = state.exercise?.exerciseSets.find(
+        (set) => set.id === setId
+      );
+
+      if (existingSet) {
+        const copiedSet = {
+          id: Date.now().toString(), // Use timestamp as UUID
+          rep: existingSet.rep,
+          weight: existingSet.weight,
+          createdAt: existingSet.createdAt,
+        };
+
+        return {
+          ...state,
+          exercise: {
+            ...state.exercise,
+            exerciseSets: [...state.exercise.exerciseSets, copiedSet],
+          },
+        };
+      }
+
+      return state; // No changes if the set doesn't exist
+    }),
   duplicateExercisesSet: (setId: string, exerciseId: string) =>
     set((state: WorkoutStore) => {
       const existingSet = state.exercises
@@ -196,6 +245,17 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
 
       return state; // No changes if the set doesn't exist
     }),
+  removeExerciseSetInExercise: (setId: string) => {
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercise: {
+        ...state.exercise,
+        exerciseSets: state.exercise.exerciseSets.filter(
+          (set) => set.id !== setId
+        ),
+      },
+    }));
+  },
   removeExerciseSet: (setId: string, exerciseId: string) => {
     set((state: WorkoutStore) => ({
       ...state,
@@ -265,7 +325,6 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         };
       }
     }),
-
   setExercise: (exercise: Exercise) =>
     set((state: WorkoutStore) => ({
       ...state,

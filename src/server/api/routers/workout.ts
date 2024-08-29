@@ -169,15 +169,69 @@ export const workoutRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         title: z.string(),
+        exerciseSets: z
+          .array(
+            z.object({
+              id: z.string(),
+              rep: z.string(),
+              weight: z.string(),
+            })
+          )
+          .optional(), // Optional, you may not always update exerciseSets
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const { id, title, exerciseSets } = input;
+
+      // Fetch existing exercise sets from the database
+      const existingExerciseSets = await ctx.prisma.exerciseSet.findMany({
+        where: { exerciseId: id },
+      });
+
+      // Identify exercise sets to delete
+      const setsToDelete = existingExerciseSets.filter(
+        (existingSet) =>
+          !exerciseSets?.some(
+            (incomingSet) => incomingSet.id === existingSet.id
+          )
+      );
+
+      // Map the incoming exerciseSets for upsert
+      const mapExerciseSets = (
+        sets: {
+          id: string;
+          rep: string;
+          weight: string;
+        }[]
+      ) => {
+        return sets.map(({ id, rep, weight }) => ({
+          where: { id: id.length === 24 ? id : new ObjectId().toString() }, // Use empty string if id is not provided
+          create: {
+            rep,
+            weight,
+            createdAt: new Date().toISOString(),
+            userId: ctx.userId,
+          },
+          update: {
+            rep,
+            weight,
+          },
+        }));
+      };
+
+      // Update the exercise and handle exerciseSets
       await ctx.prisma.exercise.update({
-        where: {
-          id: input.id,
-        },
+        where: { id },
         data: {
-          title: input.title,
+          title,
+          exerciseSets: exerciseSets
+            ? {
+                upsert: mapExerciseSets(exerciseSets),
+                deleteMany: {
+                  id: { in: setsToDelete.map((set) => set.id) }, // Delete sets that are not in the incoming array
+                },
+              }
+            : undefined, // Only include exerciseSets if provided
         },
       });
 
