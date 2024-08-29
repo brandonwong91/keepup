@@ -71,6 +71,7 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
     set((state: WorkoutStore) => ({
       ...state,
       showTab: tab,
+      exercises: tab === "workouts" ? [] : state.exercises,
     })),
   refetchWorkouts: null,
   setRefetchWorkouts: (refetch) => set({ refetchWorkouts: refetch }),

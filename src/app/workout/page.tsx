@@ -66,7 +66,11 @@ const Workout = () => {
   }, [queryWorkouts.data]);
 
   useEffect(() => {
-    if (queryExercises.data && queryExercises.isFetched) {
+    if (
+      queryExercises.data &&
+      queryExercises.isFetched &&
+      showTab === "exercises"
+    ) {
       setExercises(queryExercises.data);
       setRefetchExercises(queryExercises.refetch);
     }
@@ -135,7 +139,7 @@ const Workout = () => {
                       <PlusIcon />
                     </Button>
                   </CardHeader>
-                  {queryWorkouts.isLoading && (
+                  {(queryWorkouts.isLoading || queryWorkouts.isFetching) && (
                     <div className="flex flex-col gap-6">
                       <Skeleton className="h-[16px] w-full rounded-full" />
                       <Skeleton className="h-[16px] w-full rounded-full" />
@@ -189,7 +193,8 @@ const Workout = () => {
                         <PlusIcon />
                       </Button>
                     </CardHeader>
-                    {queryExercises.isLoading && (
+                    {(queryExercises.isLoading ||
+                      queryExercises.isFetching) && (
                       <div className="flex flex-col gap-6">
                         <Skeleton className="h-[16px] w-full rounded-full" />
                         <Skeleton className="h-[16px] w-full rounded-full" />
