@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,16 +11,37 @@ import { api } from "~/utils/api";
 import { Button } from "~/components/ui/button";
 import { format } from "date-fns";
 import { Input } from "~/components/ui/input";
+import {
+  CheckIcon,
+  CopyIcon,
+  Cross1Icon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 
 const ExerciseDetailCard = () => {
-  const { exercise, refetchExercises, updateExercise } = useWorkoutStore(
-    (state) => state
-  );
+  const {
+    exercise,
+    refetchExercises,
+    updateExercise,
+    addExerciseSetsToExercises,
+    setExerciseSetsToExercises,
+    removeExerciseSet,
+    duplicateExercisesSet,
+    clearWorkout,
+  } = useWorkoutStore((state) => state);
+
+  const [addingSet, setAddingSet] = useState(false);
+  const [currentSet, setCurrentSet] = useState({
+    rep: "",
+    weight: "",
+  });
   const { title, exerciseSets, id } = exercise;
-  const removeExercise = api.workout.deleteExercise.useMutation({
+  const removeExerciseApi = api.workout.deleteExercise.useMutation({
     onSuccess: () => {
-      console.log("Workout removed successfully");
-      refetchExercises;
+      console.log("Exercise removed successfully");
+      if (refetchExercises) {
+        refetchExercises();
+      }
     },
     onError: (error) => {
       console.error("Failed to remove exercise", error);
@@ -29,8 +50,10 @@ const ExerciseDetailCard = () => {
 
   const updateExerciseApi = api.workout.updateExercise.useMutation({
     onSuccess: () => {
-      console.log("Workout updated successfully");
-      refetchExercises;
+      console.log("Exercise updated successfully");
+      if (refetchExercises) {
+        refetchExercises();
+      }
     },
     onError: (error) => {
       console.error("Failed to update exercise", error);
@@ -41,7 +64,7 @@ const ExerciseDetailCard = () => {
     const variables = {
       id,
     };
-    await removeExercise.mutate(variables);
+    await removeExerciseApi.mutate(variables);
   };
 
   const handleUpdateExercise = async () => {
@@ -74,6 +97,46 @@ const ExerciseDetailCard = () => {
     }, {});
   }
 
+  const addSetHandler = () => {
+    if (currentSet.rep && currentSet.weight) {
+      const newSet: ExerciseSet = {
+        id: Date.now().toString(), // Use timestamp as UUID
+        rep: currentSet.rep,
+        weight: currentSet.weight,
+      };
+
+      addExerciseSetsToExercises(newSet, id);
+      setCurrentSet({ rep: "", weight: "" }); // Clear input fields
+    }
+  };
+
+  const removeSetHandler = (setId: string) => {
+    removeExerciseSet(setId, id);
+  };
+
+  const copySetHandler = (setId: string) => {
+    duplicateExercisesSet(setId, id);
+  };
+
+  const handleAddedInputChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    inputType: "rep" | "weight",
+    setId: string
+  ) => {
+    setExerciseSetsToExercises(event.target.value, inputType, setId, id);
+  };
+
+  const handleInputChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    inputType: "rep" | "weight"
+  ) => {
+    const { value } = event.target;
+    setCurrentSet((prevSet) => ({
+      ...prevSet,
+      [inputType]: value,
+    }));
+  };
+
   return (
     <Card className="w-64">
       <CardHeader>
@@ -90,11 +153,92 @@ const ExerciseDetailCard = () => {
               <h4>{date}</h4>
               <ul>
                 {sets.map(({ id, rep, weight }) => (
-                  <li key={id}>{`Reps: ${rep}, Weight: ${weight}`}</li>
+                  <div key={id} className="flex gap-2 text-xs">
+                    <Button
+                      variant={"link"}
+                      size={"icon"}
+                      className="text-red-500"
+                      onClick={() => removeSetHandler(id)}
+                    >
+                      <TrashIcon />
+                    </Button>
+                    <Input
+                      value={rep}
+                      onChange={(e) => handleAddedInputChange(e, "rep", id)}
+                    />
+                    <Input
+                      value={weight}
+                      onChange={(e) => handleAddedInputChange(e, "weight", id)}
+                    />
+                    <Button
+                      variant={"link"}
+                      size={"icon"}
+                      onClick={() => copySetHandler(id)}
+                    >
+                      <CopyIcon />
+                    </Button>
+                  </div>
                 ))}
               </ul>
             </div>
           ))}
+          {addingSet && (
+            <div className="flex gap-2 text-xs">
+              <Button
+                variant={"link"}
+                size={"icon"}
+                className="text-red-500"
+                onClick={() => setAddingSet(false)}
+              >
+                <Cross1Icon />
+              </Button>
+              <Input
+                placeholder="rep"
+                value={currentSet.rep}
+                onChange={(e) => handleInputChange(e, "rep")}
+              />
+              <Input
+                placeholder="kg"
+                value={currentSet.weight}
+                onChange={(e) => handleInputChange(e, "weight")}
+              />
+              <Button
+                variant={"link"}
+                size={"icon"}
+                className="text-green-500"
+                onClick={addSetHandler}
+              >
+                <CheckIcon />
+              </Button>
+            </div>
+          )}
+          {/* {exerciseSets.map(({ id, rep, weight }) => (
+            <div key={id} className="flex gap-2 text-xs">
+              <Button
+                variant={"link"}
+                size={"icon"}
+                className="text-red-500"
+                onClick={() => removeSetHandler(id)}
+              >
+                <TrashIcon />
+              </Button>
+              <Input
+                value={rep}
+                onChange={(e) => handleAddedInputChange(e, "rep", id)}
+              />
+              <Input
+                value={weight}
+                onChange={(e) => handleAddedInputChange(e, "weight", id)}
+              />
+              <Button
+                variant={"link"}
+                size={"icon"}
+                onClick={() => copySetHandler(id)}
+              >
+                <CopyIcon />
+              </Button>
+            </div>
+          ))} */}
         </CardContent>
         <CardFooter className="flex justify-between p-0">
           {id !== "" && (

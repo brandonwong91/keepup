@@ -40,7 +40,6 @@ const NewExerciseCard = () => {
   };
 
   const addExerciseHandler = () => {
-    console.log("addExercise", ObjectID.createFromTime(Date.now()).str);
     if (exercise.title) {
       addExercise({
         id: Date.now().toString(),

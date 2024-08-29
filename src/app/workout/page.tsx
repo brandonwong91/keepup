@@ -23,22 +23,24 @@ const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const {
     workouts,
+    exercises,
     setWorkout,
     setWorkouts,
+    setExercises,
     setRefetchWorkouts,
+    setRefetchExercises,
     showTab,
     setShowTab,
     setExercise,
     clearWorkout,
   } = useWorkoutStore((state) => state);
 
-  const query = api.workout.getAllWorkouts.useQuery();
+  const queryWorkouts = api.workout.getAllWorkouts.useQuery();
   const queryExercises = api.workout.getAllExercises.useQuery();
-  console.log(queryExercises.data);
+
   useEffect(() => {
-    if (query.data && query.isFetched) {
-      console.log(query.data);
-      const transformedData = query.data.map(
+    if (queryWorkouts.data && queryWorkouts.isFetched) {
+      const transformedData = queryWorkouts.data.map(
         ({ id, title, userId, exercises }) => {
           return {
             id,
@@ -54,14 +56,21 @@ const Workout = () => {
           };
         }
       );
-      setRefetchWorkouts(query.refetch);
+      setRefetchWorkouts(queryWorkouts.refetch);
       const mergedWorkouts = [...transformedData.reverse()];
 
       setTimeout(() => {
         setWorkouts(mergedWorkouts);
       }, 300);
     }
-  }, [query.data]);
+  }, [queryWorkouts.data]);
+
+  useEffect(() => {
+    if (queryExercises.data && queryExercises.isFetched) {
+      setExercises(queryExercises.data);
+      setRefetchExercises(queryExercises.refetch);
+    }
+  }, [queryExercises.data]);
 
   const handleShowWorkoutCard = () => {
     clearWorkout();
@@ -87,15 +96,15 @@ const Workout = () => {
           </CardFooter>
         </Card>
       </div>
-      <div className="flex flex-col items-center justify-center gap-4 md:flex-row">
-        <div className="flex flex-col gap-4">
-          <Tabs defaultValue="workouts" className="">
+      <div className="flex flex-col items-center justify-center gap-3 self-center md:flex-row md:items-start">
+        <div className="flex gap-4">
+          <Tabs defaultValue="workouts">
             <TabsList>
               <TabsTrigger
                 value="workouts"
                 onClick={() => {
                   setShowTab("workouts");
-                  query.refetch();
+                  queryWorkouts.refetch();
                 }}
               >
                 Workouts
@@ -126,7 +135,7 @@ const Workout = () => {
                       <PlusIcon />
                     </Button>
                   </CardHeader>
-                  {query.isLoading && (
+                  {queryWorkouts.isLoading && (
                     <div className="flex flex-col gap-6">
                       <Skeleton className="h-[16px] w-full rounded-full" />
                       <Skeleton className="h-[16px] w-full rounded-full" />
@@ -180,7 +189,7 @@ const Workout = () => {
                         <PlusIcon />
                       </Button>
                     </CardHeader>
-                    {query.isLoading && (
+                    {queryExercises.isLoading && (
                       <div className="flex flex-col gap-6">
                         <Skeleton className="h-[16px] w-full rounded-full" />
                         <Skeleton className="h-[16px] w-full rounded-full" />
@@ -191,8 +200,8 @@ const Workout = () => {
                         <Skeleton className="h-[16px] w-full rounded-full" />
                       </div>
                     )}
-                    {queryExercises.data && queryExercises.data.length > 0 ? (
-                      queryExercises.data
+                    {exercises && exercises.length > 0 ? (
+                      exercises
                         .sort((a, b) => a.title.localeCompare(b.title))
                         .map(({ title, id, exerciseSets }) => (
                           <div key={id}>
