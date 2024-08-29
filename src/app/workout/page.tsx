@@ -98,8 +98,8 @@ const Workout = () => {
       </div>
       <div className="flex flex-col items-center justify-center gap-3 self-center md:flex-row md:items-start">
         <div className="flex gap-4">
-          <Tabs defaultValue="workouts">
-            <TabsList>
+          <Tabs defaultValue={showTab}>
+            <TabsList className="mb-1">
               <TabsTrigger
                 value="workouts"
                 onClick={() => {
@@ -231,8 +231,10 @@ const Workout = () => {
             </TabsContent>
           </Tabs>
         </div>
-        {showTab === "workouts" && <WorkoutCard />}
-        {showTab === "exercises" && <ExerciseDetailCard />}
+        <div className="pt-0 md:pt-12">
+          {showTab === "workouts" && <WorkoutCard />}
+          {showTab === "exercises" && <ExerciseDetailCard />}
+        </div>
       </div>
     </div>
   );
