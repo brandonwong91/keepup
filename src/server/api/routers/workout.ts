@@ -175,6 +175,7 @@ export const workoutRouter = createTRPCRouter({
               id: z.string(),
               rep: z.string(),
               weight: z.string(),
+              createdAt: z.date().optional(), // Optional, you may not always update createdAt
             })
           )
           .optional(), // Optional, you may not always update exerciseSets
@@ -187,7 +188,6 @@ export const workoutRouter = createTRPCRouter({
       const existingExerciseSets = await ctx.prisma.exerciseSet.findMany({
         where: { exerciseId: id },
       });
-
       // Identify exercise sets to delete
       const setsToDelete = existingExerciseSets.filter(
         (existingSet) =>
@@ -202,9 +202,10 @@ export const workoutRouter = createTRPCRouter({
           id: string;
           rep: string;
           weight: string;
+          createdAt?: Date;
         }[]
       ) => {
-        return sets.map(({ id, rep, weight }) => ({
+        return sets.map(({ id, rep, weight, createdAt }) => ({
           where: { id: id.length === 24 ? id : new ObjectId().toString() }, // Use empty string if id is not provided
           create: {
             rep,
@@ -215,6 +216,8 @@ export const workoutRouter = createTRPCRouter({
           update: {
             rep,
             weight,
+            createdAt: createdAt ? createdAt : new Date().toISOString(),
+            userId: ctx.userId,
           },
         }));
       };

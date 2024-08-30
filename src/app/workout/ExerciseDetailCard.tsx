@@ -9,9 +9,10 @@ import {
 import { ExerciseSet, useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
 import { Button } from "~/components/ui/button";
-import { format } from "date-fns";
+import { format, setDate } from "date-fns";
 import { Input } from "~/components/ui/input";
 import {
+  CalendarIcon,
   CheckIcon,
   CopyIcon,
   Cross1Icon,
@@ -19,16 +20,24 @@ import {
   TrashIcon,
 } from "@radix-ui/react-icons";
 import { Separator } from "~/components/ui/separator";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { date } from "zod";
+import { Calendar } from "~/components/ui/calendar";
+import { cn } from "~/lib/utils";
 
 const ExerciseDetailCard = () => {
   const {
     exercise,
     refetchExercises,
     updateExercise,
-    addExerciseSetsToExercises,
     setExerciseSetsToExercise,
     removeExerciseSetInExercise,
     duplicateExercisesSetInExercise,
+    addExerciseSetsToExercise,
   } = useWorkoutStore((state) => state);
 
   const [addingSet, setAddingSet] = useState(false);
@@ -36,8 +45,6 @@ const ExerciseDetailCard = () => {
     rep: "",
     weight: "",
   });
-
-  console.log("ex", exercise);
 
   const { title, exerciseSets, id } = exercise;
   const removeExerciseApi = api.workout.deleteExercise.useMutation({
@@ -109,8 +116,7 @@ const ExerciseDetailCard = () => {
         weight: currentSet.weight,
         createdAt: new Date(),
       };
-      console.log("newSet: ", newSet);
-      addExerciseSetsToExercises(newSet, id);
+      addExerciseSetsToExercise(newSet);
       setCurrentSet({ rep: "", weight: "" }); // Clear input fields
     }
   };
@@ -141,7 +147,22 @@ const ExerciseDetailCard = () => {
       [inputType]: value,
     }));
   };
-
+  console.log("ex", exercise);
+  const handleGroupDateChange = (groupDate: string, newDate: Date) => {
+    console.log(
+      groupDate,
+      newDate,
+      exerciseSets[0] &&
+        format(new Date(exerciseSets[0].createdAt as Date), "MM-dd")
+    );
+    const updatedSets = exerciseSets.map((set) =>
+      format(new Date(set.createdAt as Date), "MM-dd") === groupDate
+        ? { ...set, createdAt: newDate }
+        : set
+    );
+    console.log("updatedSet", updatedSets);
+    updateExercise({ ...exercise, exerciseSets: updatedSets });
+  };
   return (
     <Card className="w-64">
       <CardHeader>
@@ -214,7 +235,30 @@ const ExerciseDetailCard = () => {
           <Separator />
           {Object.entries(groupedExerciseSets).map(([date, sets]) => (
             <div key={date} className="pb-1">
-              <h4>{date}</h4>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "mb-2 w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? date : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={new Date(date)}
+                    onSelect={(newDate) =>
+                      handleGroupDateChange(date, newDate as Date)
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
               <ul className="flex flex-col gap-1">
                 {sets.map(({ id, rep, weight }) => (
                   <div key={id} className="flex gap-2 text-xs">

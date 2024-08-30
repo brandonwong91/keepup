@@ -50,6 +50,7 @@ interface WorkoutStore {
   updateTitleInExercises: (title: string, id: string) => void;
   removeExercise: (id: string) => void;
   addExerciseSetsToExercises: (exerciseSet: ExerciseSet, id: string) => void;
+  addExerciseSetsToExercise: (exerciseSet: ExerciseSet) => void;
   setExerciseSetsToExercises: (
     value: string,
     inputType: string,
@@ -157,6 +158,14 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
             }
           : exercise
       ),
+    })),
+  addExerciseSetsToExercise: (exerciseSet: ExerciseSet) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercise: {
+        ...state.exercise,
+        exerciseSets: [...state.exercise.exerciseSets, exerciseSet],
+      },
     })),
   setExerciseSetsToExercises: (
     value: string,
