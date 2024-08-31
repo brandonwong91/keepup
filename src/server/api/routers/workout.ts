@@ -255,4 +255,48 @@ export const workoutRouter = createTRPCRouter({
 
       return { success: true };
     }),
+  getWorkoutsByDate: privateProcedure
+    .input(
+      z.object({
+        date: z.string().transform((str) => new Date(str)),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { date } = input;
+
+      // Start and end of the day for the target date
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      // Query to find workouts based on the date range and userId
+      const workouts = await ctx.prisma.workout.findMany({
+        where: {
+          userId: ctx.userId, // Ensure we're only fetching the current user's workouts
+          exercises: {
+            some: {
+              exerciseSets: {
+                some: {
+                  createdAt: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                  },
+                },
+              },
+            },
+          },
+        },
+        include: {
+          exercises: {
+            include: {
+              exerciseSets: true,
+            },
+          },
+        },
+      });
+
+      return workouts;
+    }),
 });

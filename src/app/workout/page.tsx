@@ -18,6 +18,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ExerciseDetailCard from "./ExerciseDetailCard";
 import { PlusIcon } from "@radix-ui/react-icons";
+import { Badge } from "~/components/ui/badge";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -38,6 +39,9 @@ const Workout = () => {
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
   const queryExercises = api.workout.getAllExercises.useQuery();
+  const queryWorkoutsByDate = api.workout.getWorkoutsByDate.useQuery({
+    date: date?.toString() || Date.now().toString(),
+  });
 
   useEffect(() => {
     if (queryWorkouts.data && queryWorkouts.isFetched) {
@@ -84,6 +88,8 @@ const Workout = () => {
     clearExercise();
   };
 
+  const workoutDates = [new Date(2024, 7, 15)];
+
   return (
     <div className="grid gap-4 pt-4">
       <div className="flex flex-col items-center justify-center pt-4 md:flex-row">
@@ -91,13 +97,20 @@ const Workout = () => {
           selected={date}
           onDayClick={setDate}
           className="flex rounded-md"
+          highlightedDates={workoutDates}
         />
         <Card className="h-full w-64">
           <CardHeader>
             <CardTitle>{date?.toDateString()}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Nothing here yet...</p>
+            {queryWorkoutsByDate.data && queryWorkoutsByDate.data.length > 0 ? (
+              queryWorkoutsByDate.data.map((workout) => {
+                return <Badge key={workout.id}>{workout.title}</Badge>;
+              })
+            ) : (
+              <p>Nothing here yet...</p>
+            )}
           </CardContent>
         </Card>
       </div>
