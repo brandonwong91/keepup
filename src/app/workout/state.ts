@@ -24,6 +24,8 @@ export interface Workout {
 interface WorkoutStore {
   workouts: Workout[];
   workout: Workout;
+  workoutDates: string[];
+  setWorkoutDates: (dates: string[]) => void;
   showNewExercise: boolean;
   showTab: string;
   setShowTab: (tab: string) => void;
@@ -75,6 +77,12 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
     title: "",
     exercises: [],
   },
+  workoutDates: [],
+  setWorkoutDates: (dates: string[]) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      workoutDates: Array.from(new Set([...state.workoutDates, ...dates])),
+    })),
   showTab: "workouts",
   setShowTab: (tab: string) =>
     set((state: WorkoutStore) => ({

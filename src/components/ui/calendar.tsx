@@ -49,8 +49,7 @@ function Calendar({
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-8 w-8 p-0 font-normal aria-selected:opacity-100",
-          "highlighted:bg-green-200"
+          "h-8 w-8 p-0 font-normal aria-selected:opacity-100"
         ),
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
@@ -67,7 +66,7 @@ function Calendar({
       }}
       modifiers={modifiers}
       modifiersClassNames={{
-        highlighted: "bg-green-200",
+        highlighted: "bg-green-100 text-green-800",
       }}
       components={{
         IconLeft: ({ ...props }) => <ChevronLeftIcon className="h-4 w-4" />,

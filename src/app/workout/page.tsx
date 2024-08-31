@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -19,9 +19,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ExerciseDetailCard from "./ExerciseDetailCard";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { Badge } from "~/components/ui/badge";
+import { set } from "date-fns";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const previousDateRef = useRef<Date | undefined>(undefined);
   const {
     workouts,
     exercises,
@@ -35,6 +37,8 @@ const Workout = () => {
     setExercise,
     clearWorkout,
     clearExercise,
+    workoutDates,
+    setWorkoutDates,
   } = useWorkoutStore((state) => state);
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
@@ -45,7 +49,6 @@ const Workout = () => {
   const queryWorkoutsByMonth = api.workout.getWorkoutsByMonth.useQuery({
     date: date?.toString() || Date.now().toString(),
   });
-  console.log(queryWorkoutsByMonth.data);
   useEffect(() => {
     if (queryWorkouts.data && queryWorkouts.isFetched) {
       const transformedData = queryWorkouts.data.map(
@@ -84,6 +87,27 @@ const Workout = () => {
     }
   }, [queryExercises.data]);
 
+  useEffect(() => {
+    if (!date) return;
+
+    const currentDate = new Date(date);
+    const previousDate = previousDateRef.current;
+
+    // Check if it's the first load or the month has changed
+    if (
+      !previousDate ||
+      currentDate.getMonth() !== previousDate.getMonth() ||
+      currentDate.getFullYear() !== previousDate.getFullYear()
+    ) {
+      queryWorkoutsByMonth.refetch().then((result) => {
+        if (result.data) {
+          setWorkoutDates(result.data);
+        }
+      });
+      previousDateRef.current = currentDate; // Update the previous date
+    }
+  }, [date, queryWorkoutsByMonth]);
+
   const handleShowWorkoutCard = () => {
     clearWorkout();
   };
@@ -98,7 +122,7 @@ const Workout = () => {
           selected={date}
           onDayClick={setDate}
           className="flex rounded-md"
-          highlightedDates={queryWorkoutsByMonth.data?.map((w) => new Date(w))}
+          highlightedDates={workoutDates?.map((w) => new Date(w))}
         />
         <Card className="h-full w-64">
           <CardHeader>
