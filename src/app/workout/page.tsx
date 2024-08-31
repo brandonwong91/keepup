@@ -42,7 +42,10 @@ const Workout = () => {
   const queryWorkoutsByDate = api.workout.getWorkoutsByDate.useQuery({
     date: date?.toString() || Date.now().toString(),
   });
-
+  const queryWorkoutsByMonth = api.workout.getWorkoutsByMonth.useQuery({
+    date: date?.toString() || Date.now().toString(),
+  });
+  console.log(queryWorkoutsByMonth.data);
   useEffect(() => {
     if (queryWorkouts.data && queryWorkouts.isFetched) {
       const transformedData = queryWorkouts.data.map(
@@ -88,8 +91,6 @@ const Workout = () => {
     clearExercise();
   };
 
-  const workoutDates = [new Date(2024, 7, 15)];
-
   return (
     <div className="grid gap-4 pt-4">
       <div className="flex flex-col items-center justify-center pt-4 md:flex-row">
@@ -97,7 +98,7 @@ const Workout = () => {
           selected={date}
           onDayClick={setDate}
           className="flex rounded-md"
-          highlightedDates={workoutDates}
+          highlightedDates={queryWorkoutsByMonth.data?.map((w) => new Date(w))}
         />
         <Card className="h-full w-64">
           <CardHeader>

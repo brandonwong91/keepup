@@ -299,4 +299,60 @@ export const workoutRouter = createTRPCRouter({
 
       return workouts;
     }),
+  getWorkoutsByMonth: privateProcedure
+    .input(
+      z.object({
+        date: z.string().transform((str) => new Date(str)),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { date } = input;
+
+      // Start and end of the month for the target date
+      const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      // Query to find workouts based on the month range and userId
+      const workouts = await ctx.prisma.workout.findMany({
+        where: {
+          userId: ctx.userId, // Ensure we're only fetching the current user's workouts
+          exercises: {
+            some: {
+              exerciseSets: {
+                some: {
+                  createdAt: {
+                    gte: startOfMonth,
+                    lte: endOfMonth,
+                  },
+                },
+              },
+            },
+          },
+        },
+        select: {
+          exercises: {
+            select: {
+              exerciseSets: {
+                select: {
+                  createdAt: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Extract unique workout dates
+      const workoutDates = [
+        ...new Set(
+          workouts.flatMap((workout) =>
+            workout.exercises.flatMap((exercise) =>
+              exercise.exerciseSets.map((set) => set.createdAt.toDateString())
+            )
+          )
+        ),
+      ];
+
+      return workoutDates;
+    }),
 });
