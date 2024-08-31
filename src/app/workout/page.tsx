@@ -99,9 +99,6 @@ const Workout = () => {
           <CardContent>
             <p>Nothing here yet...</p>
           </CardContent>
-          <CardFooter>
-            <p>Card Footer</p>
-          </CardFooter>
         </Card>
       </div>
       <div className="flex flex-col items-center justify-center gap-3 self-center md:flex-row md:items-start">

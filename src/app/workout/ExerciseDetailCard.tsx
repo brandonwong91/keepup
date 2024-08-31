@@ -147,14 +147,8 @@ const ExerciseDetailCard = () => {
       [inputType]: value,
     }));
   };
-  console.log("ex", exercise);
+
   const handleGroupDateChange = (groupDate: string, newDate: Date) => {
-    console.log(
-      groupDate,
-      newDate,
-      exerciseSets[0] &&
-        format(new Date(exerciseSets[0].createdAt as Date), "MM-dd")
-    );
     const updatedSets = exerciseSets.map((set) =>
       format(new Date(set.createdAt as Date), "MM-dd") === groupDate
         ? { ...set, createdAt: newDate }
@@ -245,7 +239,11 @@ const ExerciseDetailCard = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? date : <span>Pick a date</span>}
+                    {date ? (
+                      `${format(date, "eee")}, ${date}`
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
