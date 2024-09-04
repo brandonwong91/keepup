@@ -19,7 +19,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ExerciseDetailCard from "./ExerciseDetailCard";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { Badge } from "~/components/ui/badge";
-import { set } from "date-fns";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());

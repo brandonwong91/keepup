@@ -33,6 +33,8 @@ interface WorkoutStore {
   exercise: Exercise;
   exerciseSet: ExerciseSet;
   exerciseSets: ExerciseSet[];
+  defaultSelectExercise: string;
+  setDefaultSelectExercise: (input: string) => void;
   setWorkout: (workout: Workout) => void;
   setWorkouts: (workouts: Workout[]) => void;
   refetchWorkouts: (() => void) | null;
@@ -84,6 +86,12 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       workoutDates: Array.from(new Set([...state.workoutDates, ...dates])),
     })),
   showTab: "workouts",
+  defaultSelectExercise: "Select a new exercise",
+  setDefaultSelectExercise: (input: string) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      defaultSelectExercise: input,
+    })),
   setShowTab: (tab: string) =>
     set((state: WorkoutStore) => ({
       ...state,

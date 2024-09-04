@@ -12,6 +12,15 @@ import ExerciseCard from "./ExerciseCard";
 import { useWorkoutStore, Workout } from "./state";
 import NewExerciseCard from "./NewExerciseCard";
 import { api } from "~/utils/api";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 
 const WorkoutCard = () => {
   const {
@@ -22,7 +31,13 @@ const WorkoutCard = () => {
     setShowNewExercise,
     showNewExercise,
     workout,
+    addExercise,
+    defaultSelectExercise,
+    setDefaultSelectExercise,
   } = useWorkoutStore((state) => state);
+
+  const getAllExercisesApi = api.workout.getAllExercises.useQuery();
+
   const removeWorkoutApi = api.workout.deleteWorkout.useMutation({
     onSuccess: () => {
       if (refetchWorkouts) {
@@ -78,7 +93,17 @@ const WorkoutCard = () => {
     } else {
       await updateWorkoutApi.mutate({ id, ...variables });
     }
+
     clearWorkout();
+  };
+
+  const handleSelectExercise = async (value: string) => {
+    const exercise = getAllExercisesApi.data?.find(
+      (exercise) => exercise.id === value
+    );
+    if (exercise && !exercises.some((e) => e.id === exercise.id)) {
+      addExercise({ ...exercise, exerciseSets: [] });
+    }
   };
 
   return (
@@ -100,6 +125,23 @@ const WorkoutCard = () => {
         >
           Add new exercise
         </Button>
+        <Select onValueChange={handleSelectExercise}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select an exercise">
+              {exercises.length > 0 && `Exercises added: ${exercises.length}`}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Exercises</SelectLabel>
+              {getAllExercisesApi.data?.map((exercise) => (
+                <SelectItem key={exercise.id} value={exercise.id}>
+                  {exercise.title}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
         {showNewExercise && <NewExerciseCard />}
         {exercises.length > 0 &&
           exercises.map(({ id, title, exerciseSets }) => {
