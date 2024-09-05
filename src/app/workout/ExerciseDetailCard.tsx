@@ -154,7 +154,6 @@ const ExerciseDetailCard = () => {
         ? { ...set, createdAt: newDate }
         : set
     );
-    console.log("updatedSet", updatedSets);
     updateExercise({ ...exercise, exerciseSets: updatedSets });
   };
   return (

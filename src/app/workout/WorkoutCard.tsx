@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import ExerciseCard from "./ExerciseCard";
-import { useWorkoutStore, Workout } from "./state";
+import { Exercise, useWorkoutStore, Workout } from "./state";
 import NewExerciseCard from "./NewExerciseCard";
 import { api } from "~/utils/api";
 import {
@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { Reorder } from "framer-motion";
 
 const WorkoutCard = () => {
   const {
@@ -32,8 +33,7 @@ const WorkoutCard = () => {
     showNewExercise,
     workout,
     addExercise,
-    defaultSelectExercise,
-    setDefaultSelectExercise,
+    setExercises,
   } = useWorkoutStore((state) => state);
 
   const getAllExercisesApi = api.workout.getAllExercises.useQuery();
@@ -102,7 +102,11 @@ const WorkoutCard = () => {
       (exercise) => exercise.id === value
     );
     if (exercise && !exercises.some((e) => e.id === exercise.id)) {
-      addExercise({ ...exercise, exerciseSets: [] });
+      addExercise({
+        ...exercise,
+        exerciseSets: [],
+        order: exercises.length + 1,
+      });
     }
   };
 
@@ -143,17 +147,24 @@ const WorkoutCard = () => {
           </SelectContent>
         </Select>
         {showNewExercise && <NewExerciseCard />}
-        {exercises.length > 0 &&
-          exercises.map(({ id, title, exerciseSets }) => {
-            return (
-              <ExerciseCard
-                key={id}
-                id={id}
-                title={title}
-                exerciseSets={exerciseSets}
-              />
-            );
-          })}
+        <Reorder.Group axis="y" values={exercises} onReorder={setExercises}>
+          {exercises.length > 0 &&
+            exercises
+              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+              .map((ex) => {
+                const { id, title, exerciseSets } = ex;
+                return (
+                  <Reorder.Item key={id} value={ex}>
+                    <ExerciseCard
+                      key={id}
+                      id={id}
+                      title={title}
+                      exerciseSets={exerciseSets}
+                    />
+                  </Reorder.Item>
+                );
+              })}
+        </Reorder.Group>
       </CardContent>
       <CardFooter className="flex justify-between">
         {workout.id !== "" && (

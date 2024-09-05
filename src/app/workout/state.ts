@@ -13,6 +13,7 @@ export interface Exercise {
   id: string;
   title: string;
   exerciseSets: ExerciseSet[];
+  order?: number;
 }
 
 export interface Workout {
@@ -360,9 +361,13 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       exercise,
     })),
   setExercises: (exercises: Exercise[]) => {
+    const orderedExercises = exercises.map((exercise, index) => ({
+      ...exercise,
+      order: index,
+    }));
     set((state: WorkoutStore) => ({
       ...state,
-      exercises,
+      exercises: orderedExercises,
     }));
   },
   updateExercises: (exercise: Exercise) =>

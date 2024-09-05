@@ -26,16 +26,24 @@ export const workoutRouter = createTRPCRouter({
         exercises: z.array(
           z.object({
             title: z.string(),
+            order: z.number().optional(), // order is optional
+            exerciseSets: z.array(
+              z.object({
+                rep: z.string(),
+                weight: z.string(),
+              })
+            ),
           })
         ),
       })
     )
     .mutation(
       async ({ input: { title, exercises }, ctx: { userId, prisma } }) => {
-        const mapExercises = (exercises: { title: string }[]) =>
-          exercises.map(({ title }) => ({
+        const mapExercises = (exercises: { title: string; order?: number }[]) =>
+          exercises.map(({ title, order }, index) => ({
             title,
             createdAt: getCurrentTimestamp(),
+            order: order ?? index + 1, // Default order
             userId,
           }));
 
@@ -61,6 +69,7 @@ export const workoutRouter = createTRPCRouter({
             z.object({
               id: z.string(),
               title: z.string(),
+              order: z.number().optional(), // order is optional
               exerciseSets: z
                 .array(
                   z.object({
@@ -95,26 +104,31 @@ export const workoutRouter = createTRPCRouter({
         exercises?: {
           id: string;
           title: string;
+          order?: number;
           exerciseSets?: { id: string; rep: string; weight: string }[];
         }[]
       ) => {
-        return (exercises || []).map(({ id, title, exerciseSets }) => ({
-          where: { id: id.length === 24 ? id : new ObjectId().toString() },
-          create: {
-            title,
-            createdAt: getCurrentTimestamp(),
-            userId,
-            exerciseSets: {
-              create: mapExerciseSets(exerciseSets),
+        return (exercises || []).map(
+          ({ id, title, exerciseSets, order }, index) => ({
+            where: { id: id.length === 24 ? id : new ObjectId().toString() },
+            create: {
+              title,
+              createdAt: getCurrentTimestamp(),
+              userId,
+              order: order ?? index + 1, // Incremental order
+              exerciseSets: {
+                create: mapExerciseSets(exerciseSets),
+              },
             },
-          },
-          update: {
-            title,
-            exerciseSets: {
-              create: mapExerciseSets(exerciseSets),
+            update: {
+              title,
+              order: order ?? index + 1, // Incremental order
+              exerciseSets: {
+                create: mapExerciseSets(exerciseSets),
+              },
             },
-          },
-        }));
+          })
+        );
       };
 
       return prisma.workout.update({

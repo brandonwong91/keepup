@@ -101,117 +101,105 @@ const ExerciseCard = ({
   };
 
   return (
-    <div>
-      <div className="flex flex-col gap-2 rounded border border-gray-200 p-2 text-sm">
-        <div className="flex">
-          <Input
-            type="text"
-            placeholder="Exercise"
-            className="w-full border-none shadow-none outline-none"
-            defaultValue={title}
-            onChange={handleTitleOnChange}
-          />
-          <div
-            className="h-fit cursor-pointer pl-1.5 text-primary hover:text-primary/60"
-            onClick={handleRemoveExercise}
-          >
-            <CrossCircledIcon />
-          </div>
+    <div className="mb-2 flex flex-col gap-2 rounded border border-gray-200 bg-white p-2 text-sm">
+      <div className="flex">
+        <Input
+          type="text"
+          placeholder="Exercise"
+          className="w-full border-none shadow-none outline-none"
+          defaultValue={title}
+          onChange={handleTitleOnChange}
+        />
+        <div
+          className="h-fit cursor-pointer pl-1.5 text-primary hover:text-primary/60"
+          onClick={handleRemoveExercise}
+        >
+          <CrossCircledIcon />
         </div>
-        <Separator />
-        <div className="flex items-center gap-2">
-          <Button
-            size={"icon"}
-            variant={"link"}
-            className="h-4 w-4"
-            onClick={() => setAddingSet(true)}
-          >
-            <PlusCircledIcon />
+      </div>
+      <Separator />
+      <div className="flex items-center gap-2">
+        <Button
+          size={"icon"}
+          variant={"link"}
+          className="h-4 w-4"
+          onClick={() => setAddingSet(true)}
+        >
+          <PlusCircledIcon />
+        </Button>
+        <div className="static flex gap-3">
+          <Button variant={"secondary"} size="sm" className="h-6 w-16" disabled>
+            Rep
           </Button>
-          <div className="static flex gap-3">
-            <Button
-              variant={"secondary"}
-              size="sm"
-              className="h-6 w-16"
-              disabled
-            >
-              Rep
-            </Button>
-            <Button
-              variant={"secondary"}
-              size="sm"
-              className="h-6 w-16"
-              disabled
-            >
-              Weight
-            </Button>
-          </div>
+          <Button variant={"secondary"} size="sm" className="h-6 w-16" disabled>
+            Weight
+          </Button>
         </div>
-        {addingSet && (
-          <div className="flex gap-2 text-xs">
+      </div>
+      {addingSet && (
+        <div className="flex gap-2 text-xs">
+          <Button
+            variant={"link"}
+            size={"icon"}
+            className="text-red-500"
+            onClick={() => setAddingSet(false)}
+          >
+            <Cross1Icon />
+          </Button>
+          <Input
+            placeholder="rep"
+            value={currentSet.rep}
+            onChange={(e) => handleInputChange(e, "rep")}
+          />
+          <Input
+            placeholder="kg"
+            value={currentSet.weight}
+            onChange={(e) => handleInputChange(e, "weight")}
+          />
+          <Button
+            variant={"link"}
+            size={"icon"}
+            className="text-green-500"
+            onClick={addSetHandler}
+          >
+            <CheckIcon />
+          </Button>
+        </div>
+      )}
+      {exerciseSets.map(({ id, rep, weight }) => {
+        return (
+          <div key={id} className="flex gap-2 text-xs">
             <Button
               variant={"link"}
               size={"icon"}
               className="text-red-500"
-              onClick={() => setAddingSet(false)}
+              onClick={() => removeSetHandler(id)}
             >
-              <Cross1Icon />
+              <TrashIcon />
             </Button>
             <Input
-              placeholder="rep"
-              value={currentSet.rep}
-              onChange={(e) => handleInputChange(e, "rep")}
+              value={rep}
+              onChange={(e) => handleAddedInputChange(e, "rep", id)}
             />
             <Input
-              placeholder="kg"
-              value={currentSet.weight}
-              onChange={(e) => handleInputChange(e, "weight")}
+              value={weight}
+              onChange={(e) => handleAddedInputChange(e, "weight", id)}
             />
             <Button
               variant={"link"}
               size={"icon"}
-              className="text-green-500"
-              onClick={addSetHandler}
+              onClick={() => copySetHandler(id)}
             >
-              <CheckIcon />
+              <CopyIcon />
             </Button>
           </div>
-        )}
-        {exerciseSets.map(({ id, rep, weight }) => {
-          return (
-            <div key={id} className="flex gap-2 text-xs">
-              <Button
-                variant={"link"}
-                size={"icon"}
-                className="text-red-500"
-                onClick={() => removeSetHandler(id)}
-              >
-                <TrashIcon />
-              </Button>
-              <Input
-                value={rep}
-                onChange={(e) => handleAddedInputChange(e, "rep", id)}
-              />
-              <Input
-                value={weight}
-                onChange={(e) => handleAddedInputChange(e, "weight", id)}
-              />
-              <Button
-                variant={"link"}
-                size={"icon"}
-                onClick={() => copySetHandler(id)}
-              >
-                <CopyIcon />
-              </Button>
-            </div>
-          );
-        })}
-        {exerciseSets.length > 0 && (
-          <Button variant="outline" onClick={() => setAddingSet(true)}>
-            Complete set
-          </Button>
-        )}
-      </div>
+        );
+      })}
+      {exerciseSets.length > 0 && (
+        <Button variant="outline" onClick={() => setAddingSet(true)}>
+          Complete set
+        </Button>
+      )}
     </div>
   );
 };

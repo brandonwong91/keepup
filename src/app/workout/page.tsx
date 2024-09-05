@@ -56,10 +56,11 @@ const Workout = () => {
             id,
             title,
             userId,
-            exercises: exercises.map(({ id, title }) => {
+            exercises: exercises.map(({ id, title, order }, index) => {
               return {
                 id,
                 title,
+                order: order ?? index + 1,
                 exerciseSets: [],
               };
             }),
@@ -81,7 +82,9 @@ const Workout = () => {
       queryExercises.isFetched &&
       showTab === "exercises"
     ) {
-      setExercises(queryExercises.data);
+      setExercises(
+        queryExercises.data.map((e) => ({ ...e, order: e.order ?? undefined }))
+      );
       setRefetchExercises(queryExercises.refetch);
     }
   }, [queryExercises.data]);
@@ -255,6 +258,7 @@ const Workout = () => {
                                   id,
                                   exerciseSets,
                                   title,
+                                  order: exerciseSets.length + 1,
                                 })
                               }
                             >

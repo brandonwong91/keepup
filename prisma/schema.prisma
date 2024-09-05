@@ -52,6 +52,7 @@ model Exercise {
   workoutId    String?       @db.ObjectId
   workout      Workout?      @relation(fields: [workoutId], references: [id])
   userId       String
+  order        Int?
 }
 
 model Workout {
