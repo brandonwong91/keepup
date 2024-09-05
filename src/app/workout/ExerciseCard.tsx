@@ -12,6 +12,7 @@ import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import { ExerciseSet, useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
+import { toast } from "sonner";
 
 const ExerciseCard = ({
   id,
@@ -24,10 +25,10 @@ const ExerciseCard = ({
 }) => {
   const removeWorkout = api.workout.deleteWorkout.useMutation({
     onSuccess: () => {
-      console.log("Workout removed successfully");
+      toast("Workout removed successfully");
     },
     onError: (error) => {
-      console.error("Failed to remove workout", error);
+      toast(`Failed to remove workout ${error.message}`);
     },
   });
 
@@ -82,7 +83,6 @@ const ExerciseCard = ({
     removeExerciseSet(setId, id);
   };
 
-  // Handler for copying an existing set
   const copySetHandler = (setId: string) => {
     duplicateExercisesSet(setId, id);
   };

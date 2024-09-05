@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Reorder } from "framer-motion";
+import { toast } from "sonner";
 
 const WorkoutCard = () => {
   const {
@@ -40,32 +41,35 @@ const WorkoutCard = () => {
 
   const removeWorkoutApi = api.workout.deleteWorkout.useMutation({
     onSuccess: () => {
+      toast("Workout removed successfully!");
       if (refetchWorkouts) {
         refetchWorkouts();
       }
     },
     onError: (error) => {
-      console.error("Failed to remove workout", error);
+      toast(`Failed to remove workout ${error.message}`);
     },
   });
   const updateWorkoutApi = api.workout.updateWorkout.useMutation({
     onSuccess: () => {
+      toast("Workout updated successfully!");
       if (refetchWorkouts) {
         refetchWorkouts();
       }
     },
     onError: (error) => {
-      console.error("Failed to update workout", error);
+      toast(`Failed to update workout ${error.message}`);
     },
   });
   const addWorkoutApi = api.workout.createWorkout.useMutation({
     onSuccess: () => {
+      toast("Workout created successfully!");
       if (refetchWorkouts) {
         refetchWorkouts();
       }
     },
     onError: (error) => {
-      console.error("Failed to create workout", error);
+      toast(`Failed to create workout ${error.message}`);
     },
   });
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

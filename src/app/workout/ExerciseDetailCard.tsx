@@ -28,6 +28,7 @@ import {
 import { date } from "zod";
 import { Calendar } from "~/components/ui/calendar";
 import { cn } from "~/lib/utils";
+import { toast } from "sonner";
 
 const ExerciseDetailCard = () => {
   const {
@@ -49,25 +50,25 @@ const ExerciseDetailCard = () => {
   const { title, exerciseSets, id } = exercise;
   const removeExerciseApi = api.workout.deleteExercise.useMutation({
     onSuccess: () => {
-      console.log("Exercise removed successfully");
+      toast("Exercise removed successfully");
       if (refetchExercises) {
         refetchExercises();
       }
     },
     onError: (error) => {
-      console.error("Failed to remove exercise", error);
+      toast(`Failed to remove exercise: ${error.message}`);
     },
   });
 
   const updateExerciseApi = api.workout.updateExercise.useMutation({
     onSuccess: () => {
-      console.log("Exercise updated successfully");
+      toast("Exercise updated successfully");
       if (refetchExercises) {
         refetchExercises();
       }
     },
     onError: (error) => {
-      console.error("Failed to update exercise", error);
+      toast(`Failed to update exercise: ${error.message}`);
     },
   });
 

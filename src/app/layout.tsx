@@ -1,6 +1,7 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import Provider from "~/_trpc/Provider";
 import NavBar from "~/components/NavBar";
+import { Toaster } from "~/components/ui/sonner";
 import "~/styles/globals.css";
 
 export default function RootLayout({
