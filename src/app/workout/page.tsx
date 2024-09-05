@@ -130,7 +130,7 @@ const Workout = () => {
           <CardHeader>
             <CardTitle>{date?.toDateString()}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex gap-1">
             {queryWorkoutsByDate.data && queryWorkoutsByDate.data.length > 0 ? (
               queryWorkoutsByDate.data.map((workout) => {
                 return <Badge key={workout.id}>{workout.title}</Badge>;

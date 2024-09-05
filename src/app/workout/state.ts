@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import Workout from "./page";
-import ObjectID from "bson-objectid";
 
 export interface ExerciseSet {
   id: string;
@@ -23,37 +22,33 @@ export interface Workout {
 }
 
 interface WorkoutStore {
+  // Workout-related properties and methods
   workouts: Workout[];
   workout: Workout;
-  workoutDates: string[];
-  setWorkoutDates: (dates: string[]) => void;
-  showNewExercise: boolean;
-  showTab: string;
-  setShowTab: (tab: string) => void;
-  exercises: Exercise[];
-  exercise: Exercise;
-  exerciseSet: ExerciseSet;
-  exerciseSets: ExerciseSet[];
-  defaultSelectExercise: string;
-  setDefaultSelectExercise: (input: string) => void;
   setWorkout: (workout: Workout) => void;
   setWorkouts: (workouts: Workout[]) => void;
-  refetchWorkouts: (() => void) | null;
-  setRefetchWorkouts: (refetch: () => void) => void;
-  refetchExercises: (() => void) | null;
-  setRefetchExercises: (refetch: () => void) => void;
-  clearWorkout: () => void;
-  clearExercise: () => void;
-  setShowNewExercise: (show: boolean) => void;
-  updateExercise: (exercise: Exercise) => void;
-  setExercise: (exercise: Exercise) => void;
-  addExercise: (exercise: Exercise) => void;
-  setExercises: (exercises: Exercise[]) => void;
-  addWorkoutTitle: (title: string) => void;
   addWorkout: (workout: Workout) => void;
   removeWorkout: (id: string) => void;
-  updateTitleInExercises: (title: string, id: string) => void;
+  addWorkoutTitle: (title: string) => void;
+  clearWorkout: () => void;
+  refetchWorkouts: (() => void) | null;
+  setRefetchWorkouts: (refetch: () => void) => void;
+
+  // Exercise-related properties and methods
+  exercises: Exercise[];
+  exercise: Exercise;
+  setExercise: (exercise: Exercise) => void;
+  setExercises: (exercises: Exercise[]) => void;
+  addExercise: (exercise: Exercise) => void;
   removeExercise: (id: string) => void;
+  updateExercise: (exercise: Exercise) => void;
+  clearExercise: () => void;
+  refetchExercises: (() => void) | null;
+  setRefetchExercises: (refetch: () => void) => void;
+
+  // ExerciseSet-related properties and methods
+  exerciseSet: ExerciseSet;
+  exerciseSets: ExerciseSet[];
   addExerciseSetsToExercises: (exerciseSet: ExerciseSet, id: string) => void;
   addExerciseSetsToExercise: (exerciseSet: ExerciseSet) => void;
   setExerciseSetsToExercises: (
@@ -71,6 +66,19 @@ interface WorkoutStore {
   duplicateExercisesSetInExercise: (setId: string) => void;
   removeExerciseSet: (setId: string, exerciseId: string) => void;
   removeExerciseSetInExercise: (setId: string) => void;
+
+  // UI-related properties and methods
+  showNewExercise: boolean;
+  setShowNewExercise: (show: boolean) => void;
+  showTab: string;
+  setShowTab: (tab: string) => void;
+
+  // Date-related properties and methods
+  workoutDates: string[];
+  setWorkoutDates: (dates: string[]) => void;
+
+  // Miscellaneous methods
+  updateTitleInExercises: (title: string, id: string) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStore>((set) => ({
@@ -80,48 +88,63 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
     title: "",
     exercises: [],
   },
-  workoutDates: [],
-  setWorkoutDates: (dates: string[]) =>
-    set((state: WorkoutStore) => ({
-      ...state,
-      workoutDates: Array.from(new Set([...state.workoutDates, ...dates])),
-    })),
-  showTab: "workouts",
-  defaultSelectExercise: "Select a new exercise",
-  setDefaultSelectExercise: (input: string) =>
-    set((state: WorkoutStore) => ({
-      ...state,
-      defaultSelectExercise: input,
-    })),
-  setShowTab: (tab: string) =>
-    set((state: WorkoutStore) => ({
-      ...state,
-      showTab: tab,
-      exercises: tab === "workouts" ? [] : state.exercises,
-    })),
-  refetchWorkouts: null,
-  setRefetchWorkouts: (refetch) => set({ refetchWorkouts: refetch }),
-  refetchExercises: null,
-  setRefetchExercises: (refetch) => set({ refetchExercises: refetch }),
-  exercises: [],
-  exercise: {
-    id: "",
-    title: "",
-    exerciseSets: [],
-  },
-  exerciseSet: {
-    id: "",
-    rep: "",
-    weight: "",
-  },
-  exerciseSets: [],
-  showNewExercise: false,
   setWorkout: (workout: Workout) =>
     set({ workout, exercises: workout.exercises }),
   setWorkouts: (workouts: Workout[]) =>
     set((state: WorkoutStore) => ({
       ...state,
       workouts,
+    })),
+  addWorkout: (workout: Workout) =>
+    set((state: WorkoutStore) => {
+      const existingWorkoutIndex = state.workouts.findIndex(
+        (w: Workout) => w.id === workout.id
+      );
+      if (existingWorkoutIndex !== -1) {
+        // Workout with the same id exists, so update it
+        const updatedWorkouts = [...state.workouts];
+        updatedWorkouts[existingWorkoutIndex] = {
+          ...workout,
+          exercises: state.exercises,
+        };
+        return {
+          ...state,
+          workouts: updatedWorkouts,
+          workout: {
+            id: "",
+            title: "",
+            exercises: [],
+          },
+          exercises: [],
+          showNewExercise: false,
+        };
+      } else {
+        return {
+          ...state,
+          workouts: [
+            {
+              id: Date.now().toString(),
+              title: workout.title,
+              exercises: [...state.exercises, state.exercise],
+            },
+            ...state.workouts,
+          ],
+          workout: {
+            id: "",
+            title: "",
+            exercises: [],
+          },
+          exercises: [],
+          showNewExercise: false,
+        };
+      }
+    }),
+  addWorkoutTitle: (title: string) =>
+    set((state: WorkoutStore) => ({
+      workout: {
+        ...state.workout,
+        title: title,
+      },
     })),
   clearWorkout: () =>
     set({
@@ -132,15 +155,13 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       },
       exercises: [],
     }),
-  clearExercise: () =>
-    set({
-      exercise: {
-        id: "",
-        title: "",
-        exerciseSets: [],
-      },
-    }),
-
+  removeExercise: (id: string) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercises: state.exercises.filter((exercise) => exercise.id !== id),
+    })),
+  refetchWorkouts: null,
+  setRefetchWorkouts: (refetch) => set({ refetchWorkouts: refetch }),
   removeWorkout: (id: String) =>
     set((state: WorkoutStore) => ({
       workouts: state.workouts.filter((w) => w.id !== id),
@@ -150,20 +171,53 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         exercises: [],
       },
     })),
-  addWorkoutTitle: (title: string) =>
-    set((state: WorkoutStore) => ({
-      workout: {
-        ...state.workout,
-        title: title,
-      },
-    })),
-  updateTitleInExercises: (title: string, id: string) =>
+
+  // Exercise-related methods
+  exercises: [],
+  exercise: {
+    id: "",
+    title: "",
+    exerciseSets: [],
+  },
+  updateExercises: (exercise: Exercise) =>
     set((state: WorkoutStore) => ({
       ...state,
-      exercises: state.exercises.map((exercise) =>
-        exercise.id === id ? { ...exercise, title } : exercise
+      exercises: state.exercises.map((e) =>
+        e.id === exercise.id ? exercise : e
       ),
     })),
+  addExercise: (exercise: Exercise) =>
+    set((state: WorkoutStore) => ({
+      exercises: [...state.exercises, exercise],
+      exercise: {
+        id: "",
+        title: "",
+        exerciseSets: [],
+      },
+    })),
+  updateExercise: (exercise: Exercise) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercise: {
+        ...state.exercise,
+        ...exercise,
+      },
+    })),
+  setExercise: (exercise: Exercise) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercise,
+    })),
+  setExercises: (exercises: Exercise[]) => {
+    const orderedExercises = exercises.map((exercise, index) => ({
+      ...exercise,
+      order: index,
+    }));
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercises: orderedExercises,
+    }));
+  },
   addExerciseSetsToExercises: (exerciseSet: ExerciseSet, id: string) =>
     set((state: WorkoutStore) => ({
       ...state,
@@ -222,6 +276,14 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       },
     }));
   },
+  updateTitleInExercises: (title: string, id: string) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      exercises: state.exercises.map((exercise) =>
+        exercise.id === id ? { ...exercise, title } : exercise
+      ),
+    })),
+
   duplicateExercisesSetInExercise: (setId: string) =>
     set((state: WorkoutStore) => {
       const existingSet = state.exercise?.exerciseSets.find(
@@ -247,6 +309,25 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
 
       return state; // No changes if the set doesn't exist
     }),
+  clearExercise: () =>
+    set({
+      exercise: {
+        id: "",
+        title: "",
+        exerciseSets: [],
+      },
+    }),
+  refetchExercises: null,
+  setRefetchExercises: (refetch) => set({ refetchExercises: refetch }),
+
+  workoutDates: [],
+
+  exerciseSet: {
+    id: "",
+    rep: "",
+    weight: "",
+  },
+  exerciseSets: [],
   duplicateExercisesSet: (setId: string, exerciseId: string) =>
     set((state: WorkoutStore) => {
       const existingSet = state.exercises
@@ -301,97 +382,24 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       ),
     }));
   },
-  removeExercise: (id: string) =>
+
+  setWorkoutDates: (dates: string[]) =>
     set((state: WorkoutStore) => ({
       ...state,
-      exercises: state.exercises.filter((exercise) => exercise.id !== id),
+      workoutDates: Array.from(new Set([...state.workoutDates, ...dates])),
     })),
+
+  showTab: "workouts",
+  setShowTab: (tab: string) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      showTab: tab,
+      exercises: tab === "workouts" ? [] : state.exercises,
+    })),
+  showNewExercise: false,
   setShowNewExercise: (show: boolean) =>
     set((state: WorkoutStore) => ({
       ...state,
       showNewExercise: show,
-    })),
-  addWorkout: (workout: Workout) =>
-    set((state: WorkoutStore) => {
-      const existingWorkoutIndex = state.workouts.findIndex(
-        (w: Workout) => w.id === workout.id
-      );
-      if (existingWorkoutIndex !== -1) {
-        // Workout with the same id exists, so update it
-        const updatedWorkouts = [...state.workouts];
-        updatedWorkouts[existingWorkoutIndex] = {
-          ...workout,
-          exercises: state.exercises,
-        };
-        return {
-          ...state,
-          workouts: updatedWorkouts,
-          workout: {
-            id: "",
-            title: "",
-            exercises: [],
-          },
-          exercises: [],
-          showNewExercise: false,
-        };
-      } else {
-        return {
-          ...state,
-          workouts: [
-            {
-              id: Date.now().toString(),
-              title: workout.title,
-              exercises: [...state.exercises, state.exercise],
-            },
-            ...state.workouts,
-          ],
-          workout: {
-            id: "",
-            title: "",
-            exercises: [],
-          },
-          exercises: [],
-          showNewExercise: false,
-        };
-      }
-    }),
-  setExercise: (exercise: Exercise) =>
-    set((state: WorkoutStore) => ({
-      ...state,
-      exercise,
-    })),
-  setExercises: (exercises: Exercise[]) => {
-    const orderedExercises = exercises.map((exercise, index) => ({
-      ...exercise,
-      order: index,
-    }));
-    set((state: WorkoutStore) => ({
-      ...state,
-      exercises: orderedExercises,
-    }));
-  },
-  updateExercises: (exercise: Exercise) =>
-    set((state: WorkoutStore) => ({
-      ...state,
-      exercises: state.exercises.map((e) =>
-        e.id === exercise.id ? exercise : e
-      ),
-    })),
-  addExercise: (exercise: Exercise) =>
-    set((state: WorkoutStore) => ({
-      exercises: [...state.exercises, exercise],
-      exercise: {
-        id: "",
-        title: "",
-        exerciseSets: [],
-      },
-    })),
-  updateExercise: (exercise: Exercise) =>
-    set((state: WorkoutStore) => ({
-      ...state,
-      exercise: {
-        ...state.exercise,
-        ...exercise,
-      },
     })),
 }));
