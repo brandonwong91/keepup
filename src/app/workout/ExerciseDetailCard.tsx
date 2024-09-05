@@ -39,6 +39,7 @@ const ExerciseDetailCard = () => {
     removeExerciseSetInExercise,
     duplicateExercisesSetInExercise,
     addExerciseSetsToExercise,
+    clearExercise,
   } = useWorkoutStore((state) => state);
 
   const [addingSet, setAddingSet] = useState(false);
@@ -72,11 +73,24 @@ const ExerciseDetailCard = () => {
     },
   });
 
+  const createExerciseApi = api.workout.createExercise.useMutation({
+    onSuccess: () => {
+      toast("Exercise created successfully");
+      if (refetchExercises) {
+        refetchExercises();
+      }
+    },
+    onError: (error) => {
+      toast(`Failed to create exercise: ${error.message}`);
+    },
+  });
+
   const handleRemoveExercise = async (id: string) => {
     const variables = {
       id,
     };
     await removeExerciseApi.mutate(variables);
+    clearExercise();
   };
 
   const handleUpdateExercise = async () => {
@@ -85,7 +99,12 @@ const ExerciseDetailCard = () => {
       title,
       exerciseSets,
     };
-    await updateExerciseApi.mutate(variables);
+    if (id === "") {
+      await createExerciseApi.mutate(variables);
+    } else {
+      await updateExerciseApi.mutate(variables);
+    }
+    clearExercise();
   };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

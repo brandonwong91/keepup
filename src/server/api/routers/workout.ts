@@ -178,6 +178,45 @@ export const workoutRouter = createTRPCRouter({
       },
     });
   }),
+  createExercise: privateProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        exerciseSets: z
+          .array(
+            z.object({
+              rep: z.string(),
+              weight: z.string(),
+              createdAt: z.date().optional(), // Optional, you may not always provide createdAt
+            })
+          )
+          .optional(), // Optional, you may not always provide exerciseSets
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { title, exerciseSets } = input;
+
+      // Create the exercise
+      const newExercise = await ctx.prisma.exercise.create({
+        data: {
+          title,
+          createdAt: new Date().toISOString(), // Ensure createdAt is included
+          userId: ctx.userId, // Ensure userId is included
+          exerciseSets: exerciseSets
+            ? {
+                create: exerciseSets.map(({ rep, weight, createdAt }) => ({
+                  rep,
+                  weight,
+                  createdAt: createdAt ? createdAt : new Date().toISOString(),
+                  userId: ctx.userId,
+                })),
+              }
+            : undefined, // Only include exerciseSets if provided
+        },
+      });
+
+      return { success: true, exercise: newExercise };
+    }),
   updateExercise: privateProcedure
     .input(
       z.object({
