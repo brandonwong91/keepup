@@ -29,6 +29,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
 import { Badge } from "~/components/ui/badge";
+import ExerciseChart from "./ExerciseChart";
 
 const ExerciseDetailCard = () => {
   const {
@@ -199,6 +200,7 @@ const ExerciseDetailCard = () => {
           />
         </CardTitle>
         <CardContent className="flex w-full flex-col gap-y-2 p-0">
+          {exerciseSets.length > 0 && <ExerciseChart />}
           <div className="flex">
             {maxWeight !== undefined && maxWeight > 0 && maxWeightDate && (
               <Badge
