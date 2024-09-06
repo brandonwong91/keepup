@@ -241,6 +241,7 @@ export const workoutRouter = createTRPCRouter({
       const existingExerciseSets = await ctx.prisma.exerciseSet.findMany({
         where: { exerciseId: id },
       });
+
       // Identify exercise sets to delete
       const setsToDelete = existingExerciseSets.filter(
         (existingSet) =>
@@ -275,11 +276,37 @@ export const workoutRouter = createTRPCRouter({
         }));
       };
 
+      const allExerciseSets = exerciseSets
+        ? [...existingExerciseSets, ...exerciseSets]
+        : existingExerciseSets;
+
+      let maxWeight = 0;
+      let maxWeightDate = new Date().toISOString();
+
+      if (allExerciseSets.length > 0) {
+        const maxSet = allExerciseSets.reduce((maxSet, set) => {
+          const weight = parseFloat(set.weight);
+          if (maxSet) {
+            return weight > parseFloat(maxSet.weight) ? set : maxSet;
+          }
+          return set;
+        }, allExerciseSets[0]);
+
+        if (maxSet) {
+          maxWeight = parseFloat(maxSet.weight);
+          maxWeightDate = maxSet.createdAt
+            ? maxSet.createdAt.toISOString()
+            : new Date().toISOString();
+        }
+      }
+
       // Update the exercise and handle exerciseSets
       await ctx.prisma.exercise.update({
         where: { id },
         data: {
           title,
+          maxWeight,
+          maxWeightDate,
           exerciseSets: exerciseSets
             ? {
                 upsert: mapExerciseSets(exerciseSets),

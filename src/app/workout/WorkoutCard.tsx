@@ -110,6 +110,8 @@ const WorkoutCard = () => {
         ...exercise,
         exerciseSets: [],
         order: exercises.length + 1,
+        maxWeight: 0,
+        maxWeightDate: undefined,
       });
     }
   };

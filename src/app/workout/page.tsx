@@ -83,7 +83,12 @@ const Workout = () => {
       showTab === "exercises"
     ) {
       setExercises(
-        queryExercises.data.map((e) => ({ ...e, order: e.order ?? undefined }))
+        queryExercises.data.map((e) => ({
+          ...e,
+          order: e.order ?? undefined,
+          maxWeight: e.maxWeight ?? 0,
+          maxWeightDate: e.maxWeightDate ?? undefined,
+        }))
       );
       setRefetchExercises(queryExercises.refetch);
     }
@@ -249,7 +254,7 @@ const Workout = () => {
                     {exercises && exercises.length > 0 ? (
                       exercises
                         .sort((a, b) => a.title.localeCompare(b.title))
-                        .map(({ title, id, exerciseSets }) => (
+                        .map(({ title, id, exerciseSets, ...remaining }) => (
                           <div key={id}>
                             <div
                               className="cursor-pointer text-sm"
@@ -259,6 +264,7 @@ const Workout = () => {
                                   exerciseSets,
                                   title,
                                   order: exerciseSets.length + 1,
+                                  ...remaining,
                                 })
                               }
                             >

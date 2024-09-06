@@ -44,15 +44,17 @@ model ExerciseSet {
 }
 
 model Exercise {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
-  createdAt    DateTime
-  updatedAt    DateTime      @updatedAt
-  title        String
-  exerciseSets ExerciseSet[]
-  workoutId    String?       @db.ObjectId
-  workout      Workout?      @relation(fields: [workoutId], references: [id])
-  userId       String
-  order        Int?
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime
+  updatedAt     DateTime      @updatedAt
+  title         String
+  exerciseSets  ExerciseSet[]
+  workoutId     String?       @db.ObjectId
+  workout       Workout?      @relation(fields: [workoutId], references: [id])
+  userId        String
+  order         Int?
+  maxWeight     Float?        @default(0)
+  maxWeightDate DateTime?
 }
 
 model Workout {

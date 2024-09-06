@@ -129,10 +129,10 @@ const ExerciseCard = ({
         </Button>
         <div className="static flex gap-3">
           <Button variant={"secondary"} size="sm" className="h-6 w-16" disabled>
-            Rep
+            Weight
           </Button>
           <Button variant={"secondary"} size="sm" className="h-6 w-16" disabled>
-            Weight
+            Rep
           </Button>
         </div>
       </div>
@@ -147,14 +147,14 @@ const ExerciseCard = ({
             <Cross1Icon />
           </Button>
           <Input
-            placeholder="rep"
-            value={currentSet.rep}
-            onChange={(e) => handleInputChange(e, "rep")}
-          />
-          <Input
             placeholder="kg"
             value={currentSet.weight}
             onChange={(e) => handleInputChange(e, "weight")}
+          />
+          <Input
+            placeholder="rep"
+            value={currentSet.rep}
+            onChange={(e) => handleInputChange(e, "rep")}
           />
           <Button
             variant={"link"}

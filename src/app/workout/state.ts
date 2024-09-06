@@ -13,6 +13,8 @@ export interface Exercise {
   title: string;
   exerciseSets: ExerciseSet[];
   order?: number;
+  maxWeight?: number;
+  maxWeightDate?: Date;
 }
 
 export interface Workout {
@@ -203,11 +205,12 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         ...exercise,
       },
     })),
-  setExercise: (exercise: Exercise) =>
+  setExercise: (exercise: Exercise) => {
     set((state: WorkoutStore) => ({
       ...state,
       exercise,
-    })),
+    }));
+  },
   setExercises: (exercises: Exercise[]) => {
     const orderedExercises = exercises.map((exercise, index) => ({
       ...exercise,

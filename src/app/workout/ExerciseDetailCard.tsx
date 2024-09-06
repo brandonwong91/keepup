@@ -9,7 +9,7 @@ import {
 import { ExerciseSet, useWorkoutStore } from "./state";
 import { api } from "~/utils/api";
 import { Button } from "~/components/ui/button";
-import { format, setDate } from "date-fns";
+import { differenceInDays, format, setDate } from "date-fns";
 import { Input } from "~/components/ui/input";
 import {
   CalendarIcon,
@@ -25,10 +25,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { date } from "zod";
 import { Calendar } from "~/components/ui/calendar";
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
+import { Badge } from "~/components/ui/badge";
 
 const ExerciseDetailCard = () => {
   const {
@@ -48,7 +48,7 @@ const ExerciseDetailCard = () => {
     weight: "",
   });
 
-  const { title, exerciseSets, id } = exercise;
+  const { title, exerciseSets, id, maxWeight, maxWeightDate } = exercise;
   const removeExerciseApi = api.workout.deleteExercise.useMutation({
     onSuccess: () => {
       toast("Exercise removed successfully");
@@ -176,6 +176,18 @@ const ExerciseDetailCard = () => {
     );
     updateExercise({ ...exercise, exerciseSets: updatedSets });
   };
+
+  const getFormattedDateDifference = (maxWeightDate: Date): string => {
+    const today = new Date();
+    const daysDifference = differenceInDays(today, maxWeightDate);
+
+    if (daysDifference === 0) {
+      return "today";
+    } else {
+      return `${daysDifference} day${daysDifference > 1 ? "s" : ""} ago`;
+    }
+  };
+
   return (
     <Card className="w-64">
       <CardHeader>
@@ -187,6 +199,15 @@ const ExerciseDetailCard = () => {
           />
         </CardTitle>
         <CardContent className="flex w-full flex-col gap-y-2 p-0">
+          <div className="flex">
+            {maxWeight !== undefined && maxWeight > 0 && maxWeightDate && (
+              <Badge
+                variant={"destructive"}
+              >{`PR: ${maxWeight}kg @ ${getFormattedDateDifference(
+                new Date(maxWeightDate as Date)
+              )}`}</Badge>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <Button
               size={"icon"}
@@ -203,7 +224,7 @@ const ExerciseDetailCard = () => {
                 className="h-6 w-16"
                 disabled
               >
-                Rep
+                Weight
               </Button>
               <Button
                 variant={"secondary"}
@@ -211,7 +232,7 @@ const ExerciseDetailCard = () => {
                 className="h-6 w-16"
                 disabled
               >
-                Weight
+                Rep
               </Button>
             </div>
           </div>
@@ -226,15 +247,16 @@ const ExerciseDetailCard = () => {
                 <Cross1Icon />
               </Button>
               <Input
-                placeholder="rep"
-                value={currentSet.rep}
-                onChange={(e) => handleInputChange(e, "rep")}
-              />
-              <Input
                 placeholder="kg"
                 value={currentSet.weight}
                 onChange={(e) => handleInputChange(e, "weight")}
               />
+              <Input
+                placeholder="rep"
+                value={currentSet.rep}
+                onChange={(e) => handleInputChange(e, "rep")}
+              />
+
               <Button
                 variant={"link"}
                 size={"icon"}
@@ -288,12 +310,12 @@ const ExerciseDetailCard = () => {
                       <TrashIcon />
                     </Button>
                     <Input
-                      value={rep}
-                      onChange={(e) => handleAddedInputChange(e, "rep", id)}
-                    />
-                    <Input
                       value={weight}
                       onChange={(e) => handleAddedInputChange(e, "weight", id)}
+                    />
+                    <Input
+                      value={rep}
+                      onChange={(e) => handleAddedInputChange(e, "rep", id)}
                     />
                     <Button
                       variant={"link"}

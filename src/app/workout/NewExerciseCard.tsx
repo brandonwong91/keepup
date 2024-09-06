@@ -131,7 +131,7 @@ const NewExerciseCard = () => {
               className="h-6 w-16"
               disabled
             >
-              Rep
+              Weight
             </Button>
             <Button
               variant={"secondary"}
@@ -139,7 +139,7 @@ const NewExerciseCard = () => {
               className="h-6 w-16"
               disabled
             >
-              Weight
+              Rep
             </Button>
           </div>
         </div>
@@ -154,14 +154,14 @@ const NewExerciseCard = () => {
               <Cross1Icon />
             </Button>
             <Input
-              placeholder="rep"
-              value={currentSet.rep}
-              onChange={(e) => handleInputChange(e, "rep")}
-            />
-            <Input
               placeholder="kg"
               value={currentSet.weight}
               onChange={(e) => handleInputChange(e, "weight")}
+            />
+            <Input
+              placeholder="rep"
+              value={currentSet.rep}
+              onChange={(e) => handleInputChange(e, "rep")}
             />
             <Button
               variant={"link"}
