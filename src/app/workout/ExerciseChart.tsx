@@ -35,7 +35,7 @@ const ExerciseChart = () => {
       const { date, weight } = set;
 
       // If the date isn't in the object, or if the current weight is greater than the stored weight for that date, update it
-      if (!heaviestWeights[date] || parseInt(weight) > heaviestWeights[date]) {
+      if (!heaviestWeights[date] || parseInt(weight) > heaviestWeights[date]!) {
         heaviestWeights[date] = parseInt(weight);
       }
     });
