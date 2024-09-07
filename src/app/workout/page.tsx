@@ -14,6 +14,7 @@ import ExerciseDetailCard from "./ExerciseDetailCard";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { Badge } from "~/components/ui/badge";
 import ExerciseChart from "./ExerciseChart";
+import { format } from "date-fns";
 
 const Workout = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -128,13 +129,16 @@ const Workout = () => {
         />
         <Card className="h-full w-64">
           <CardHeader>
-            <CardTitle>{date?.toDateString()}</CardTitle>
+            <CardTitle>{format(date as Date, "cccc, P")}</CardTitle>
           </CardHeader>
           <CardContent className="flex gap-1">
-            {queryWorkoutsByDate.data && queryWorkoutsByDate.data.length > 0 ? (
-              queryWorkoutsByDate.data.map((workout) => {
-                return <Badge key={workout.id}>{workout.title}</Badge>;
-              })
+            {queryWorkoutsByDate.isFetching ? (
+              <Skeleton className="h-[16px] w-full rounded-full" />
+            ) : queryWorkoutsByDate.data &&
+              queryWorkoutsByDate.data.length > 0 ? (
+              queryWorkoutsByDate.data.map((workout) => (
+                <Badge key={workout.id}>{workout.title}</Badge>
+              ))
             ) : (
               <p>Nothing here yet...</p>
             )}
