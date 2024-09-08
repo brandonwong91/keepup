@@ -1,7 +1,7 @@
 "use client";
 import Fireworks from "react-canvas-confetti/dist/presets/fireworks";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { SignedOut, SignInButton, SignedIn, useUser } from "@clerk/nextjs";
 import {
@@ -9,8 +9,11 @@ import {
   GlowingStarsDescription,
   GlowingStarsTitle,
 } from "./ui/glowing-stars";
+import { useRouter } from "next/navigation";
 
 const Confetti = () => {
+  const [count, setCount] = useState(0);
+  const router = useRouter();
   const user = useUser();
   const controller = useRef<{ shoot: () => void } | null>(null);
   const onInitHandler = ({ conductor }: { conductor: any }) => {
@@ -19,6 +22,10 @@ const Confetti = () => {
   const onShoot = () => {
     if (controller.current) {
       controller?.current.shoot();
+    }
+    setCount(count + 1);
+    if (count >= 4) {
+      router.push("/tetris");
     }
   };
   return (
