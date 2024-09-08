@@ -78,6 +78,8 @@ interface WorkoutStore {
   // Date-related properties and methods
   workoutDates: string[];
   setWorkoutDates: (dates: string[]) => void;
+  selectedDate: string;
+  setSelectedDate: (date: string) => void;
 
   // Miscellaneous methods
   updateTitleInExercises: (title: string, id: string) => void;
@@ -323,8 +325,6 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
   refetchExercises: null,
   setRefetchExercises: (refetch) => set({ refetchExercises: refetch }),
 
-  workoutDates: [],
-
   exerciseSet: {
     id: "",
     rep: "",
@@ -386,12 +386,19 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
     }));
   },
 
+  workoutDates: [],
   setWorkoutDates: (dates: string[]) =>
     set((state: WorkoutStore) => ({
       ...state,
       workoutDates: Array.from(new Set([...state.workoutDates, ...dates])),
     })),
-
+  selectedDate: Date().toString(),
+  setSelectedDate: (date: string) => {
+    set((state: WorkoutStore) => ({
+      ...state,
+      selectedDate: date,
+    }));
+  },
   showTab: "workouts",
   setShowTab: (tab: string) =>
     set((state: WorkoutStore) => ({

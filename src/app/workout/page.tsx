@@ -13,11 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import ExerciseDetailCard from "./ExerciseDetailCard";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { Badge } from "~/components/ui/badge";
-import ExerciseChart from "./ExerciseChart";
 import { format } from "date-fns";
 
 const Workout = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const previousDateRef = useRef<Date | undefined>(undefined);
   const {
     workouts,
@@ -34,15 +32,17 @@ const Workout = () => {
     clearExercise,
     workoutDates,
     setWorkoutDates,
+    selectedDate,
+    setSelectedDate,
   } = useWorkoutStore((state) => state);
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
   const queryExercises = api.workout.getAllExercises.useQuery();
   const queryWorkoutsByDate = api.workout.getWorkoutsByDate.useQuery({
-    date: date?.toString() || Date.now().toString(),
+    date: selectedDate.toString(),
   });
   const queryWorkoutsByMonth = api.workout.getWorkoutsByMonth.useQuery({
-    date: date?.toString() || Date.now().toString(),
+    date: selectedDate.toString(),
   });
   useEffect(() => {
     if (queryWorkouts.data && queryWorkouts.isFetched) {
@@ -91,9 +91,9 @@ const Workout = () => {
   }, [queryExercises.data]);
 
   useEffect(() => {
-    if (!date) return;
+    if (!selectedDate) return;
 
-    const currentDate = new Date(date);
+    const currentDate = new Date(selectedDate);
     const previousDate = previousDateRef.current;
 
     // Check if it's the first load or the month has changed
@@ -109,7 +109,7 @@ const Workout = () => {
       });
       previousDateRef.current = currentDate; // Update the previous date
     }
-  }, [date, queryWorkoutsByMonth]);
+  }, [selectedDate, queryWorkoutsByMonth]);
 
   const handleShowWorkoutCard = () => {
     clearWorkout();
@@ -118,18 +118,34 @@ const Workout = () => {
     clearExercise();
   };
 
+  const handleSetWorkoutByDate = async () => {
+    if (queryWorkoutsByDate.data) {
+      setWorkout(queryWorkoutsByDate.data[0] as unknown as any);
+    }
+  };
+
+  const handleCalendarDayOnClick = (date: Date) => {
+    setSelectedDate(date.toString());
+    setShowTab("workouts");
+    if (!queryWorkoutsByDate.data) {
+      clearWorkout();
+    }
+  };
+
   return (
     <div className="grid gap-4 pt-4">
       <div className="flex flex-col items-center justify-center pt-4 md:flex-row">
         <Calendar
-          selected={date}
-          onDayClick={setDate}
+          selected={new Date(selectedDate) ?? Date.now()}
+          onDayClick={handleCalendarDayOnClick}
           className="flex rounded-md"
           highlightedDates={workoutDates?.map((w) => new Date(w))}
         />
         <Card className="h-full w-64">
           <CardHeader>
-            <CardTitle>{format(date as Date, "cccc, P")}</CardTitle>
+            <CardTitle>
+              {format(new Date(selectedDate ?? Date.now()), "cccc, P")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="flex gap-1">
             {queryWorkoutsByDate.isFetching ? (
@@ -137,7 +153,9 @@ const Workout = () => {
             ) : queryWorkoutsByDate.data &&
               queryWorkoutsByDate.data.length > 0 ? (
               queryWorkoutsByDate.data.map((workout) => (
-                <Badge key={workout.id}>{workout.title}</Badge>
+                <Badge key={workout.id} onClick={handleSetWorkoutByDate}>
+                  {workout.title}
+                </Badge>
               ))
             ) : (
               <p>Nothing here yet...</p>

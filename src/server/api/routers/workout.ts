@@ -64,6 +64,7 @@ export const workoutRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         title: z.string(),
+        date: z.string().optional(),
         exercises: z
           .array(
             z.object({
@@ -73,73 +74,99 @@ export const workoutRouter = createTRPCRouter({
               exerciseSets: z
                 .array(
                   z.object({
-                    id: z.string(),
+                    id: z.string().optional(), // ExerciseSet ID (optional, new sets won't have this)
                     rep: z.string(),
                     weight: z.string(),
                   })
                 )
-                .optional(), // exerciseSets is optional
+                .optional(), // ExerciseSets are optional
             })
           )
-          .optional(), // exercises is optional
+          .optional(), // Exercises are optional
       })
     )
-    .mutation(async ({ input, ctx: { userId, prisma } }) => {
-      const { id, title, exercises } = input;
+    .mutation(async ({ input, ctx: { prisma, userId } }) => {
+      const { id, title, date, exercises } = input;
 
-      // Helper function to map exercise sets
-      const mapExerciseSets = (
-        exerciseSets?: { id: string; rep: string; weight: string }[]
-      ) => {
-        return (exerciseSets || []).map(({ rep, weight }) => ({
-          rep,
-          weight,
-          createdAt: getCurrentTimestamp(),
-          userId,
-        }));
-      };
+      const workoutUpdateData = { title, updatedAt: new Date() };
 
-      // Helper function to map exercises for upsert
-      const mapExercises = (
-        exercises?: {
-          id: string;
-          title: string;
-          order?: number;
-          exerciseSets?: { id: string; rep: string; weight: string }[];
-        }[]
-      ) => {
-        return (exercises || []).map(
-          ({ id, title, exerciseSets, order }, index) => ({
-            where: { id: id.length === 24 ? id : new ObjectId().toString() },
-            create: {
-              title,
-              createdAt: getCurrentTimestamp(),
-              userId,
-              order: order ?? index + 1, // Incremental order
-              exerciseSets: {
-                create: mapExerciseSets(exerciseSets),
-              },
-            },
-            update: {
-              title,
-              order: order ?? index + 1, // Incremental order
-              exerciseSets: {
-                create: mapExerciseSets(exerciseSets),
-              },
-            },
-          })
+      // If no exercises or date is provided, just update the workout title.
+      if (!exercises || exercises.length === 0 || !date) {
+        return prisma.workout.update({
+          where: { id },
+          data: workoutUpdateData,
+        });
+      }
+
+      // Parse the input date to get the start and end of the day
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      // Handle exerciseSets for each exercise based on the date
+      for (const exercise of exercises) {
+        const { id: exerciseId, exerciseSets } = exercise;
+
+        // 1. Find existing exercise sets for this exercise on the given date
+        const existingSets = await prisma.exerciseSet.findMany({
+          where: {
+            exerciseId,
+            createdAt: { gte: startOfDay, lte: endOfDay },
+          },
+        });
+
+        const existingIds = new Set(existingSets.map((set) => set.id));
+        const inputIds = new Set(
+          (exerciseSets || []).map((set) => set.id).filter(Boolean) as string[]
         );
-      };
 
+        // Check if all sets should be deleted (i.e., input exerciseSets is undefined or empty)
+        if (!exerciseSets || exerciseSets.length === 0) {
+          await prisma.exerciseSet.deleteMany({
+            where: {
+              exerciseId,
+              createdAt: { gte: startOfDay, lte: endOfDay },
+            },
+          });
+          continue; // Skip further processing for this exercise since all sets are removed
+        }
+
+        // 2. Update or create sets from the input
+        for (const { id: setId, rep, weight } of exerciseSets) {
+          if (setId && existingIds.has(setId)) {
+            // Update existing set
+            await prisma.exerciseSet.update({
+              where: { id: setId },
+              data: { rep, weight, updatedAt: new Date() },
+            });
+          } else {
+            // Create new set
+            await prisma.exerciseSet.create({
+              data: {
+                rep,
+                weight,
+                createdAt: new Date(),
+                exerciseId,
+                userId,
+              },
+            });
+          }
+        }
+
+        // 3. Delete any sets that are in the database but not in the input
+        const setsToDelete = [...existingIds].filter((id) => !inputIds.has(id));
+        if (setsToDelete.length > 0) {
+          await prisma.exerciseSet.deleteMany({
+            where: { id: { in: setsToDelete } },
+          });
+        }
+      }
+
+      // 4. Finally, update the workout title
       return prisma.workout.update({
         where: { id },
-        data: {
-          title,
-          exercises: {
-            upsert: mapExercises(exercises),
-          },
-          userId,
-        },
+        data: workoutUpdateData,
       });
     }),
   deleteWorkout: privateProcedure
@@ -338,18 +365,25 @@ export const workoutRouter = createTRPCRouter({
   getWorkoutsByDate: privateProcedure
     .input(
       z.object({
-        date: z.string().transform((str) => new Date(str)),
+        date: z.string().transform((str) => new Date(str)), // Input as string, transformed to date
       })
     )
     .query(async ({ ctx, input }) => {
       const { date } = input;
 
-      // Start and end of the day for the target date
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
+      // Convert the input date string to local time
+      const localDate = new Date(date);
 
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
+      // Get start and end of the day in local time
+      const startOfDayLocal = new Date(localDate);
+      startOfDayLocal.setHours(0, 0, 0, 0); // Start of the local day
+
+      const endOfDayLocal = new Date(localDate);
+      endOfDayLocal.setHours(23, 59, 59, 999); // End of the local day
+
+      // Convert local time to UTC for comparison with the database
+      const startOfDayUTC = new Date(startOfDayLocal.toISOString());
+      const endOfDayUTC = new Date(endOfDayLocal.toISOString());
 
       // Query to find workouts based on the date range and userId
       const workouts = await ctx.prisma.workout.findMany({
@@ -360,8 +394,8 @@ export const workoutRouter = createTRPCRouter({
               exerciseSets: {
                 some: {
                   createdAt: {
-                    gte: startOfDay,
-                    lte: endOfDay,
+                    gte: startOfDayUTC,
+                    lte: endOfDayUTC,
                   },
                 },
               },
@@ -377,7 +411,20 @@ export const workoutRouter = createTRPCRouter({
         },
       });
 
-      return workouts;
+      // Filter exerciseSets to only include those created on the specified date
+      const filteredWorkouts = workouts.map((workout) => ({
+        ...workout,
+        exercises: workout.exercises.map((exercise) => ({
+          ...exercise,
+          exerciseSets: exercise.exerciseSets.filter(
+            (set) =>
+              new Date(set.createdAt) >= startOfDayUTC &&
+              new Date(set.createdAt) <= endOfDayUTC
+          ),
+        })),
+      }));
+
+      return filteredWorkouts;
     }),
   getWorkoutsByMonth: privateProcedure
     .input(

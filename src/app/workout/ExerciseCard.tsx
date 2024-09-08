@@ -178,12 +178,12 @@ const ExerciseCard = ({
               <TrashIcon />
             </Button>
             <Input
-              value={rep}
-              onChange={(e) => handleAddedInputChange(e, "rep", id)}
-            />
-            <Input
               value={weight}
               onChange={(e) => handleAddedInputChange(e, "weight", id)}
+            />
+            <Input
+              value={rep}
+              onChange={(e) => handleAddedInputChange(e, "rep", id)}
             />
             <Button
               variant={"link"}

@@ -35,6 +35,7 @@ const WorkoutCard = () => {
     workout,
     addExercise,
     setExercises,
+    selectedDate,
   } = useWorkoutStore((state) => state);
 
   const getAllExercisesApi = api.workout.getAllExercises.useQuery();
@@ -61,6 +62,17 @@ const WorkoutCard = () => {
       toast(`Failed to update workout ${error.message}`);
     },
   });
+  // const updateWorkoutByDateApi = api.workout.updateWorkoutByDate.useMutation({
+  //   onSuccess: () => {
+  //     toast("Workout updated by date successfully!");
+  //     if (refetchWorkouts) {
+  //       refetchWorkouts();
+  //     }
+  //   },
+  //   onError: (error) => {
+  //     toast(`Failed to update workout ${error.message}`);
+  //   },
+  // });
   const addWorkoutApi = api.workout.createWorkout.useMutation({
     onSuccess: () => {
       toast("Workout created successfully!");
@@ -95,7 +107,11 @@ const WorkoutCard = () => {
     if (id === "") {
       await addWorkoutApi.mutate(variables);
     } else {
-      await updateWorkoutApi.mutate({ id, ...variables });
+      await updateWorkoutApi.mutate({
+        id,
+        ...variables,
+        date: selectedDate,
+      });
     }
 
     clearWorkout();
