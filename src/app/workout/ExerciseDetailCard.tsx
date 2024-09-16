@@ -199,154 +199,154 @@ const ExerciseDetailCard = () => {
             onChange={handleTitleChange}
           />
         </CardTitle>
-        <CardContent className="flex w-full flex-col gap-y-2 p-0">
-          {exerciseSets.length > 0 && <ExerciseChart />}
-          <div className="flex">
-            {maxWeight !== undefined && maxWeight > 0 && maxWeightDate && (
-              <Badge
-                variant={"destructive"}
-              >{`PR: ${maxWeight}kg @ ${getFormattedDateDifference(
-                new Date(maxWeightDate as Date)
-              )}`}</Badge>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size={"icon"}
-              variant={"link"}
-              className="h-4 w-4"
-              onClick={() => setAddingSet(true)}
-            >
-              <PlusCircledIcon />
-            </Button>
-            <div className="static flex gap-3">
-              <Button
-                variant={"secondary"}
-                size="sm"
-                className="h-6 w-16"
-                disabled
-              >
-                Weight
-              </Button>
-              <Button
-                variant={"secondary"}
-                size="sm"
-                className="h-6 w-16"
-                disabled
-              >
-                Rep
-              </Button>
-            </div>
-          </div>
-          {addingSet && (
-            <div className="flex gap-2 text-xs">
-              <Button
-                variant={"link"}
-                size={"icon"}
-                className="text-red-500"
-                onClick={() => setAddingSet(false)}
-              >
-                <Cross1Icon />
-              </Button>
-              <Input
-                placeholder="kg"
-                value={currentSet.weight}
-                onChange={(e) => handleInputChange(e, "weight")}
-              />
-              <Input
-                placeholder="rep"
-                value={currentSet.rep}
-                onChange={(e) => handleInputChange(e, "rep")}
-              />
-
-              <Button
-                variant={"link"}
-                size={"icon"}
-                className="text-green-500"
-                onClick={addSetHandler}
-              >
-                <CheckIcon />
-              </Button>
-            </div>
-          )}
-          <Separator />
-          {Object.entries(groupedExerciseSets).map(([date, sets]) => (
-            <div key={date} className="pb-1">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "mb-2 w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? (
-                      `${format(date, "eee")}, ${date}`
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={new Date(date)}
-                    onSelect={(newDate) =>
-                      handleGroupDateChange(date, newDate as Date)
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <ul className="flex flex-col gap-1">
-                {sets.map(({ id, rep, weight }) => (
-                  <div key={id} className="flex gap-2 text-xs">
-                    <Button
-                      variant={"link"}
-                      size={"icon"}
-                      className="text-red-500"
-                      onClick={() => removeSetHandler(id)}
-                    >
-                      <TrashIcon />
-                    </Button>
-                    <Input
-                      value={weight}
-                      onChange={(e) => handleAddedInputChange(e, "weight", id)}
-                    />
-                    <Input
-                      value={rep}
-                      onChange={(e) => handleAddedInputChange(e, "rep", id)}
-                    />
-                    <Button
-                      variant={"link"}
-                      size={"icon"}
-                      onClick={() => copySetHandler(id)}
-                    >
-                      <CopyIcon />
-                    </Button>
-                  </div>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </CardContent>
-        <CardFooter className="flex justify-between p-0">
-          {id !== "" && (
-            <Button
-              onClick={() => handleRemoveExercise(id)}
-              variant={"destructive"}
-              size={"sm"}
-            >
-              Remove
-            </Button>
-          )}
-          <Button onClick={() => handleUpdateExercise()} size={"sm"}>
-            {id !== "" ? "Save" : "Add"}
-          </Button>
-        </CardFooter>
       </CardHeader>
+      <CardContent className="flex w-full flex-col gap-y-2">
+        {exerciseSets.length > 0 && <ExerciseChart />}
+        <div className="flex">
+          {maxWeight !== undefined && maxWeight > 0 && maxWeightDate && (
+            <Badge
+              variant={"destructive"}
+            >{`PR: ${maxWeight}kg @ ${getFormattedDateDifference(
+              new Date(maxWeightDate as Date)
+            )}`}</Badge>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            size={"icon"}
+            variant={"link"}
+            className="h-4 w-4"
+            onClick={() => setAddingSet(true)}
+          >
+            <PlusCircledIcon />
+          </Button>
+          <div className="static flex gap-3">
+            <Button
+              variant={"secondary"}
+              size="sm"
+              className="h-6 w-16"
+              disabled
+            >
+              Weight
+            </Button>
+            <Button
+              variant={"secondary"}
+              size="sm"
+              className="h-6 w-16"
+              disabled
+            >
+              Rep
+            </Button>
+          </div>
+        </div>
+        {addingSet && (
+          <div className="flex gap-2 text-xs">
+            <Button
+              variant={"link"}
+              size={"icon"}
+              className="text-red-500"
+              onClick={() => setAddingSet(false)}
+            >
+              <Cross1Icon />
+            </Button>
+            <Input
+              placeholder="kg"
+              value={currentSet.weight}
+              onChange={(e) => handleInputChange(e, "weight")}
+            />
+            <Input
+              placeholder="rep"
+              value={currentSet.rep}
+              onChange={(e) => handleInputChange(e, "rep")}
+            />
+
+            <Button
+              variant={"link"}
+              size={"icon"}
+              className="text-green-500"
+              onClick={addSetHandler}
+            >
+              <CheckIcon />
+            </Button>
+          </div>
+        )}
+        <Separator />
+        {Object.entries(groupedExerciseSets).map(([date, sets]) => (
+          <div key={date} className="pb-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "mb-2 w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? (
+                    `${format(date, "eee")}, ${date}`
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={new Date(date)}
+                  onSelect={(newDate) =>
+                    handleGroupDateChange(date, newDate as Date)
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <ul className="flex flex-col gap-1">
+              {sets.map(({ id, rep, weight }) => (
+                <div key={id} className="flex gap-2 text-xs">
+                  <Button
+                    variant={"link"}
+                    size={"icon"}
+                    className="text-red-500"
+                    onClick={() => removeSetHandler(id)}
+                  >
+                    <TrashIcon />
+                  </Button>
+                  <Input
+                    value={weight}
+                    onChange={(e) => handleAddedInputChange(e, "weight", id)}
+                  />
+                  <Input
+                    value={rep}
+                    onChange={(e) => handleAddedInputChange(e, "rep", id)}
+                  />
+                  <Button
+                    variant={"link"}
+                    size={"icon"}
+                    onClick={() => copySetHandler(id)}
+                  >
+                    <CopyIcon />
+                  </Button>
+                </div>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        {id !== "" && (
+          <Button
+            onClick={() => handleRemoveExercise(id)}
+            variant={"destructive"}
+            size={"sm"}
+          >
+            Remove
+          </Button>
+        )}
+        <Button onClick={() => handleUpdateExercise()} size={"sm"}>
+          {id !== "" ? "Save" : "Add"}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

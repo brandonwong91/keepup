@@ -23,6 +23,19 @@ export interface Workout {
   exercises: Exercise[];
 }
 
+export interface StatSet {
+  id: string;
+  value: string;
+  createdAt?: Date;
+}
+
+export interface Stat {
+  id: string;
+  title: string;
+  unit?: string;
+  statSets: StatSet[];
+}
+
 interface WorkoutStore {
   // Workout-related properties and methods
   workouts: Workout[];
@@ -83,6 +96,17 @@ interface WorkoutStore {
 
   // Miscellaneous methods
   updateTitleInExercises: (title: string, id: string) => void;
+
+  // Stats
+  stat: Stat;
+  setStat: (stat: Stat) => void;
+  statSet: StatSet;
+  setStatSet: (statSet: StatSet) => void;
+  clearStatSet: () => void;
+  stats: Stat[];
+  setStats: (stats: Stat[]) => void;
+  addStatSetToStat: (statSet: StatSet) => void;
+  removeStat: (id: string) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStore>((set) => ({
@@ -412,4 +436,68 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       ...state,
       showNewExercise: show,
     })),
+
+  stat: {
+    id: "",
+    title: "",
+    statSets: [],
+    unit: "",
+    // Add other properties as needed
+  },
+  setStat: (stat: Stat) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      stat,
+    })),
+  statSet: {
+    id: "",
+    value: "",
+  },
+  clearStatSet: () =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      statSet: {
+        id: "",
+        value: "",
+        createdAt: undefined,
+      },
+    })),
+  setStatSet: (statSet: StatSet) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      statSet,
+    })),
+
+  // Add other properties and methods as needed
+  stats: [],
+  setStats: (stats: Stat[]) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      stats,
+    })),
+  addStatSetToStat: (statSet: StatSet) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      stat: {
+        ...state.stat,
+        statSets: [statSet, ...state.stat.statSets],
+      },
+    })),
+  removeStat: (id: string) =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      stats: state.stats.filter((s) => s.id !== id),
+    })),
+  // refetchStats: null,
+  // setRefetchStats: (refetch) => set({ refetchStats: refetch }),
+  // stats: [],
+  // updateStats: (stats: Stat[]) => set({ stats }),
+  // updateStat: (stat: Stat) => set({ stat }),
+  // clearStat: () => set({ stat: { id: "", title: "" } }),
+  // // Stat-related methods
+  // setStats: (stats: Stat[]) => set({  }),
+  // addStat: (stat: Stat) => set({ stats: [...stats, stat] }),
+  // removeStat: (id: string) => set({ stats: stats.filter((s) => s.id !== id) }),
+  // refetchStats: null,
+  // setRefetchStats: (refetch) => set({ refetchStats: refetch }),
 }));
