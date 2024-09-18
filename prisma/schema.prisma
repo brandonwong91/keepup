@@ -65,3 +65,24 @@ model Workout {
   exercises Exercise[]
   userId    String
 }
+
+model Stat {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime
+  updatedAt DateTime  @updatedAt
+  userId    String
+  title     String
+  statSets  StatSet[]
+  unit      String?
+  tag       String?
+}
+
+model StatSet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
+  userId    String
+  statSetId String   @db.ObjectId
+  Stat      Stat     @relation(fields: [statSetId], references: [id])
+  value     String
+}

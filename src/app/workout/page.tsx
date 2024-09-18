@@ -20,25 +20,34 @@ const Workout = () => {
   const previousDateRef = useRef<Date | undefined>(undefined);
   const {
     workouts,
-    exercises,
     setWorkout,
     setWorkouts,
-    setExercises,
-    setRefetchWorkouts,
-    setRefetchExercises,
-    showTab,
-    setShowTab,
-    setExercise,
     clearWorkout,
-    clearExercise,
     workoutDates,
     setWorkoutDates,
     selectedDate,
     setSelectedDate,
+
+    exercises,
+    setExercises,
+    setExercise,
+    clearExercise,
+
+    setRefetchWorkouts,
+    setRefetchExercises,
+    setRefetchStats,
+
+    showTab,
+    setShowTab,
+
+    stats,
+    setStat,
+    setStats,
   } = useWorkoutStore((state) => state);
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
   const queryExercises = api.workout.getAllExercises.useQuery();
+  const queryStats = api.workout.getAllStats.useQuery();
   const queryWorkoutsByDate = api.workout.getWorkoutsByDate.useQuery({
     date: selectedDate.toString(),
   });
@@ -91,6 +100,17 @@ const Workout = () => {
     }
   }, [queryExercises.data]);
 
+  useEffect(() => {
+    if (queryStats.data && queryStats.isFetched) {
+      setStats(
+        queryStats.data.map((s) => ({
+          ...s,
+          unit: s.unit ?? undefined,
+        }))
+      );
+      setRefetchStats(queryStats.refetch);
+    }
+  }, [queryStats.data]);
   useEffect(() => {
     if (!selectedDate) return;
 
@@ -321,8 +341,7 @@ const Workout = () => {
                         <PlusIcon />
                       </Button>
                     </CardHeader>
-                    {/* {(queryExercises.isLoading ||
-                      queryExercises.isFetching) && (
+                    {(queryStats.isLoading || queryStats.isFetching) && (
                       <div className="flex flex-col gap-6">
                         <Skeleton className="h-[16px] w-full rounded-full" />
                         <Skeleton className="h-[16px] w-full rounded-full" />
@@ -332,20 +351,19 @@ const Workout = () => {
                         <Skeleton className="h-[16px] w-full rounded-full" />
                         <Skeleton className="h-[16px] w-full rounded-full" />
                       </div>
-                    )} */}
-                    {/* {exercises && exercises.length > 0 ? (
-                      exercises
+                    )}
+                    {stats && stats.length > 0 ? (
+                      stats
                         .sort((a, b) => a.title.localeCompare(b.title))
-                        .map(({ title, id, exerciseSets, ...remaining }) => (
+                        .map(({ title, id, statSets, ...remaining }) => (
                           <div key={id}>
                             <div
                               className="cursor-pointer text-sm"
                               onClick={() =>
-                                setExercise({
+                                setStat({
                                   id,
-                                  exerciseSets,
+                                  statSets,
                                   title,
-                                  order: exerciseSets.length + 1,
                                   ...remaining,
                                 })
                               }
@@ -357,12 +375,9 @@ const Workout = () => {
                         ))
                     ) : (
                       <div className="text-sm text-secondary-foreground">
-                        No exercises found...
+                        No stats found...
                       </div>
-                    )} */}
-                    <div className="text-sm text-secondary-foreground">
-                      No stats found...
-                    </div>
+                    )}
                   </div>
                 </ScrollArea>
               </Card>

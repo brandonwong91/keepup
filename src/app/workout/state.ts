@@ -102,11 +102,14 @@ interface WorkoutStore {
   setStat: (stat: Stat) => void;
   statSet: StatSet;
   setStatSet: (statSet: StatSet) => void;
+  clearStat: () => void;
   clearStatSet: () => void;
   stats: Stat[];
   setStats: (stats: Stat[]) => void;
   addStatSetToStat: (statSet: StatSet) => void;
   removeStat: (id: string) => void;
+  refetchStats: (() => void) | null;
+  setRefetchStats: (refetch: () => void) => void;
 }
 
 export const useWorkoutStore = create<WorkoutStore>((set) => ({
@@ -462,6 +465,16 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
         createdAt: undefined,
       },
     })),
+  clearStat: () =>
+    set((state: WorkoutStore) => ({
+      ...state,
+      stat: {
+        id: "",
+        title: "",
+        statSets: [],
+        unit: "",
+      },
+    })),
   setStatSet: (statSet: StatSet) =>
     set((state: WorkoutStore) => ({
       ...state,
@@ -488,8 +501,8 @@ export const useWorkoutStore = create<WorkoutStore>((set) => ({
       ...state,
       stats: state.stats.filter((s) => s.id !== id),
     })),
-  // refetchStats: null,
-  // setRefetchStats: (refetch) => set({ refetchStats: refetch }),
+  refetchStats: null,
+  setRefetchStats: (refetch) => set({ refetchStats: refetch }),
   // stats: [],
   // updateStats: (stats: Stat[]) => set({ stats }),
   // updateStat: (stat: Stat) => set({ stat }),

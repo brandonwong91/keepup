@@ -482,4 +482,147 @@ export const workoutRouter = createTRPCRouter({
 
       return workoutDates;
     }),
+  getAllStats: privateProcedure.query(({ ctx }) => {
+    return ctx.prisma.stat.findMany({
+      where: {
+        userId: ctx.userId,
+      },
+      include: {
+        statSets: true,
+      },
+    });
+  }),
+  createStat: privateProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        unit: z.string().optional(),
+        statSets: z
+          .array(
+            z.object({
+              createdAt: z.date(),
+              value: z.string(),
+            })
+          )
+          .optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { title, unit, statSets } = input;
+
+      // Create the stat
+      const newStat = await ctx.prisma.stat.create({
+        data: {
+          title,
+          unit,
+          createdAt: new Date().toISOString(), // Ensure createdAt is included
+          userId: ctx.userId, // Ensure userId is included
+          statSets: statSets
+            ? {
+                create: statSets.map(({ createdAt, value }) => ({
+                  value,
+                  createdAt,
+                  userId: ctx.userId,
+                })),
+              }
+            : undefined, // Only include statSets if provided
+        },
+      });
+
+      return { success: true, stat: newStat };
+    }),
+  updateStat: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        unit: z.string().optional(),
+        statSets: z
+          .array(
+            z.object({
+              id: z.string(),
+              createdAt: z.date(),
+              value: z.string(),
+            })
+          )
+          .optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { id, title, unit, statSets } = input;
+
+      // Fetch existing stat sets from the database
+      const existingStatSets = await ctx.prisma.statSet.findMany({
+        where: { statSetId: id },
+      });
+
+      // Identify stat sets to delete
+      const setsToDelete = existingStatSets.filter(
+        (existingSet) =>
+          !statSets?.some((incomingSet) => incomingSet.id === existingSet.id)
+      );
+
+      // Map the incoming statSets for upsert
+      const mapStatSets = (
+        sets: {
+          id: string;
+          createdAt?: Date;
+          value: string;
+        }[]
+      ) => {
+        return sets.map(({ id, createdAt, value }) => ({
+          where: { id: id.length === 24 ? id : new ObjectId().toString() }, // Use empty string if id is not provided
+          create: {
+            value,
+            createdAt: createdAt!,
+            userId: ctx.userId,
+          },
+          update: {
+            value,
+            createdAt,
+            userId: ctx.userId,
+          },
+        }));
+      };
+
+      // Update the stat and handle statSets
+      await ctx.prisma.stat.update({
+        where: { id },
+        data: {
+          title,
+          unit,
+          statSets: statSets
+            ? {
+                upsert: mapStatSets(statSets),
+                deleteMany: {
+                  id: { in: setsToDelete.map((set) => set.id) }, // Delete sets that are not in the incoming array
+                },
+              }
+            : undefined, // Only include statSets if provided
+        },
+      });
+
+      return { success: true };
+    }),
+  deleteStat: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await ctx.prisma.statSet.deleteMany({
+        where: {
+          statSetId: input.id,
+        },
+      });
+
+      await ctx.prisma.stat.delete({
+        where: {
+          id: input.id,
+        },
+      });
+
+      return { success: true };
+    }),
 });

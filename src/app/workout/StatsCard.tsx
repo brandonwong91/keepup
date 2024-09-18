@@ -19,10 +19,59 @@ import { CalendarIcon, CheckIcon, TrashIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
 import { Separator } from "~/components/ui/separator";
+import { api } from "~/utils/api";
+import { toast } from "sonner";
 
 const StatsCard = () => {
-  const { stat, setStat, addStatSetToStat, statSet, setStatSet, clearStatSet } =
-    useWorkoutStore((state) => state);
+  const {
+    stat,
+    setStat,
+    addStatSetToStat,
+    statSet,
+    setStatSet,
+    clearStat,
+    clearStatSet,
+    refetchStats,
+  } = useWorkoutStore((state) => state);
+
+  const { id, title, statSets, unit } = stat;
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const createStatApi = api.workout.createStat.useMutation({
+    onSuccess: () => {
+      toast("Stat created successfully");
+      if (refetchStats) {
+        refetchStats();
+      }
+    },
+    onError: (error) => {
+      toast(`Failed to create stat: ${error.message}`);
+    },
+  });
+
+  const updateStatApi = api.workout.updateStat.useMutation({
+    onSuccess: () => {
+      toast("Stat updated successfully");
+      if (refetchStats) {
+        refetchStats();
+      }
+    },
+    onError: (error) => {
+      toast(`Failed to update stat: ${error.message}`);
+    },
+  });
+
+  const removeStatApi = api.workout.deleteStat.useMutation({
+    onSuccess: () => {
+      toast("Stat removed successfully");
+      if (refetchStats) {
+        refetchStats();
+      }
+    },
+    onError: (error) => {
+      toast(`Failed to remove stat: ${error.message}`);
+    },
+  });
 
   const handleStatInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -33,6 +82,14 @@ const StatsCard = () => {
       ...stat,
       [inputType]: newTitle,
     });
+  };
+
+  const handleRemoveStat = async (id: string) => {
+    const variables = {
+      id,
+    };
+    await removeStatApi.mutate(variables);
+    clearStat();
   };
 
   const handleInputChange = (
@@ -49,14 +106,37 @@ const StatsCard = () => {
   const handleAddStatSetToStats = () => {
     if (statSet.value) {
       addStatSetToStat({
-        id: Date.now().toString() ?? "",
+        id: Date.now().toString(),
         value: statSet.value,
         createdAt: date,
       });
-
       clearStatSet();
       setDate(undefined);
     }
+  };
+
+  const handleAddStat = async () => {
+    const variables = {
+      id,
+      title,
+      statSets: statSets.map((s) => {
+        return {
+          ...s,
+          value: s.value,
+          createdAt: s.createdAt ?? new Date(),
+        };
+      }),
+      unit: unit ?? undefined,
+    };
+    if (stat.title) {
+    }
+    if (stat.id) {
+      await updateStatApi.mutate(variables);
+    } else {
+      await createStatApi.mutate(variables);
+    }
+    clearStat();
+    setDate(undefined);
   };
 
   const handleDateChange = (setId: string, newDate?: Date) => {
@@ -81,8 +161,6 @@ const StatsCard = () => {
     setStat({ ...stat, statSets: updatedSets });
   };
 
-  const [date, setDate] = useState<Date | undefined>(new Date());
-
   return (
     <Card className="w-64">
       <CardHeader>
@@ -99,6 +177,10 @@ const StatsCard = () => {
             className="mr-6 w-16"
           />
         </CardTitle>
+
+        {stat.statSets.length > 0 && <Separator />}
+      </CardHeader>
+      <CardContent>
         <div className="w-38 flex gap-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -137,9 +219,6 @@ const StatsCard = () => {
             <CheckIcon />
           </Button>
         </div>
-        {stat.statSets.length > 0 && <Separator />}
-      </CardHeader>
-      <CardContent>
         {stat.statSets.map(({ id, value, createdAt }) => {
           return (
             createdAt && (
@@ -187,14 +266,14 @@ const StatsCard = () => {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button
-          // onClick={() => handleRemoveExercise(id)}
+          onClick={() => handleRemoveStat(id)}
           variant={"destructive"}
           size={"sm"}
         >
           Remove
         </Button>
 
-        <Button onClick={handleAddStatSetToStats} size={"sm"}>
+        <Button onClick={handleAddStat} size={"sm"}>
           {stat.id !== "" ? "Save" : "Add"}
         </Button>
       </CardFooter>
