@@ -177,8 +177,6 @@ const StatsCard = () => {
             className="mr-6 w-16"
           />
         </CardTitle>
-
-        {stat.statSets.length > 0 && <Separator />}
       </CardHeader>
       <CardContent>
         <div className="w-38 flex gap-2">
