@@ -15,6 +15,9 @@ import { PlusIcon } from "@radix-ui/react-icons";
 import { Badge } from "~/components/ui/badge";
 import { format } from "date-fns";
 import StatsCard from "./StatsCard";
+import WorkoutTab from "./WorkoutTab";
+import ExerciseTab from "./ExerciseTab";
+import StatTab from "./StatTab";
 
 const Workout = () => {
   const previousDateRef = useRef<Date | undefined>(undefined);
@@ -43,6 +46,7 @@ const Workout = () => {
     stats,
     setStat,
     setStats,
+    clearStat,
   } = useWorkoutStore((state) => state);
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
@@ -217,170 +221,23 @@ const Workout = () => {
             </TabsList>
 
             <TabsContent value="workouts">
-              <Card>
-                <ScrollArea className="h-72 w-60 p-4">
-                  <CardHeader className="mb-4 flex flex-row place-items-center justify-start p-0 align-middle">
-                    <div className="mt-1 pr-2 text-sm font-medium leading-none">
-                      Workouts
-                    </div>
-                    <Button
-                      size="icon"
-                      className="h-5 w-5 self-start"
-                      onClick={handleShowWorkoutCard}
-                    >
-                      <PlusIcon />
-                    </Button>
-                  </CardHeader>
-                  {(queryWorkouts.isLoading || queryWorkouts.isFetching) && (
-                    <div className="flex flex-col gap-6">
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                      <Skeleton className="h-[16px] w-full rounded-full" />
-                    </div>
-                  )}
-                  {workouts.length > 0 ? (
-                    workouts.map(({ title, id, exercises }) => (
-                      <div key={id}>
-                        <div
-                          className="cursor-pointer text-sm"
-                          onClick={() =>
-                            setWorkout({
-                              id,
-                              title,
-                              exercises,
-                            })
-                          }
-                        >
-                          {title}
-                        </div>
-                        <Separator className="my-2" />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-sm text-secondary-foreground">
-                      No workouts found...
-                    </div>
-                  )}
-                </ScrollArea>
-              </Card>
+              <WorkoutTab
+                isLoading={queryWorkouts.isLoading || queryWorkouts.isFetching}
+              />
             </TabsContent>
 
             <TabsContent value="exercises">
-              <Card>
-                <ScrollArea className="h-72 w-60">
-                  <div className="p-4">
-                    <CardHeader className="mb-4 flex flex-row place-items-center justify-start p-0 align-middle">
-                      <div className="mt-1 pr-2 text-sm font-medium leading-none">
-                        Exercises
-                      </div>
-                      <Button
-                        size="icon"
-                        className="h-5 w-5 self-start"
-                        onClick={handleShowExerciseCard}
-                      >
-                        <PlusIcon />
-                      </Button>
-                    </CardHeader>
-                    {(queryExercises.isLoading ||
-                      queryExercises.isFetching) && (
-                      <div className="flex flex-col gap-6">
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                      </div>
-                    )}
-                    {exercises && exercises.length > 0 ? (
-                      exercises
-                        .sort((a, b) => a.title.localeCompare(b.title))
-                        .map(({ title, id, exerciseSets, ...remaining }) => (
-                          <div key={id}>
-                            <div
-                              className="cursor-pointer text-sm"
-                              onClick={() =>
-                                setExercise({
-                                  id,
-                                  exerciseSets,
-                                  title,
-                                  order: exerciseSets.length + 1,
-                                  ...remaining,
-                                })
-                              }
-                            >
-                              {title}
-                            </div>
-                            <Separator className="my-2" />
-                          </div>
-                        ))
-                    ) : (
-                      <div className="text-sm text-secondary-foreground">
-                        No exercises found...
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </Card>
+              <ExerciseTab
+                isLoading={
+                  queryExercises.isLoading || queryExercises.isFetching
+                }
+              />
             </TabsContent>
 
             <TabsContent value="stats">
-              <Card>
-                <ScrollArea className="h-72 w-60">
-                  <div className="p-4">
-                    <CardHeader className="mb-4 flex flex-row place-items-center justify-start p-0 align-middle">
-                      <div className="mt-1 pr-2 text-sm font-medium leading-none">
-                        Stats
-                      </div>
-                      <Button size="icon" className="h-5 w-5 self-start">
-                        <PlusIcon />
-                      </Button>
-                    </CardHeader>
-                    {(queryStats.isLoading || queryStats.isFetching) && (
-                      <div className="flex flex-col gap-6">
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                        <Skeleton className="h-[16px] w-full rounded-full" />
-                      </div>
-                    )}
-                    {stats && stats.length > 0 ? (
-                      stats
-                        .sort((a, b) => a.title.localeCompare(b.title))
-                        .map(({ title, id, statSets, ...remaining }) => (
-                          <div key={id}>
-                            <div
-                              className="cursor-pointer text-sm"
-                              onClick={() =>
-                                setStat({
-                                  id,
-                                  statSets,
-                                  title,
-                                  ...remaining,
-                                })
-                              }
-                            >
-                              {title}
-                            </div>
-                            <Separator className="my-2" />
-                          </div>
-                        ))
-                    ) : (
-                      <div className="text-sm text-secondary-foreground">
-                        No stats found...
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </Card>
+              <StatTab
+                isLoading={queryStats.isLoading || queryStats.isFetching}
+              />
             </TabsContent>
           </Tabs>
         </div>
