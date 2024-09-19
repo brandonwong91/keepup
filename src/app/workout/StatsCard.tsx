@@ -217,50 +217,57 @@ const StatsCard = () => {
             <CheckIcon />
           </Button>
         </div>
-        {stat.statSets.map(({ id, value, createdAt }) => {
-          return (
-            createdAt && (
-              <div className="w-38 flex gap-2" key={id}>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "mb-2 w-full justify-start text-left font-normal"
-                        // !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {format(createdAt, "MM-dd")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={new Date(createdAt)}
-                      onSelect={(newDate) => handleDateChange(id, newDate)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Input
-                  placeholder="value"
-                  onChange={(e) => handleAddedInputChange(e, id)}
-                  className="w-16"
-                  value={value}
-                />
-                <Button
-                  variant={"link"}
-                  size={"icon"}
-                  className="text-red-500"
-                  onClick={() => removeStatSetHandler(id)}
-                >
-                  <TrashIcon />
-                </Button>
-              </div>
-            )
-          );
-        })}
+        {stat.statSets
+          .sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          })
+
+          .map(({ id, value, createdAt }) => {
+            return (
+              createdAt && (
+                <div className="w-38 flex gap-2" key={id}>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "mb-2 w-full justify-start text-left font-normal"
+                          // !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {format(createdAt, "MM-dd")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={new Date(createdAt)}
+                        onSelect={(newDate) => handleDateChange(id, newDate)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <Input
+                    placeholder="value"
+                    onChange={(e) => handleAddedInputChange(e, id)}
+                    className="w-16"
+                    value={value}
+                  />
+                  <Button
+                    variant={"link"}
+                    size={"icon"}
+                    className="text-red-500"
+                    onClick={() => removeStatSetHandler(id)}
+                  >
+                    <TrashIcon />
+                  </Button>
+                </div>
+              )
+            );
+          })}
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button

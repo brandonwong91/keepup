@@ -30,6 +30,7 @@ import { cn } from "~/lib/utils";
 import { toast } from "sonner";
 import { Badge } from "~/components/ui/badge";
 import ExerciseChart from "./ExerciseChart";
+import { getFormattedDateDifference } from "~/utils/date";
 
 const ExerciseDetailCard = () => {
   const {
@@ -176,17 +177,6 @@ const ExerciseDetailCard = () => {
         : set
     );
     updateExercise({ ...exercise, exerciseSets: updatedSets });
-  };
-
-  const getFormattedDateDifference = (maxWeightDate: Date): string => {
-    const today = new Date();
-    const daysDifference = differenceInDays(today, maxWeightDate);
-
-    if (daysDifference === 0) {
-      return "today";
-    } else {
-      return `${daysDifference} day${daysDifference > 1 ? "s" : ""} ago`;
-    }
   };
 
   return (

@@ -22,7 +22,6 @@ import StatTab from "./StatTab";
 const Workout = () => {
   const previousDateRef = useRef<Date | undefined>(undefined);
   const {
-    workouts,
     setWorkout,
     setWorkouts,
     clearWorkout,
@@ -31,10 +30,7 @@ const Workout = () => {
     selectedDate,
     setSelectedDate,
 
-    exercises,
     setExercises,
-    setExercise,
-    clearExercise,
 
     setRefetchWorkouts,
     setRefetchExercises,
@@ -43,10 +39,7 @@ const Workout = () => {
     showTab,
     setShowTab,
 
-    stats,
-    setStat,
     setStats,
-    clearStat,
   } = useWorkoutStore((state) => state);
 
   const queryWorkouts = api.workout.getAllWorkouts.useQuery();
@@ -135,13 +128,6 @@ const Workout = () => {
       previousDateRef.current = currentDate; // Update the previous date
     }
   }, [selectedDate, queryWorkoutsByMonth]);
-
-  const handleShowWorkoutCard = () => {
-    clearWorkout();
-  };
-  const handleShowExerciseCard = () => {
-    clearExercise();
-  };
 
   const handleSetWorkoutByDate = async () => {
     if (queryWorkoutsByDate.data) {

@@ -6,6 +6,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useWorkoutStore } from "./state";
 import { Separator } from "~/components/ui/separator";
+import { getFormattedDateDifference } from "~/utils/date";
 const StatTab = ({ isLoading }: { isLoading: boolean }) => {
   const { stats, setStat, clearStat } = useWorkoutStore((state) => state);
 
@@ -41,10 +42,10 @@ const StatTab = ({ isLoading }: { isLoading: boolean }) => {
           {stats && stats.length > 0 ? (
             stats
               .sort((a, b) => a.title.localeCompare(b.title))
-              .map(({ title, id, statSets, ...remaining }) => (
+              .map(({ title, id, statSets, unit, ...remaining }) => (
                 <div key={id}>
                   <div
-                    className="cursor-pointer text-sm"
+                    className="w-full cursor-pointer text-sm"
                     onClick={() =>
                       setStat({
                         id,
@@ -55,6 +56,31 @@ const StatTab = ({ isLoading }: { isLoading: boolean }) => {
                     }
                   >
                     {title}
+                    {statSets.length > 0 &&
+                      // Find the latest statSet by comparing createdAt timestamps
+                      (() => {
+                        const latestStatSet = statSets.reduce(
+                          (latest, current) =>
+                            new Date(current.createdAt!) >
+                            new Date(latest.createdAt!)
+                              ? current
+                              : latest
+                        );
+
+                        return (
+                          <div
+                            key={latestStatSet.id}
+                            className="flex justify-between text-xs italic text-accent-foreground"
+                          >
+                            <p>{`${latestStatSet.value}${unit}`}</p>
+                            <p>
+                              {getFormattedDateDifference(
+                                latestStatSet.createdAt!
+                              )}
+                            </p>
+                          </div>
+                        );
+                      })()}
                   </div>
                   <Separator className="my-2" />
                 </div>
