@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -9,7 +9,7 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import ExerciseCard from "./ExerciseCard";
-import { Exercise, useWorkoutStore, Workout } from "./state";
+import { useWorkoutStore, Workout } from "./state";
 import NewExerciseCard from "./NewExerciseCard";
 import { api } from "~/utils/api";
 import {

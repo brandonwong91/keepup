@@ -106,8 +106,38 @@ export const workoutRouter = createTRPCRouter({
 
       // Handle exerciseSets for each exercise based on the date
       for (const exercise of exercises) {
-        const { id: exerciseId, exerciseSets } = exercise;
+        const {
+          id: exerciseId,
+          title: exerciseTitle,
+          exerciseSets,
+          order,
+        } = exercise;
+        let exerciseEntity;
 
+        if (!exerciseId) {
+          // New exercise (no ID) - create the new exercise and link to workout
+          exerciseEntity = await prisma.exercise.create({
+            data: {
+              title: exerciseTitle,
+              workoutId: id, // Associate the new exercise with the workout
+              order: order ?? null, // Set the order if provided
+              userId, // Add the userId (from the context or input)
+              createdAt: new Date(), // Set the createdAt field to the current time
+              updatedAt: new Date(), // Set the updatedAt field to the current time
+            },
+          });
+        } else {
+          // Existing exercise - update title and order if necessary
+          exerciseEntity = await prisma.exercise.update({
+            where: { id: exerciseId },
+            data: {
+              workoutId: id,
+              title: exerciseTitle,
+              order: order ?? null,
+              updatedAt: new Date(),
+            },
+          });
+        }
         // 1. Find existing exercise sets for this exercise on the given date
         const existingSets = await prisma.exerciseSet.findMany({
           where: {
