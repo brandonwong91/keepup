@@ -1,4 +1,4 @@
-# Create T3 App
+# build by using - Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
@@ -26,3 +26,12 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+
+## About
+
+This app aims to be a text rich to-do list that attempts to outperform google keep.
+
+But as of Oct 2024, it has pivoted to a workout tracker app as I used it daily.
+
+It allows a free form of exercise names, tracks the sets that you have worked on and any other metrics that you would personally add in, e.g. weight or body fat.
