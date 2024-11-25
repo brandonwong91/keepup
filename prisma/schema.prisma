@@ -86,3 +86,24 @@ model StatSet {
   Stat      Stat     @relation(fields: [statSetId], references: [id])
   value     String
 }
+
+model Payment {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime
+  updatedAt    DateTime      @updatedAt
+  userId       String
+  title        String
+  tag          String?
+  amount       String
+  transactions Transaction[]
+}
+
+model Transaction {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime
+  updatedAt     DateTime @updatedAt
+  userId        String
+  transactionId String   @db.ObjectId
+  payment       Payment  @relation(fields: [transactionId], references: [id])
+  amount        String
+}

@@ -34,7 +34,10 @@ interface PathType {
   href: string;
 }
 
-const paths: PathType[] = [{ label: "Workout", href: "/workout" }];
+const paths: PathType[] = [
+  { label: "Workout", href: "/workout" },
+  { label: "Recurring", href: "/recurring" },
+];
 
 const NavBar = () => {
   const pathname = usePathname();
