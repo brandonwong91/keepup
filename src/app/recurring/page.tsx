@@ -114,17 +114,6 @@ const Recurring = () => {
   console.log(payments, "-", mapPaymentsByTag);
 
   const setPaidDatePayment = (id: string, value: boolean) => {
-    // setPayments(
-    //   payments.map((payment) => {
-    //     if (payment.id === id) {
-    //       return {
-    //         ...payment,
-    //         completedDate: value ? new Date() : undefined,
-    //       };
-    //     }
-    //     return payment;
-    //   })
-    // );
     if (value) {
       addTransactionToPaymentAPI.mutate({
         id,
