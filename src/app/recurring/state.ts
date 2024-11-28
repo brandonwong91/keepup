@@ -10,11 +10,21 @@ export interface Payment {
   tag?: string;
 }
 
+export interface UpdatingTag {
+  id: string;
+  tag: string;
+}
+
 interface RecurringStore {
   payment: Payment;
   setPayment: (payment: Payment) => void;
   payments: Payment[];
   setPayments: (payments: Payment[]) => void;
+  updatingTag: {
+    id: string;
+    tag: string;
+  };
+  setUpdatingTag: (updatingTag: UpdatingTag) => void;
 }
 
 export const initPayment = {
@@ -30,4 +40,9 @@ export const useRecurringStore = create<RecurringStore>((set) => ({
   setPayment: (payment: Payment) => set({ payment }),
   payments: [],
   setPayments: (payments: Payment[]) => set({ payments }),
+  updatingTag: {
+    id: "",
+    tag: "",
+  },
+  setUpdatingTag: (updatingTag: UpdatingTag) => set({ updatingTag }),
 }));

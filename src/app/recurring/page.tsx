@@ -25,9 +25,14 @@ import { api } from "~/utils/api";
 import { initPayment, Payment, useRecurringStore } from "./state";
 
 const Recurring = () => {
-  const { payment, setPayment, payments, setPayments } = useRecurringStore(
-    (state) => state
-  );
+  const {
+    payment,
+    setPayment,
+    payments,
+    setPayments,
+    updatingTag,
+    setUpdatingTag,
+  } = useRecurringStore((state) => state);
   const { dueDate, tag, amount, title } = payment;
 
   const [progress, setProgress] = useState(13);
@@ -146,6 +151,35 @@ const Recurring = () => {
         return payment;
       })
     );
+  };
+
+  const handleOnChangeUpdatingTagById = (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.value === "") {
+      setUpdatingTag({
+        id,
+        tag: "",
+      });
+    }
+
+    setUpdatingTag({ id, tag: e.target.value });
+  };
+
+  const handleUpdateTagById = (id: string, tag: string) => {
+    setPayments(
+      payments.map((payment) => {
+        if (payment.id === id) {
+          return { ...payment, tag };
+        }
+        return payment;
+      })
+    );
+    setUpdatingTag({
+      id: "",
+      tag: "",
+    });
   };
 
   const handleUpdatePayment = async (p: Payment) => {
@@ -311,13 +345,26 @@ const Recurring = () => {
                                   </PopoverContent>
                                 </Popover>
                               </div>
-                              <Input
+                              {/* <Input
                                 placeholder="e.g. Tag"
                                 name="tag"
                                 onChange={(e) =>
                                   handleOnChangePaymentsById(id, e)
                                 }
                                 value={tag}
+                              /> */}
+                              <Input
+                                placeholder="e.g. Updating Tag"
+                                name="updatingTag"
+                                onChange={(e) =>
+                                  handleOnChangeUpdatingTagById(id, e)
+                                }
+                                onBlur={(e) =>
+                                  handleUpdateTagById(id, updatingTag.tag)
+                                }
+                                value={
+                                  updatingTag.id === id ? updatingTag.tag : tag
+                                }
                               />
                               <Input
                                 placeholder="e.g. Bank"
