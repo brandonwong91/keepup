@@ -8,6 +8,7 @@ export interface Payment {
   completedDate?: Date;
   paid?: boolean;
   tag?: string;
+  updated?: boolean;
 }
 
 export interface UpdatingTag {

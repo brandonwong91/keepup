@@ -1,17 +1,12 @@
 "use client";
 import { PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
-import { format } from "date-fns";
-import { CalendarIcon, CopyCheck, FileIcon, SaveAllIcon } from "lucide-react";
+import { differenceInCalendarDays, format } from "date-fns";
+import { CalendarIcon, Save } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import {
@@ -61,21 +56,35 @@ const Recurring = () => {
           const paid = p.transactions.some((t) => {
             const transactionDate = new Date(t.createdAt);
             return (
-              transactionDate < today &&
               transactionDate.getFullYear() === today.getFullYear() &&
               transactionDate.getMonth() === today.getMonth()
             );
           });
+          const createdAt = new Date(p.createdAt); // Previously createdAt date
+          const currentDate = new Date(); // Current date
+
+          // Check if the createdAt month is less than the current month
+          if (
+            createdAt.getFullYear() < currentDate.getFullYear() ||
+            createdAt.getMonth() < currentDate.getMonth()
+          ) {
+            // Add one month to the createdAt date
+            createdAt.setMonth(createdAt.getMonth() + 1);
+          }
+          const dueDate = createdAt;
+
+          // Local payment object
           return {
             ...p,
             amount: p.amount,
             tag: p.tag ?? "",
-            dueDate: new Date(p.createdAt ?? Date.now()),
+            dueDate,
             id: p.id,
             completedDate: p.transactions[0]?.createdAt
               ? new Date(p.transactions[0]?.createdAt)
               : undefined,
             paid,
+            updated: createdAt !== dueDate,
           };
         })
       );
@@ -116,7 +125,6 @@ const Recurring = () => {
       },
       {}
     );
-  console.log(payments, "-", mapPaymentsByTag);
 
   const setPaidDatePayment = (id: string, value: boolean) => {
     if (value) {
@@ -146,7 +154,7 @@ const Recurring = () => {
     setPayments(
       payments.map((payment) => {
         if (payment.id === id) {
-          return { ...payment, [e.target.name]: e.target.value };
+          return { ...payment, [e.target.name]: e.target.value, updated: true };
         }
         return payment;
       })
@@ -202,20 +210,20 @@ const Recurring = () => {
 
   return (
     <div className="container grid grid-cols-1 justify-center gap-4 p-4 md:grid-cols-3">
-      <Card className="w-fit">
+      <Card className="h-fit w-fit">
         <Calendar />
       </Card>
       <Card className="col-span-2">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>Payments</div>
           <Button variant={"destructive"} size={"sm"}>
-            Uncheck all
+            New month reset
           </Button>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <Checkbox id="terms" />
+              <Checkbox id="transaction" />
               <div className="mt-2">
                 <Popover>
                   <PopoverTrigger asChild>
@@ -283,7 +291,6 @@ const Recurring = () => {
                     {payments
                       .sort(
                         (a, b) =>
-                          // use completedDate else use due date convert to int for comparison
                           Number(a.completedDate ?? a.dueDate) -
                           Number(b.completedDate ?? b.dueDate)
                       )
@@ -296,12 +303,18 @@ const Recurring = () => {
                           dueDate,
                           completedDate,
                           paid,
+                          updated,
                         } = p;
+
+                        const diffDays = differenceInCalendarDays(
+                          dueDate,
+                          new Date()
+                        );
                         return (
                           <div key={`${tag}-${id}`}>
                             <div
                               className={cn("flex items-center gap-2", {
-                                "opacity-50": completedDate,
+                                "opacity-50": paid,
                               })}
                             >
                               <Checkbox
@@ -345,14 +358,7 @@ const Recurring = () => {
                                   </PopoverContent>
                                 </Popover>
                               </div>
-                              {/* <Input
-                                placeholder="e.g. Tag"
-                                name="tag"
-                                onChange={(e) =>
-                                  handleOnChangePaymentsById(id, e)
-                                }
-                                value={tag}
-                              /> */}
+
                               <Input
                                 placeholder="e.g. Updating Tag"
                                 name="updatingTag"
@@ -389,7 +395,13 @@ const Recurring = () => {
                                   handleUpdatePayment(p);
                                 }}
                               >
-                                <SaveAllIcon className="w-4 text-green-500" />
+                                <Save
+                                  className={cn(
+                                    "w-4 text-green-50 opacity-50",
+                                    (updated || id.length !== 24) &&
+                                      "text-green-600"
+                                  )}
+                                />
                               </Button>
                               <Button
                                 size={"icon"}
@@ -399,20 +411,33 @@ const Recurring = () => {
                                 <TrashIcon className="w-4 text-red-500" />
                               </Button>
                             </div>
-                            {paid && (
-                              <div className="ml-6 text-xs">{`Paid on ${format(
-                                completedDate ?? "",
-                                "MM-dd"
-                              )}`}</div>
-                            )}
+                            {
+                              <div className="ml-6 text-xs">
+                                {paid &&
+                                  `Paid on ${format(
+                                    completedDate ?? "",
+                                    "MM-dd"
+                                  )}`}{" "}
+                                <div className="text-red-700">
+                                  {!paid &&
+                                    `${
+                                      diffDays < 1 ? `Overdued for` : "Due in"
+                                    } ${Math.abs(diffDays)} day${
+                                      Math.abs(diffDays) > 1 ? `s` : ""
+                                    }`}
+                                </div>
+                              </div>
+                            }
                           </div>
                         );
                       })}
                     <div className="flex justify-end">
                       Total $
-                      {payments.reduce(
-                        (acc, payment) => acc + Number(payment.amount),
-                        0
+                      {Math.round(
+                        payments.reduce(
+                          (acc, payment) => acc + Number(payment.amount),
+                          0
+                        )
                       )}
                     </div>
                   </div>
