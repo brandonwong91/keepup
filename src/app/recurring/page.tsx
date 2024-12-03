@@ -209,7 +209,7 @@ const Recurring = () => {
   };
 
   return (
-    <div className="container grid grid-cols-1 justify-center gap-4 p-4 md:grid-cols-3">
+    <div className="container grid grid-cols-1 place-items-center justify-center gap-4 p-4 md:flex md:place-items-start">
       <Card className="h-fit w-fit">
         <Calendar />
       </Card>
