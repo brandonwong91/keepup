@@ -311,11 +311,14 @@ const Recurring = () => {
                           new Date()
                         );
                         return (
-                          <div key={`${tag}-${id}`}>
+                          <div key={`${tag}-${id}`} className="">
                             <div
-                              className={cn("flex items-center gap-2", {
-                                "opacity-50": paid,
-                              })}
+                              className={cn(
+                                "flex items-center gap-4 md:gap-2",
+                                {
+                                  "opacity-50": paid,
+                                }
+                              )}
                             >
                               <Checkbox
                                 id="transaction"
@@ -324,70 +327,75 @@ const Recurring = () => {
                                 }
                                 checked={paid}
                               />
-                              <div className="mt-2">
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "mb-2 w-full justify-start gap-x-1 text-left font-normal",
-                                        !dueDate && "text-muted-foreground"
-                                      )}
-                                    >
-                                      <CalendarIcon className="w-4" />
-                                      <span>{`Due`}</span>
-                                      {dueDate ? (
-                                        `${format(dueDate, "MM-dd")}`
-                                      ) : (
-                                        <span>date</span>
-                                      )}
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                      mode="single"
-                                      selected={dueDate}
-                                      onSelect={(date) =>
-                                        handleDueDatePayment(
-                                          id,
-                                          date ?? new Date()
-                                        )
-                                      }
-                                      initialFocus
-                                    />
-                                  </PopoverContent>
-                                </Popover>
+                              <div className="grid grid-cols-2 gap-4 py-2 md:flex md:gap-2">
+                                <div className="">
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <Button
+                                        variant={"outline"}
+                                        className={cn(
+                                          "mb-2 w-full justify-start gap-x-1 text-left font-normal",
+                                          !dueDate && "text-muted-foreground"
+                                        )}
+                                      >
+                                        <CalendarIcon
+                                          className={cn("hidden w-4 sm:flex")}
+                                        />
+                                        <span>{`Due`}</span>
+                                        {dueDate ? (
+                                          `${format(dueDate, "MM-dd")}`
+                                        ) : (
+                                          <span>date</span>
+                                        )}
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                      <Calendar
+                                        mode="single"
+                                        selected={dueDate}
+                                        onSelect={(date) =>
+                                          handleDueDatePayment(
+                                            id,
+                                            date ?? new Date()
+                                          )
+                                        }
+                                        initialFocus
+                                      />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                                <Input
+                                  placeholder="e.g. Updating Tag"
+                                  name="updatingTag"
+                                  onChange={(e) =>
+                                    handleOnChangeUpdatingTagById(id, e)
+                                  }
+                                  onBlur={(e) =>
+                                    handleUpdateTagById(id, updatingTag.tag)
+                                  }
+                                  value={
+                                    updatingTag.id === id
+                                      ? updatingTag.tag
+                                      : tag
+                                  }
+                                />
+                                <Input
+                                  placeholder="e.g. Bank"
+                                  value={title}
+                                  name="title"
+                                  onChange={(e) =>
+                                    handleOnChangePaymentsById(id, e)
+                                  }
+                                />
+                                <Input
+                                  placeholder="e.g. 300"
+                                  value={amount}
+                                  name="amount"
+                                  onChange={(e) =>
+                                    handleOnChangePaymentsById(id, e)
+                                  }
+                                />
                               </div>
-
-                              <Input
-                                placeholder="e.g. Updating Tag"
-                                name="updatingTag"
-                                onChange={(e) =>
-                                  handleOnChangeUpdatingTagById(id, e)
-                                }
-                                onBlur={(e) =>
-                                  handleUpdateTagById(id, updatingTag.tag)
-                                }
-                                value={
-                                  updatingTag.id === id ? updatingTag.tag : tag
-                                }
-                              />
-                              <Input
-                                placeholder="e.g. Bank"
-                                value={title}
-                                name="title"
-                                onChange={(e) =>
-                                  handleOnChangePaymentsById(id, e)
-                                }
-                              />
-                              <Input
-                                placeholder="e.g. 300"
-                                value={amount}
-                                name="amount"
-                                onChange={(e) =>
-                                  handleOnChangePaymentsById(id, e)
-                                }
-                              />
                               <Button
                                 size={"icon"}
                                 variant={"link"}
@@ -411,23 +419,21 @@ const Recurring = () => {
                                 <TrashIcon className="w-4 text-red-500" />
                               </Button>
                             </div>
-                            {
-                              <div className="ml-6 text-xs">
-                                {paid &&
-                                  `Paid on ${format(
-                                    completedDate ?? "",
-                                    "MM-dd"
-                                  )}`}{" "}
-                                <div className="text-red-700">
-                                  {!paid &&
-                                    `${
-                                      diffDays < 1 ? `Overdued for` : "Due in"
-                                    } ${Math.abs(diffDays)} day${
-                                      Math.abs(diffDays) > 1 ? `s` : ""
-                                    }`}
-                                </div>
+                            <div className="ml-8 text-xs md:ml-6">
+                              {paid &&
+                                `Paid on ${format(
+                                  completedDate ?? "",
+                                  "MM-dd"
+                                )}`}{" "}
+                              <div className="text-red-700">
+                                {!paid &&
+                                  `${
+                                    diffDays < 1 ? `Overdued for` : "Due in"
+                                  } ${Math.abs(diffDays)} day${
+                                    Math.abs(diffDays) > 1 ? `s` : ""
+                                  }`}
                               </div>
-                            }
+                            </div>
                           </div>
                         );
                       })}
