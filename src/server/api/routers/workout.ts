@@ -114,7 +114,7 @@ export const workoutRouter = createTRPCRouter({
         } = exercise;
         let exerciseEntity;
 
-        if (!exerciseId) {
+        if (!exerciseId || exerciseId.length === 13) {
           // New exercise (no ID) - create the new exercise and link to workout
           exerciseEntity = await prisma.exercise.create({
             data: {
@@ -141,7 +141,7 @@ export const workoutRouter = createTRPCRouter({
         // 1. Find existing exercise sets for this exercise on the given date
         const existingSets = await prisma.exerciseSet.findMany({
           where: {
-            exerciseId,
+            exerciseId: exerciseEntity.id,
             createdAt: { gte: startOfDay, lte: endOfDay },
           },
         });
@@ -225,6 +225,26 @@ export const workoutRouter = createTRPCRouter({
 
       return { success: true };
     }),
+  removeExerciseFromWorkout: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Unlink the exercise from the workout
+      await ctx.prisma.exercise.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          workoutId: null, // Unlink the exercise from the workout
+        },
+      });
+
+      return { success: true };
+    }),
+
   getAllExercises: privateProcedure.query(({ ctx }) => {
     return ctx.prisma.exercise.findMany({
       where: {

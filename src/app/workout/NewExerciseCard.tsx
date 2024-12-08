@@ -93,7 +93,7 @@ const NewExerciseCard = () => {
   return (
     <div className="">
       <div className="flex flex-col gap-2 rounded border border-gray-200 p-2 text-sm">
-        <div className="flex">
+        <div className="flex" onBlur={() => addExerciseHandler()}>
           <Input
             type="text"
             placeholder="Exercise"

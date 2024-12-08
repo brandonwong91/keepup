@@ -23,14 +23,16 @@ const ExerciseCard = ({
   title: string;
   exerciseSets: ExerciseSet[];
 }) => {
-  const removeWorkout = api.workout.deleteWorkout.useMutation({
-    onSuccess: () => {
-      toast("Workout removed successfully");
-    },
-    onError: (error) => {
-      toast(`Failed to remove workout ${error.message}`);
-    },
-  });
+  const removeExerciseFromWorkout =
+    api.workout.removeExerciseFromWorkout.useMutation({
+      onSuccess: () => {
+        toast("Exercise removed from workout successfully");
+        if (refetchWorkouts) refetchWorkouts();
+      },
+      onError: (error) => {
+        toast(`Failed to remove exercise from workout ${error.message}`);
+      },
+    });
 
   const {
     updateTitleInExercises,
@@ -39,6 +41,7 @@ const ExerciseCard = ({
     setExerciseSetsToExercises,
     duplicateExercisesSet,
     removeExerciseSet,
+    refetchWorkouts,
   } = useWorkoutStore((state) => state);
 
   const [addingSet, setAddingSet] = useState(false);
@@ -96,7 +99,7 @@ const ExerciseCard = ({
     const variables = {
       id,
     };
-    await removeWorkout.mutate(variables);
+    await removeExerciseFromWorkout.mutate(variables);
     removeExercise(id);
   };
 
