@@ -131,6 +131,12 @@ export const recurringRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      await ctx.prisma.transaction.deleteMany({
+        where: {
+          transactionId: input.id, // Remove all transactions related to this payment
+        },
+      });
+
       return ctx.prisma.payment.delete({
         where: {
           id: input.id,
