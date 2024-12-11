@@ -143,4 +143,34 @@ export const recurringRouter = createTRPCRouter({
         },
       });
     }),
+  deleteTransaction: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.transaction.delete({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
+  updateTransaction: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        amount: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.transaction.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          amount: input.amount,
+        },
+      });
+    }),
 });

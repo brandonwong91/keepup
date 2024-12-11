@@ -1,7 +1,7 @@
 "use client";
 import { PlusCircledIcon, TrashIcon } from "@radix-ui/react-icons";
 import { differenceInCalendarDays, format } from "date-fns";
-import { CalendarIcon, Save } from "lucide-react";
+import { CalendarIcon, Check, Save } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -27,6 +27,8 @@ const Recurring = () => {
     setPayments,
     updatingTag,
     setUpdatingTag,
+    updatingTransaction,
+    setUpdatingTransaction,
   } = useRecurringStore((state) => state);
   const { dueDate, tag, amount, title } = payment;
 
@@ -47,11 +49,18 @@ const Recurring = () => {
   const deletePaymentAPI = api.recurring.deletePayment.useMutation({
     onSuccess: () => queryPaymentsAPI.refetch(),
   });
+  const updateTransactionAPI = api.recurring.updateTransaction.useMutation({
+    onSuccess: () => queryPaymentsAPI.refetch(),
+  });
+  const deleteTransactionAPI = api.recurring.deleteTransaction.useMutation({
+    onSuccess: () => queryPaymentsAPI.refetch(),
+  });
 
   useEffect(() => {
     if (queryPaymentsAPI.data) {
       setPayments(
         queryPaymentsAPI.data.map((p) => {
+          console.log({ p });
           const today = new Date(new Date().setHours(0, 0, 0, 0));
           const paid = p.transactions.some((t) => {
             const transactionDate = new Date(t.createdAt);
@@ -85,6 +94,11 @@ const Recurring = () => {
               : undefined,
             paid,
             updated: createdAt !== dueDate,
+            transactions: p.transactions.map((t) => ({
+              ...t,
+              amount: t.amount,
+              createdAt: new Date(t.createdAt),
+            })),
           };
         })
       );
@@ -126,8 +140,8 @@ const Recurring = () => {
       {}
     );
 
-  const setPaidDatePayment = (id: string, value: boolean) => {
-    if (value) {
+  const setPaidDatePayment = (id: string, amount: string, checked: boolean) => {
+    if (checked) {
       addTransactionToPaymentAPI.mutate({
         id,
         amount,
@@ -206,6 +220,36 @@ const Recurring = () => {
       id,
     };
     await deletePaymentAPI.mutate(variables);
+  };
+
+  const handleTransactionAmountChange = (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const amount = e.target.value;
+    setUpdatingTransaction({
+      ...updatingTransaction,
+      amount,
+    });
+  };
+
+  const handleUpdateAmount = () => {
+    const variables = {
+      id: updatingTransaction.id,
+      amount: updatingTransaction.amount,
+    };
+    updateTransactionAPI.mutate(variables);
+    setUpdatingTransaction({
+      id: "",
+      amount: "",
+    });
+  };
+
+  const handleRemoveTransaction = (id: string) => {
+    const variables = {
+      id,
+    };
+    deleteTransactionAPI.mutate(variables);
   };
 
   return (
@@ -304,6 +348,7 @@ const Recurring = () => {
                           completedDate,
                           paid,
                           updated,
+                          transactions,
                         } = p;
 
                         const diffDays = differenceInCalendarDays(
@@ -322,8 +367,8 @@ const Recurring = () => {
                             >
                               <Checkbox
                                 id="transaction"
-                                onCheckedChange={(value: boolean) =>
-                                  setPaidDatePayment(id, value)
+                                onCheckedChange={(checked: boolean) =>
+                                  setPaidDatePayment(id, amount, checked)
                                 }
                                 checked={paid}
                               />
@@ -433,6 +478,70 @@ const Recurring = () => {
                                     Math.abs(diffDays) > 1 ? `s` : ""
                                   }`}
                               </div>
+                              {transactions.map((t) => {
+                                console.log(
+                                  "t",
+                                  t.createdAt,
+                                  "amount",
+                                  t.amount
+                                );
+                                return (
+                                  <div
+                                    key={t.id}
+                                    className="flex items-center gap-x-2"
+                                  >
+                                    {format(t.createdAt, "MM-dd")}
+
+                                    {updatingTransaction.id === t.id ? (
+                                      <div className="flex max-w-20 items-center gap-1 ">
+                                        <Button
+                                          size="icon"
+                                          variant={"ghost"}
+                                          className="h-4 w-4 text-red-400"
+                                          onClick={() =>
+                                            handleRemoveTransaction(t.id)
+                                          }
+                                        >
+                                          <TrashIcon />
+                                        </Button>
+                                        <Input
+                                          className="m-0 h-fit max-w-fit border-none px-2 text-center text-xs text-gray-500 shadow-none"
+                                          value={updatingTransaction.amount}
+                                          onChange={(e) =>
+                                            handleTransactionAmountChange(id, e)
+                                          }
+                                        />
+                                        <Button
+                                          size="icon"
+                                          variant={"ghost"}
+                                          className="h-4 w-4 text-green-400"
+                                          onClick={handleUpdateAmount}
+                                        >
+                                          <Check />
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <div
+                                        className=""
+                                        onClick={() =>
+                                          setUpdatingTransaction({
+                                            id: t.id,
+                                            amount: t.amount.toString(),
+                                          })
+                                        }
+                                        // onBlur={() =>
+                                        //   setUpdatingTransaction({
+                                        //     id: "",
+                                        //     amount: "",
+                                        //   })
+                                        // }
+                                      >
+                                        ${t.amount}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         );
