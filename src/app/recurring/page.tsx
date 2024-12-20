@@ -18,6 +18,12 @@ import { Separator } from "~/components/ui/separator";
 import { cn } from "~/lib/utils";
 import { api } from "~/utils/api";
 import { initPayment, Payment, useRecurringStore } from "./state";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "~/components/ui/accordion";
 
 const Recurring = () => {
   const {
@@ -60,7 +66,6 @@ const Recurring = () => {
     if (queryPaymentsAPI.data) {
       setPayments(
         queryPaymentsAPI.data.map((p) => {
-          console.log({ p });
           const today = new Date(new Date().setHours(0, 0, 0, 0));
           const paid = p.transactions.some((t) => {
             const transactionDate = new Date(t.createdAt);
@@ -223,13 +228,12 @@ const Recurring = () => {
   };
 
   const handleTransactionAmountChange = (
-    id: string,
-    e: React.ChangeEvent<HTMLInputElement>
+    type: string,
+    value: string | Date
   ) => {
-    const amount = e.target.value;
     setUpdatingTransaction({
       ...updatingTransaction,
-      amount,
+      [type]: value,
     });
   };
 
@@ -237,11 +241,13 @@ const Recurring = () => {
     const variables = {
       id: updatingTransaction.id,
       amount: updatingTransaction.amount,
+      createdAt: updatingTransaction.createdAt,
     };
     updateTransactionAPI.mutate(variables);
     setUpdatingTransaction({
       id: "",
       amount: "",
+      createdAt: new Date(),
     });
   };
 
@@ -465,7 +471,7 @@ const Recurring = () => {
                               </Button>
                             </div>
                             <div className="ml-8 text-xs md:ml-6">
-                              {paid &&
+                              {/* {paid &&
                                 `Paid on ${format(
                                   completedDate ?? "",
                                   "MM-dd"
@@ -477,71 +483,224 @@ const Recurring = () => {
                                   } ${Math.abs(diffDays)} day${
                                     Math.abs(diffDays) > 1 ? `s` : ""
                                   }`}
-                              </div>
-                              {transactions.map((t) => {
-                                console.log(
-                                  "t",
-                                  t.createdAt,
-                                  "amount",
-                                  t.amount
-                                );
+                              </div> */}
+                              <Accordion type="single" collapsible>
+                                <AccordionItem
+                                  value="item-1"
+                                  className=" border-none"
+                                >
+                                  <AccordionTrigger className="max-w-fit gap-x-1 py-0 text-xs font-normal italic">
+                                    {paid &&
+                                      `Paid on ${format(
+                                        completedDate ?? "",
+                                        "MM-dd"
+                                      )}`}{" "}
+                                    <div className="text-red-700">
+                                      {!paid &&
+                                        `${
+                                          diffDays < 1
+                                            ? `Overdued for`
+                                            : "Due in"
+                                        } ${Math.abs(diffDays)} day${
+                                          Math.abs(diffDays) > 1 ? `s` : ""
+                                        }`}
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="text-xs">
+                                    {transactions.map((t) => {
+                                      return (
+                                        <div
+                                          key={t.id}
+                                          className="flex items-center gap-x-2"
+                                        >
+                                          {updatingTransaction.id === t.id ? (
+                                            <div className="flex">
+                                              <div className="flex items-center gap-1 ">
+                                                <Button
+                                                  size="icon"
+                                                  variant={"ghost"}
+                                                  className="h-4 w-4 text-red-400"
+                                                  onClick={() =>
+                                                    handleRemoveTransaction(
+                                                      t.id
+                                                    )
+                                                  }
+                                                >
+                                                  <TrashIcon />
+                                                </Button>
+                                                <div className="border-0 p-0 text-xs">
+                                                  <Popover>
+                                                    <PopoverTrigger asChild>
+                                                      <Button
+                                                        variant={"outline"}
+                                                        className={cn(
+                                                          "w-full justify-start gap-x-1 border-0 text-left text-xs font-normal shadow-none"
+                                                        )}
+                                                      >
+                                                        <CalendarIcon
+                                                          className={cn(
+                                                            "hidden w-4 sm:flex"
+                                                          )}
+                                                        />
+                                                        {format(
+                                                          updatingTransaction.createdAt ??
+                                                            t.createdAt,
+                                                          "MM-dd"
+                                                        )}
+                                                      </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-auto p-0">
+                                                      <Calendar
+                                                        mode="single"
+                                                        selected={dueDate}
+                                                        onSelect={(date) =>
+                                                          handleTransactionAmountChange(
+                                                            "createdAt",
+                                                            date ?? new Date()
+                                                          )
+                                                        }
+                                                        initialFocus
+                                                      />
+                                                    </PopoverContent>
+                                                  </Popover>
+                                                </div>
+                                                <Input
+                                                  className="m-0 h-fit max-w-fit border-none px-2 text-center text-xs text-gray-500 shadow-none"
+                                                  value={
+                                                    updatingTransaction.amount
+                                                  }
+                                                  onChange={(e) =>
+                                                    handleTransactionAmountChange(
+                                                      "amount",
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                />
+                                                <Button
+                                                  size="icon"
+                                                  variant={"ghost"}
+                                                  className="h-4 w-4 text-green-400"
+                                                  onClick={handleUpdateAmount}
+                                                >
+                                                  <Check />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <div
+                                              className="mt-1 flex gap-x-2"
+                                              onClick={() =>
+                                                setUpdatingTransaction({
+                                                  id: t.id,
+                                                  amount: t.amount.toString(),
+                                                  createdAt: t.createdAt,
+                                                })
+                                              }
+                                            >
+                                              <p>
+                                                {format(t.createdAt, "MM-dd")}
+                                              </p>
+                                              <p>${t.amount}</p>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                              {/* {transactions.map((t) => {
                                 return (
                                   <div
                                     key={t.id}
                                     className="flex items-center gap-x-2"
                                   >
-                                    {format(t.createdAt, "MM-dd")}
-
                                     {updatingTransaction.id === t.id ? (
-                                      <div className="flex max-w-20 items-center gap-1 ">
-                                        <Button
-                                          size="icon"
-                                          variant={"ghost"}
-                                          className="h-4 w-4 text-red-400"
-                                          onClick={() =>
-                                            handleRemoveTransaction(t.id)
-                                          }
-                                        >
-                                          <TrashIcon />
-                                        </Button>
-                                        <Input
-                                          className="m-0 h-fit max-w-fit border-none px-2 text-center text-xs text-gray-500 shadow-none"
-                                          value={updatingTransaction.amount}
-                                          onChange={(e) =>
-                                            handleTransactionAmountChange(id, e)
-                                          }
-                                        />
-                                        <Button
-                                          size="icon"
-                                          variant={"ghost"}
-                                          className="h-4 w-4 text-green-400"
-                                          onClick={handleUpdateAmount}
-                                        >
-                                          <Check />
-                                        </Button>
+                                      <div className="flex">
+                                        <div className="flex items-center gap-1 ">
+                                          <Button
+                                            size="icon"
+                                            variant={"ghost"}
+                                            className="h-4 w-4 text-red-400"
+                                            onClick={() =>
+                                              handleRemoveTransaction(t.id)
+                                            }
+                                          >
+                                            <TrashIcon />
+                                          </Button>
+                                          <div className="border-0 p-0 text-xs">
+                                            <Popover>
+                                              <PopoverTrigger asChild>
+                                                <Button
+                                                  variant={"outline"}
+                                                  className={cn(
+                                                    "w-full justify-start gap-x-1 border-0 text-left text-xs font-normal shadow-none"
+                                                  )}
+                                                >
+                                                  <CalendarIcon
+                                                    className={cn(
+                                                      "hidden w-4 sm:flex"
+                                                    )}
+                                                  />
+                                                  {format(
+                                                    updatingTransaction.createdAt ??
+                                                      t.createdAt,
+                                                    "MM-dd"
+                                                  )}
+                                                </Button>
+                                              </PopoverTrigger>
+                                              <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                  mode="single"
+                                                  selected={dueDate}
+                                                  onSelect={(date) =>
+                                                    handleTransactionAmountChange(
+                                                      "createdAt",
+                                                      date ?? new Date()
+                                                    )
+                                                  }
+                                                  initialFocus
+                                                />
+                                              </PopoverContent>
+                                            </Popover>
+                                          </div>
+                                          <Input
+                                            className="m-0 h-fit max-w-fit border-none px-2 text-center text-xs text-gray-500 shadow-none"
+                                            value={updatingTransaction.amount}
+                                            onChange={(e) =>
+                                              handleTransactionAmountChange(
+                                                "amount",
+                                                e.target.value
+                                              )
+                                            }
+                                          />
+                                          <Button
+                                            size="icon"
+                                            variant={"ghost"}
+                                            className="h-4 w-4 text-green-400"
+                                            onClick={handleUpdateAmount}
+                                          >
+                                            <Check />
+                                          </Button>
+                                        </div>
                                       </div>
                                     ) : (
                                       <div
-                                        className=""
                                         onClick={() =>
                                           setUpdatingTransaction({
                                             id: t.id,
                                             amount: t.amount.toString(),
+                                            createdAt: t.createdAt,
                                           })
                                         }
-                                        // onBlur={() =>
-                                        //   setUpdatingTransaction({
-                                        //     id: "",
-                                        //     amount: "",
-                                        //   })
-                                        // }
                                       >
-                                        ${t.amount}
+                                        {format(t.createdAt, "MM-dd")} $
+                                        {t.amount}
                                       </div>
                                     )}
                                   </div>
                                 );
-                              })}
+                              })} */}
                             </div>
                           </div>
                         );

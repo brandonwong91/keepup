@@ -160,7 +160,8 @@ export const recurringRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        amount: z.string(),
+        amount: z.string().optional(),
+        createdAt: z.date().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -170,6 +171,7 @@ export const recurringRouter = createTRPCRouter({
         },
         data: {
           amount: input.amount,
+          createdAt: input.createdAt,
         },
       });
     }),

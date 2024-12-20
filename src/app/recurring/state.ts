@@ -26,6 +26,7 @@ export interface UpdatingTag {
 export interface UpdatingTransaction {
   id: string;
   amount: string;
+  createdAt: Date;
 }
 
 interface RecurringStore {
@@ -50,7 +51,6 @@ export const initPayment = {
   tag: "",
   transactions: [],
   updated: false,
-  updatingTransactionAmount: "",
 };
 
 export const useRecurringStore = create<RecurringStore>((set) => ({
@@ -66,6 +66,7 @@ export const useRecurringStore = create<RecurringStore>((set) => ({
   updatingTransaction: {
     id: "",
     amount: "",
+    createdAt: new Date(),
   },
   setUpdatingTransaction: (updatingTransaction: UpdatingTransaction) =>
     set({ updatingTransaction }),
