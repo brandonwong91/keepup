@@ -52,6 +52,10 @@ const Recurring = () => {
     api.recurring.addTransactionToPayment.useMutation({
       onSuccess: () => queryPaymentsAPI.refetch(),
     });
+  const removeTransactionFromPaymentAPI =
+    api.recurring.removeTransactionFromPayment.useMutation({
+      onSuccess: () => queryPaymentsAPI.refetch(),
+    });
   const deletePaymentAPI = api.recurring.deletePayment.useMutation({
     onSuccess: () => queryPaymentsAPI.refetch(),
   });
@@ -145,12 +149,22 @@ const Recurring = () => {
       {}
     );
 
-  const setPaidDatePayment = (id: string, amount: string, checked: boolean) => {
+  const setPaidDatePayment = (
+    id: string,
+    amount: string,
+    checked: boolean,
+    transactionId?: string
+  ) => {
     if (checked) {
       addTransactionToPaymentAPI.mutate({
         id,
         amount,
         createdAt: new Date(),
+      });
+    } else if (transactionId) {
+      removeTransactionFromPaymentAPI.mutate({
+        id,
+        transactionId,
       });
     }
   };
@@ -356,7 +370,7 @@ const Recurring = () => {
                           updated,
                           transactions,
                         } = p;
-
+                        console.log("t", transactions);
                         const diffDays = differenceInCalendarDays(
                           dueDate,
                           new Date()
@@ -374,12 +388,17 @@ const Recurring = () => {
                               <Checkbox
                                 id="transaction"
                                 onCheckedChange={(checked: boolean) =>
-                                  setPaidDatePayment(id, amount, checked)
+                                  setPaidDatePayment(
+                                    id,
+                                    amount,
+                                    checked,
+                                    transactions[transactions.length - 1]?.id
+                                  )
                                 }
                                 checked={paid}
                               />
                               <div className="grid grid-cols-2 gap-4 py-2 md:flex md:gap-2">
-                                <div className="">
+                                <div>
                                   <Popover>
                                     <PopoverTrigger asChild>
                                       <Button

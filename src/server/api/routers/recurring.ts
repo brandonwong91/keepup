@@ -8,7 +8,11 @@ export const recurringRouter = createTRPCRouter({
         userId: ctx.userId,
       },
       include: {
-        transactions: true,
+        transactions: {
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
       },
     });
   }),
@@ -119,6 +123,27 @@ export const recurringRouter = createTRPCRouter({
               amount: input.amount,
               userId: ctx.userId,
               createdAt: input.createdAt,
+            },
+          },
+        },
+      });
+    }),
+  removeTransactionFromPayment: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        transactionId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.payment.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          transactions: {
+            delete: {
+              id: input.transactionId,
             },
           },
         },
